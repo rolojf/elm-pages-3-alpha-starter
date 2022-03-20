@@ -2,7 +2,8 @@ module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
 import Browser.Navigation
 import DataSource
-import Html exposing (Html)
+import Html exposing (Html, div, text)
+import Html.Attributes as Attr exposing (class)
 import Html.Events
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
@@ -97,7 +98,7 @@ view sharedData page model toMsg pageView =
             [ Html.nav []
                 [ Html.button
                     [ Html.Events.onClick MenuClicked ]
-                    [ Html.text
+                    [ text
                         (if model.showMenu then
                             "Close Menu"
 
@@ -106,9 +107,9 @@ view sharedData page model toMsg pageView =
                         )
                     ]
                 , if model.showMenu then
-                    Html.ul []
-                        [ Html.li [] [ Html.text "Menu item 1" ]
-                        , Html.li [] [ Html.text "Menu item 2" ]
+                    Html.ul [ class "bg-gray-300"]
+                        [ Html.li [ class "text-amber-300"] [ text "Menu item 1" ]
+                        , Html.li [] [ text "Menu item 2" ]
                         ]
 
                   else
