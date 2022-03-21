@@ -4,7 +4,9 @@ module.exports = {
       extract: {
          elm: (contenido) => {
             let matchado = contenido.match(/class\s+"(.+?)"/);
-            return matchado ? matchado[1].split(" ") : [];
+            let regresa = matchado ? matchado[1].split(" ") : [];
+            // console.log(regresa);
+            return regresa;
          },
       },
    },

@@ -1,9 +1,14 @@
 module Route.Blog.Slug_ exposing (Data, Model, Msg, route)
 
 import DataSource exposing (DataSource)
+import DataSource.File as File
+import DataSource.Glob as Glob
 import Head
 import Head.Seo as Seo
-import Html
+import Html exposing (Html, div, text)
+import Html.Attributes as Attr exposing (class)
+import Json.Decode as Decode exposing (Decoder)
+import MdConverter
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
@@ -33,27 +38,60 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
+type alias MDFile =
+    { slug : String
+    , filePath : String
+    }
+
+
+allMDFiles : DataSource (List MDFile)
+allMDFiles =
+    Glob.succeed MDFile
+        |> Glob.match (Glob.literal "content/")
+        |> Glob.capture Glob.wildcard
+        |> Glob.match (Glob.literal ".md")
+        |> Glob.captureFilePath
+        |> Glob.toDataSource
+
+
 pages : DataSource (List RouteParams)
 pages =
-    DataSource.succeed
-        [ { slug = "hello" }
-        ]
+    allMDFiles
+        |> DataSource.map
+            (List.map
+                (\cadaMD -> RouteParams cadaMD.slug)
+            )
 
 
 type alias Data =
-    { something : String
-    }
+    { delMD : ContenidoConDatos }
+
+
+type alias ContenidoConDatos =
+    -- { body : List (Html Msg), title : String }
+    { body : String, title : String }
 
 
 data : RouteParams -> DataSource Data
 data routeParams =
+    let
+        miDecoder : String -> Decoder ContenidoConDatos
+        miDecoder elCuerpo =
+            Decode.map
+                (ContenidoConDatos elCuerpo)
+                --MdConverter.renderea elCuerpo)
+                (Decode.field "title" Decode.string)
+
+        getDataFromMD =
+            File.bodyWithFrontmatter
+                miDecoder
+                ("content/" ++ routeParams.slug ++ ".md")
+    in
     DataSource.map Data
-        (DataSource.succeed "Hi")
+        getDataFromMD
 
 
-head :
-    StaticPayload Data RouteParams
-    -> List Head.Tag
+head : StaticPayload Data RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
@@ -71,12 +109,12 @@ head static =
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
+view : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> View Msg
 view maybeUrl sharedModel static =
-    { title = "Placeholder - Blog.Slug_"
-    , body = [ Html.text "You're on the page Blog.Slug_" ]
+    { title = static.data.delMD.title
+    , body =
+        [ Html.div
+            [ class "prose" ]
+            ( MdConverter.renderea static.data.delMD.body)
+        ]
     }

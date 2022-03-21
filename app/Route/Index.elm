@@ -80,6 +80,6 @@ view maybeUrl sharedModel static =
         , Html.p []
             [ Html.text <| "The message is: " ++ static.data.message
             ]
-        , Html.a [ Attr.href "/blog/hello" ] [ Html.text "My blog post" ]
+        , Html.a [ Attr.href "/blog/hola" ] [ Html.text "My blog post" ]
         ]
     }
