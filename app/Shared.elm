@@ -3,6 +3,7 @@ module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 import Browser.Navigation
 import DataSource
 import Effect exposing (Effect)
+import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Html.Events
@@ -121,3 +122,169 @@ view sharedData page model toMsg pageView =
             ]
     , title = pageView.title
     }
+
+
+viewMenu : Html msg
+viewMenu =
+    div
+        [ class "relative bg-white"
+        ]
+        [ div [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
+            [ div [ class "flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10" ]
+                [ div [ class "flex justify-start lg:w-0 lg:flex-1" ]
+                    [ Html.a
+                        [ Attr.href "#" ]
+                        [ Html.span
+                            [ class "sr-only" ]
+                            [ text "Workflow" ]
+                        , Html.img
+                            [ class "h-8 w-auto sm:h-10"
+                            , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                            , Attr.alt ""
+                            ]
+                            []
+                        ]
+                    ]
+                , div
+                    [ class "-mr-2 -my-2 md:hidden" ]
+                    [ Html.button
+                        [ Attr.type_ "button"
+                        , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        , Attr.attribute "aria-expanded" "false"
+                        ]
+                        [ Html.span
+                            [ class "sr-only" ]
+                            [ text "Open menu" ]
+                        , HeroIcons.outlineMenu
+                        ]
+                    ]
+                , Html.nav
+                    [ class "hidden md:flex space-x-10"
+                    ]
+                    [ Html.a
+                        [ Attr.href "#"
+                        , class "text-base font-medium text-gray-500 hover:text-gray-900"
+                        ]
+                        [ text "Solutions" ]
+                    , Html.a
+                        [ Attr.href "#"
+                        , class "text-base font-medium text-gray-500 hover:text-gray-900"
+                        ]
+                        [ text "Pricing" ]
+                    , Html.a
+                        [ Attr.href "#"
+                        , class "text-base font-medium text-gray-500 hover:text-gray-900"
+                        ]
+                        [ text "Docs" ]
+                    , Html.a
+                        [ Attr.href "#"
+                        , class "text-base font-medium text-gray-500 hover:text-gray-900"
+                        ]
+                        [ text "More" ]
+                    ]
+                , div
+                    [ class "hidden md:flex items-center justify-end md:flex-1 lg:w-0"
+                    ]
+                    [ Html.a
+                        [ Attr.href "#"
+                        , class "ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                        ]
+                        [ text "Sign up" ]
+                    ]
+                ]
+            ]
+        , {-
+             Mobile menu, show/hide based on mobile menu state.
+
+             Entering: "duration-200 ease-out"
+               From: "opacity-0 scale-95"
+               To: "opacity-100 scale-100"
+             Leaving: "duration-100 ease-in"
+               From: "opacity-100 scale-100"
+               To: "opacity-0 scale-95"
+          -}
+          div
+            [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
+            ]
+            [ div
+                [ class "rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50"
+                ]
+                [ div
+                    [ class "pt-5 pb-6 px-5"
+                    ]
+                    [ div
+                        [ class "flex items-center justify-between"
+                        ]
+                        [ div []
+                            [ Html.img
+                                [ class "h-8 w-auto"
+                                , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                                , Attr.alt "Workflow"
+                                ]
+                                []
+                            ]
+                        , div
+                            [ class "-mr-2"
+                            ]
+                            [ Html.button
+                                [ Attr.type_ "button"
+                                , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                                ]
+                                [ Html.span
+                                    [ class "sr-only"
+                                    ]
+                                    [ text "Close menu" ]
+                                , HeroIcons.outlineX
+                                ]
+                            ]
+                        ]
+                    , div
+                        [ class "mt-6"
+                        ]
+                        [ Html.nav
+                            [ class "grid gap-y-8"
+                            ]
+                            [ Html.a
+                                [ Attr.href "#"
+                                , class "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                                ]
+                                [ Html.span
+                                    [ class "ml-3 text-base font-medium text-gray-900"
+                                    ]
+                                    [ text "Analytics" ]
+                                ]
+                            , Html.a
+                                [ Attr.href "#"
+                                , class "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                                ]
+                                [ Html.span
+                                    [ class "ml-3 text-base font-medium text-gray-900"
+                                    ]
+                                    [ text "Engagement" ]
+                                ]
+                            , Html.a
+                                [ Attr.href "#"
+                                , class "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                                ]
+                                [ Html.span
+                                    [ class "ml-3 text-base font-medium text-gray-900"
+                                    ]
+                                    [ text "Security" ]
+                                ]
+                            ]
+                        ]
+                    ]
+                , div
+                    [ class "py-6 px-5 space-y-6"
+                    ]
+                    [ div []
+                        [ Html.a
+                            [ Attr.href "#"
+                            , class "w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            ]
+                            [ text "Sign up" ]
+                        ]
+                    ]
+                ]
+            ]
+        ]

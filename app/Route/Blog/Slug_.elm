@@ -14,6 +14,8 @@ import Pages.Url
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
 import View exposing (View)
+import Path exposing (Path)
+import Route exposing (Route)
 
 
 type alias Model =
@@ -117,4 +119,21 @@ view maybeUrl sharedModel static =
             [ class "prose" ]
             ( MdConverter.renderea static.data.delMD.body)
         ]
+    , withMenu = View.SiMenu ligas { mainHero = div [][], afterHero = div [][] }
     }
+
+
+ligas : List View.Liga
+ligas =
+    [ { queDice = "Comunícate"
+      , dir = View.Interna Route.Index
+      , especial = True
+      }
+    , { queDice = "Más Información"
+      , dir =
+            "#features"
+                |> Path.fromString
+                |> View.Otra
+      , especial = False
+      }
+    ]

@@ -1,13 +1,19 @@
 module.exports = {
    content: {
-      files: ["./app/**/*.elm", "./src/**/*.elm"],
+     files: ["./app/**/*.elm", "./src/**/*.elm", "./content/index.html"],
       extract: {
          elm: (contenido) => {
             let matchado = contenido.match(/class\s+"(.+?)"/);
             let regresa = matchado ? matchado[1].split(" ") : [];
-            // console.log(regresa);
+           if (regresa.length>0) {console.log("elm: " + regresa)};
             return regresa;
          },
+        html: (contenido) => {
+            let matchado = contenido.match(/class\s?=\s?"(.+?)"/);
+            let regresa = matchado ? matchado[1].split(" ") : [];
+          if (regresa.length>0) {console.log("html: " + regresa)};
+            return regresa;
+        }
       },
    },
    theme: {

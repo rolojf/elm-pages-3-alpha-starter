@@ -4,12 +4,13 @@ import DataSource exposing (DataSource)
 import DataSource.Http
 import Head
 import Head.Seo as Seo
-import Html
-import Html.Attributes as Attr
+import Html exposing (Html, div, text)
+import Html.Attributes as Attr exposing (class)
 import Json.Decode as Decode
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
-import Path
+import Path exposing (Path)
+import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
 import View exposing (View)
@@ -82,4 +83,21 @@ view maybeUrl sharedModel static =
             ]
         , Html.a [ Attr.href "/blog/hola" ] [ Html.text "My blog post" ]
         ]
+    , withMenu = View.SiMenu ligas { mainHero = div [][], afterHero = div [][] }
     }
+
+
+ligas : List View.Liga
+ligas =
+    [ { queDice = "Comunícate"
+      , dir = View.Interna Route.Index
+      , especial = True
+      }
+    , { queDice = "Más Información"
+      , dir =
+            "#features"
+                |> Path.fromString
+                |> View.Otra
+      , especial = False
+      }
+    ]

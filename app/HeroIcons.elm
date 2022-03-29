@@ -1,0 +1,1 @@
+/home/a1rolo/Documents/websites/psolar/src/HeroIcons.elm
