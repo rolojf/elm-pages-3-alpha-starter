@@ -11,11 +11,11 @@ import Json.Decode as Decode exposing (Decoder)
 import MdConverter
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import Path exposing (Path)
+import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
 import View exposing (View)
-import Path exposing (Path)
-import Route exposing (Route)
 
 
 type alias Model =
@@ -117,9 +117,9 @@ view maybeUrl sharedModel static =
     , body =
         [ Html.div
             [ class "prose" ]
-            ( MdConverter.renderea static.data.delMD.body)
+            (MdConverter.renderea static.data.delMD.body)
         ]
-    , withMenu = View.SiMenu ligas { mainHero = div [][], afterHero = div [][] }
+    , withMenu = View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
     }
 
 
@@ -132,6 +132,27 @@ ligas =
     , { queDice = "Más Información"
       , dir =
             "#features"
+                |> Path.fromString
+                |> View.Otra
+      , especial = False
+      }
+    , { queDice = "Uno"
+      , dir =
+            "#one"
+                |> Path.fromString
+                |> View.Otra
+      , especial = False
+      }
+    , { queDice = "Dos"
+      , dir =
+            "#two"
+                |> Path.fromString
+                |> View.Otra
+      , especial = False
+      }
+    , { queDice = "Tres"
+      , dir =
+            "#three"
                 |> Path.fromString
                 |> View.Otra
       , especial = False
