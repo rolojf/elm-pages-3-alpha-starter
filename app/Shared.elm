@@ -6,12 +6,15 @@ import Effect exposing (Effect)
 import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
-import Html.Events
+import Html.Events as Event
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
+import Simple.Animation as Animation exposing (Animation)
+import Simple.Animation.Animated as Animated
+import Simple.Animation.Property as P
 import View exposing (View)
 
 
@@ -28,7 +31,7 @@ template =
 
 type Msg
     = SharedMsg SharedMsg
-    | MenuClicked
+    | ToggleMenu
 
 
 type alias Data =
@@ -70,7 +73,7 @@ update msg model =
         SharedMsg globalMsg ->
             ( model, Effect.none )
 
-        MenuClicked ->
+        ToggleMenu ->
             ( { model | showMenu = not model.showMenu }, Effect.none )
 
 
@@ -102,15 +105,15 @@ view sharedData page model toMsg pageView =
                     div [] []
 
                 View.SiMenu ligasRecibidas _ ->
-                    viewMenu ligasRecibidas
+                    viewMenu ligasRecibidas model.showMenu toMsg
             , Html.main_ [] pageView.body
             ]
     , title = pageView.title
     }
 
 
-viewMenu : List View.Liga -> Html msg
-viewMenu ligas =
+viewMenu : List View.Liga -> Bool -> (Msg -> msg) -> Html msg
+viewMenu ligas menuOpen toMsg =
     let
         ligasNormales =
             List.filter (\liga -> liga.especial == False) ligas
@@ -186,6 +189,24 @@ viewMenu ligas =
                     )
                     ligasEspeciales
                 )
+
+        showMovilMenu : Bool -> Animation
+        showMovilMenu show =
+            if show then
+                Animation.fromTo
+                    { duration = 180
+                    , options = [ Animation.easeOut ]
+                    }
+                    [ P.opacity 0, P.scale 0.92 ]
+                    [ P.opacity 1, P.scale 1 ]
+
+            else
+                Animation.fromTo
+                    { duration = 125
+                    , options = [ Animation.easeIn ]
+                    }
+                    [ P.opacity 1, P.scale 1 ]
+                    [ P.opacity 0, P.scale 0.92 ]
     in
     div
         [ class "relative bg-white"
@@ -212,12 +233,14 @@ viewMenu ligas =
                         [ Attr.type_ "button"
                         , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                         , Attr.attribute "aria-expanded" "false"
+                        , Event.onClick ToggleMenu
                         ]
                         [ Html.span
                             [ class "sr-only" ]
                             [ text "Open menu" ]
                         , HeroIcons.outlineMenu
                         ]
+                        |> Html.map toMsg
                     ]
                 , ligaNormalDesk
                 , ligaEspecialDesk
@@ -233,18 +256,15 @@ viewMenu ligas =
                From: "opacity-100 scale-100"
                To: "opacity-0 scale-95"
           -}
-          div
-            [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
-            ]
+          Animated.div
+            (showMovilMenu menuOpen)
+            [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
             [ div
-                [ class "rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50"
-                ]
+                [ class " bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
                 [ div
-                    [ class "pt-5 pb-6 px-5"
-                    ]
+                    [ class "pt-5 pb-6 px-5" ]
                     [ div
-                        [ class "flex items-center justify-between"
-                        ]
+                        [ class "flex items-center justify-between" ]
                         [ div []
                             [ Html.img
                                 [ class "h-8 w-auto"
@@ -254,18 +274,17 @@ viewMenu ligas =
                                 []
                             ]
                         , div
-                            [ class "-mr-2"
-                            ]
+                            [ class "-mr-2" ]
                             [ Html.button
                                 [ Attr.type_ "button"
+                                , Event.onClick ToggleMenu
                                 , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                                 ]
                                 [ Html.span
-                                    [ class "sr-only"
-                                    ]
+                                    [ class "sr-only" ]
                                     [ text "Close menu" ]
                                 , HeroIcons.outlineX
-                                ]
+                                ] |> Html.map toMsg
                             ]
                         ]
                     , div

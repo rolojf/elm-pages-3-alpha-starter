@@ -10,6 +10,7 @@
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
+            "andrewMacmurray/elm-simple-animation": "2.3.0",
             "avh4/elm-color": "1.0.0",
             "danfishgold/base64-bytes": "1.1.0",
             "danyx23/elm-mimetype": "4.0.1",

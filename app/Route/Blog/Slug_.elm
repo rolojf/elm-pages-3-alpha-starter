@@ -16,6 +16,10 @@ import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
 import View exposing (View)
+import Simple.Animation as Animation exposing (Animation)
+import Simple.Animation.Animated as Animated
+import Simple.Animation.Property as P
+
 
 
 type alias Model =
