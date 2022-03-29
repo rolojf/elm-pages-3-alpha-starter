@@ -97,27 +97,12 @@ view :
 view sharedData page model toMsg pageView =
     { body =
         Html.div []
-            [ Html.nav []
-                [ Html.button
-                    [ Html.Events.onClick MenuClicked ]
-                    [ text
-                        (if model.showMenu then
-                            "Close Menu"
+            [ case pageView.withMenu of
+                View.NoMenu ->
+                    div [] []
 
-                         else
-                            "Open Menu"
-                        )
-                    ]
-                , if model.showMenu then
-                    Html.ul [ class "bg-gray-300" ]
-                        [ Html.li [ class "text-amber-300" ] [ text "Menu item 1" ]
-                        , Html.li [] [ text "Menu item 2" ]
-                        ]
-
-                  else
-                    Html.text ""
-                ]
-                |> Html.map toMsg
+                View.SiMenu ligasRecibidas _ ->
+                    viewMenu ligasRecibidas
             , Html.main_ [] pageView.body
             ]
     , title = pageView.title
@@ -133,26 +118,32 @@ viewMenu ligas =
         ligasEspeciales =
             List.filter .especial ligas
 
+        setLink : String -> Html msg -> View.Liga -> Html msg
+        setLink clases queHtml liga =
+            case liga.dir of
+                View.Otra camino ->
+                    Html.a
+                        [ Attr.href <| Path.toRelative camino
+                        , class clases
+                        ]
+                        [ queHtml ]
+
+                View.Interna rutaLiga ->
+                    Route.link
+                        rutaLiga
+                        [ class clases ]
+                        [ queHtml ]
+
         ligaNormalDesk : Html msg
         ligaNormalDesk =
             Html.nav
-                [ class "hidden md:flex space-x-10"
-                ]
+                [ class "hidden md:flex space-x-10" ]
                 (List.map
-                    (\liga ->
-                        case liga.dir of
-                            View.Otra camino ->
-                                Html.a
-                                    [ Attr.href <| Path.toRelative camino
-                                    , class "text-base font-medium text-gray-500 hover:text-gray-900"
-                                    ]
-                                    [ text liga.queDice ]
-
-                            View.Interna rutaLiga ->
-                                Route.link
-                                    rutaLiga
-                                    [ class "text-base font-medium text-gray-500 hover:text-gray-900" ]
-                                    [ text liga.queDice ]
+                    (\cadaLiga ->
+                        setLink
+                            "text-base font-medium text-gray-500 hover:text-gray-900"
+                            (text cadaLiga.queDice)
+                            cadaLiga
                     )
                     ligasNormales
                 )
@@ -162,66 +153,36 @@ viewMenu ligas =
             div
                 [ class "hidden md:flex items-center justify-end md:flex-1 lg:w-0" ]
                 (List.map
-                    (\liga ->
-                        case liga.dir of
-                            View.Otra camino ->
-                                Html.a
-                                    [ Attr.href <| Path.toRelative camino
-                                    , class "ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                                    ]
-                                    [ text liga.queDice ]
-
-                            View.Interna rutaLiga ->
-                                Route.link
-                                    rutaLiga
-                                    [ class "ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700" ]
-                                    [ text liga.queDice ]
+                    (\cadaLiga ->
+                        setLink
+                            "ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            (text cadaLiga.queDice)
+                            cadaLiga
                     )
                     ligasEspeciales
                 )
 
         ligaNormalMovil =
             List.map
-                (\liga ->
-                    case liga.dir of
-                        View.Otra camino ->
-                            Html.a
-                                [ Attr.href <| Path.toRelative camino
-                                , class "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
-                                ]
-                                [ Html.span
-                                    [ class "ml-3 text-base font-medium text-gray-900" ]
-                                    [ text liga.queDice ]
-                                ]
-
-                        View.Interna rutaLiga ->
-                            Route.link
-                                rutaLiga
-                                [ class "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50" ]
-                                [ Html.span
-                                    [ class "ml-3 text-base font-medium text-gray-900" ]
-                                    [ text liga.queDice ]
-                                ]
+                (\cadaLiga ->
+                    setLink
+                        "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                        (Html.span
+                            [ class "ml-3 text-base font-medium text-gray-900" ]
+                            [ text cadaLiga.queDice ]
+                        )
+                        cadaLiga
                 )
                 ligasNormales
 
         ligaEspecialMovil =
             div []
                 (List.map
-                    (\liga ->
-                        case liga.dir of
-                            View.Otra camino ->
-                                Html.a
-                                    [ Attr.href <| Path.toRelative camino
-                                    , class "w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                                    ]
-                                    [ text liga.queDice ]
-
-                            View.Interna rutaLiga ->
-                                Route.link
-                                    rutaLiga
-                                    [ class "w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700" ]
-                                    [ text liga.queDice ]
+                    (\cadaLiga ->
+                        setLink
+                            "w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            (text cadaLiga.queDice)
+                            cadaLiga
                     )
                     ligasEspeciales
                 )
