@@ -16,10 +16,6 @@ import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
 import View exposing (View)
-import Simple.Animation as Animation exposing (Animation)
-import Simple.Animation.Animated as Animated
-import Simple.Animation.Property as P
-
 
 
 type alias Model =
@@ -74,8 +70,7 @@ type alias Data =
 
 
 type alias ContenidoConDatos =
-    -- { body : List (Html Msg), title : String }
-    { body : String, title : String }
+    { body : String, title : String, menu : View.MenuInfo Msg }
 
 
 data : RouteParams -> DataSource Data
@@ -83,15 +78,18 @@ data routeParams =
     let
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
-            Decode.map
-                (ContenidoConDatos elCuerpo)
+            Decode.map2 (ContenidoConDatos elCuerpo)
                 --MdConverter.renderea elCuerpo)
                 (Decode.field "title" Decode.string)
+                (Decode.succeed View.NoMenu)
 
         getDataFromMD =
             File.bodyWithFrontmatter
                 miDecoder
-                ("content/" ++ routeParams.slug ++ ".md")
+            <|
+                "content/"
+                    ++ routeParams.slug
+                    ++ ".md"
     in
     DataSource.map Data
         getDataFromMD

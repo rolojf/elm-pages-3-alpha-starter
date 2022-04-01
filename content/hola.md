@@ -1,5 +1,26 @@
 ---
 title: "Probando matonamente"
+menu:
+  -
+    queDice: Inicio
+    dir: index
+    especial: false
+    externa: false
+  -
+    queDice: Sobre Nosotros
+    dir: about
+    especial: false
+    externa: false
+  -
+    queDice: Aviso de Privacidad
+    dir: privacidad
+    especial: false
+    externa: false
+  -
+    queDice: ¡Contáctanos!
+    dir: contacto
+    especial: true
+    externa: false
 ---
 
 ## Otros
