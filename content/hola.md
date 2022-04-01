@@ -15,12 +15,12 @@ menu:
     queDice: Aviso de Privacidad
     dir: privacidad
     especial: false
-    externa: false
+    externa: true
   -
     queDice: ¡Contáctanos!
     dir: contacto
     especial: true
-    externa: false
+    externa: true
 ---
 
 ## Otros

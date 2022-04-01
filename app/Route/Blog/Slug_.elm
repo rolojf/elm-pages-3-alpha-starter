@@ -10,7 +10,7 @@ import Html.Attributes as Attr exposing (class)
 import Json.Decode as Decode exposing (Decoder)
 import MdConverter
 import Pages.PageUrl exposing (PageUrl)
-import Pages.Url
+import Pages.Url as Url
 import Path exposing (Path)
 import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
@@ -76,28 +76,38 @@ type alias ContenidoConDatos =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        ligaTipoDecoder : Decoder View.LigaTipo
-        ligaTipoDecoder =
+        decodificaLiga : Decoder View.LigaTipo
+        decodificaLiga =
             Decode.andThen
                 (\esExterna ->
                     if esExterna then
-                        "#features"
-                            |> Path.fromString
-                            |> View.Otra
-                            |> Decode.succeed
+                        Decode.map
+                            (Path.fromString >> View.Otra)
+                            (Decode.field "dir" Decode.string)
 
                     else
-                        Route.Index
-                            |> View.Interna
-                            |> Decode.succeed
+                        -- Route.Index
+                        --     |> View.Interna
+                        --     |> Decode.succeed
+                        Decode.map
+                            (\direccion ->
+                                case Route.urlToRoute { path = direccion } of
+                                    Nothing ->
+                                        View.Interna Route.Index
+
+                                    Just cual ->
+                                        View.Interna cual
+                            )
+                            (Decode.field "dir" Decode.string)
                 )
                 (Decode.field "externa" Decode.bool)
 
         ligasDecoder : Decoder (List View.Liga)
         ligasDecoder =
             Decode.list
-                (Decode.map3 View.Liga
-                    ligaTipoDecoder
+                (Decode.map3
+                    View.Liga
+                    decodificaLiga
                     (Decode.field
                         "queDice"
                         Decode.string
@@ -110,7 +120,8 @@ data routeParams =
 
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
-            Decode.map2 (ContenidoConDatos elCuerpo)
+            Decode.map2
+                (ContenidoConDatos elCuerpo)
                 -- MdConverter.renderea elCuerpo)
                 (Decode.field "title" Decode.string)
                 (Decode.field
@@ -144,7 +155,7 @@ head static =
         { canonicalUrlOverride = Nothing
         , siteName = "elm-pages"
         , image =
-            { url = Pages.Url.external "TODO"
+            { url = Url.external "TODO"
             , alt = "elm-pages logo"
             , dimensions = Nothing
             , mimeType = Nothing
@@ -164,42 +175,7 @@ view maybeUrl sharedModel static =
             [ class "prose" ]
             (MdConverter.renderea static.data.delMD.body)
         ]
-    , withMenu = View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
+    , withMenu =
+        -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
+        static.data.delMD.menu
     }
-
-
-ligas : List View.Liga
-ligas =
-    [ { queDice = "Comunícate"
-      , dir = View.Interna Route.Index
-      , especial = True
-      }
-    , { queDice = "Más Información"
-      , dir =
-            "#features"
-                |> Path.fromString
-                |> View.Otra
-      , especial = False
-      }
-    , { queDice = "Uno"
-      , dir =
-            "#one"
-                |> Path.fromString
-                |> View.Otra
-      , especial = False
-      }
-    , { queDice = "Dos"
-      , dir =
-            "#two"
-                |> Path.fromString
-                |> View.Otra
-      , especial = False
-      }
-    , { queDice = "Tres"
-      , dir =
-            "#three"
-                |> Path.fromString
-                |> View.Otra
-      , especial = False
-      }
-    ]
