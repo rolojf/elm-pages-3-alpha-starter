@@ -76,12 +76,55 @@ type alias ContenidoConDatos =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
+        ligaTipoDecoder : Decoder View.LigaTipo
+        ligaTipoDecoder =
+            Decode.andThen
+                (\esExterna ->
+                    if esExterna then
+                        "#features"
+                            |> Path.fromString
+                            |> View.Otra
+                            |> Decode.succeed
+
+                    else
+                        Route.Index
+                            |> View.Interna
+                            |> Decode.succeed
+                )
+                (Decode.field "externa" Decode.bool)
+
+        ligasDecoder : Decoder (List View.Liga)
+        ligasDecoder =
+            Decode.list
+                (Decode.map3 View.Liga
+                    ligaTipoDecoder
+                    (Decode.field
+                        "queDice"
+                        Decode.string
+                    )
+                    (Decode.field
+                        "especial"
+                        Decode.bool
+                    )
+                )
+
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
             Decode.map2 (ContenidoConDatos elCuerpo)
-                --MdConverter.renderea elCuerpo)
+                -- MdConverter.renderea elCuerpo)
                 (Decode.field "title" Decode.string)
-                (Decode.succeed View.NoMenu)
+                (Decode.field
+                    "menu"
+                    (Decode.map2
+                        View.SiMenu
+                        ligasDecoder
+                        (Decode.succeed
+                            { mainHero = div [] []
+                            , afterHero = div [] []
+                            }
+                        )
+                    )
+                )
 
         getDataFromMD =
             File.bodyWithFrontmatter
