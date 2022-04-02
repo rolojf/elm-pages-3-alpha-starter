@@ -1,6 +1,5 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
-import Browser.Navigation
 import DataSource
 import Effect exposing (Effect)
 import HeroIcons
@@ -48,8 +47,7 @@ type alias Model =
 
 
 init :
-    Maybe Browser.Navigation.Key
-    -> Pages.Flags.Flags
+    Pages.Flags.Flags
     ->
         Maybe
             { path :
@@ -61,7 +59,7 @@ init :
             , pageUrl : Maybe PageUrl
             }
     -> ( Model, Effect Msg )
-init navigationKey flags maybePagePath =
+init flags maybePagePath =
     ( { showMenu = False }
     , Effect.none
     )
