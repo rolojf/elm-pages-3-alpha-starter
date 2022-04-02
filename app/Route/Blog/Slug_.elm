@@ -15,6 +15,7 @@ import Path exposing (Path)
 import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
 import Shared
+import Svg exposing (path)
 import View exposing (View)
 
 
@@ -76,31 +77,32 @@ type alias ContenidoConDatos =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
+        decodeSegunTipoLiga seaExterna laDireccion =
+            if seaExterna then
+                Decode.succeed
+                    (laDireccion |> Path.fromString |> View.Otra)
+
+            else
+                case Route.urlToRoute { path = laDireccion } of
+                    Just cual ->
+                        Decode.succeed (View.Interna cual)
+
+                    Nothing ->
+                        Decode.fail <|
+                            "Error no predefinida la ruta con la direccion interna: "
+                                ++ laDireccion
+
+        -- ++ " y la path: "
+        -- ++ path
+        decodificaDireccion : Bool -> Decoder View.LigaTipo
+        decodificaDireccion siEsExterna =
+            Decode.field "dir" Decode.string
+                |> Decode.andThen (decodeSegunTipoLiga siEsExterna)
+
         decodificaLiga : Decoder View.LigaTipo
         decodificaLiga =
-            Decode.andThen
-                (\esExterna ->
-                    if esExterna then
-                        Decode.map
-                            (Path.fromString >> View.Otra)
-                            (Decode.field "dir" Decode.string)
-
-                    else
-                        -- Route.Index
-                        --     |> View.Interna
-                        --     |> Decode.succeed
-                        Decode.map
-                            (\direccion ->
-                                case Route.urlToRoute { path = direccion } of
-                                    Nothing ->
-                                        View.Interna Route.Index
-
-                                    Just cual ->
-                                        View.Interna cual
-                            )
-                            (Decode.field "dir" Decode.string)
-                )
-                (Decode.field "externa" Decode.bool)
+            Decode.field "externa" Decode.bool
+                |> Decode.andThen decodificaDireccion
 
         ligasDecoder : Decoder (List View.Liga)
         ligasDecoder =

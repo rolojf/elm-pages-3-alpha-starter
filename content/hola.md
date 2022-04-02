@@ -3,7 +3,7 @@ title: "Probando matonamente"
 menu:
   -
     queDice: Inicio
-    dir: index
+    dir: ""
     especial: false
     externa: false
   -
