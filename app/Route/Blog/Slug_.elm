@@ -9,6 +9,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Json.Decode as Decode exposing (Decoder)
 import MdConverter
+import MenuDecoder
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url as Url
 import Path exposing (Path)
@@ -77,66 +78,16 @@ type alias ContenidoConDatos =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        decodeSegunTipoLiga seaExterna laDireccion =
-            if seaExterna then
-                Decode.succeed
-                    (laDireccion |> Path.fromString |> View.Otra)
-
-            else
-                case Route.urlToRoute { path = laDireccion } of
-                    Just cual ->
-                        Decode.succeed (View.Interna cual)
-
-                    Nothing ->
-                        Decode.fail <|
-                            "Error no predefinida la ruta con la direccion interna: "
-                                ++ laDireccion
-
-        -- ++ " y la path: "
-        -- ++ path
-        decodificaDireccion : Bool -> Decoder View.LigaTipo
-        decodificaDireccion siEsExterna =
-            Decode.field "dir" Decode.string
-                |> Decode.andThen (decodeSegunTipoLiga siEsExterna)
-
-        decodificaLiga : Decoder View.LigaTipo
-        decodificaLiga =
-            Decode.field "externa" Decode.bool
-                |> Decode.andThen decodificaDireccion
-
-        ligasDecoder : Decoder (List View.Liga)
-        ligasDecoder =
-            Decode.list
-                (Decode.map3
-                    View.Liga
-                    decodificaLiga
-                    (Decode.field
-                        "queDice"
-                        Decode.string
-                    )
-                    (Decode.field
-                        "especial"
-                        Decode.bool
-                    )
-                )
-
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
             Decode.map2
                 (ContenidoConDatos elCuerpo)
                 -- MdConverter.renderea elCuerpo)
                 (Decode.field "title" Decode.string)
-                (Decode.field
-                    "menu"
-                    (Decode.map2
-                        View.SiMenu
-                        ligasDecoder
-                        (Decode.succeed
-                            { mainHero = div [] []
-                            , afterHero = div [] []
-                            }
-                        )
-                    )
+                (MenuDecoder.opMenuToDecode
+                    { mainHero = div [] []
+                    , afterHero = div [] []
+                    }
                 )
 
         getDataFromMD =

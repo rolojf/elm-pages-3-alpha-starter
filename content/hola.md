@@ -1,5 +1,6 @@
 ---
 title: "Probando matonamente"
+menuGoes: true
 menu:
   -
     queDice: Inicio
