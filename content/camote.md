@@ -1,5 +1,5 @@
 ---
-title: "Probando matonamente"
+title: "Camote cabrón"
 menu:
   -
     queDice: Inicio
@@ -13,7 +13,7 @@ menu:
     externa: false
   -
     queDice: Aviso de Privacidad
-    dir: "https://reftex.com/privacidad"
+    dir: https://reftex.com/privacidad
     especial: false
     externa: true
   -
