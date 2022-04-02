@@ -50,13 +50,12 @@ init maybePageUrl sharedModel static =
 
 update :
     PageUrl
-    -> Maybe Browser.Navigation.Key
     -> Shared.Model
     -> StaticPayload Data RouteParams
     -> Msg
     -> Model
     -> ( Model, Effect.Effect Msg )
-update pageUrl maybeNavigationKey sharedModel static msg model =
+update pageUrl sharedModel static msg model =
     case msg of
         NoOp ->
             ( model, Effect.none )

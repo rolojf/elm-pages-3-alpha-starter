@@ -68,6 +68,7 @@ view error model =
             ]
         ]
     , title = "This is a NotFound Error"
+    , withMenu = View.NoMenu
     }
 
 

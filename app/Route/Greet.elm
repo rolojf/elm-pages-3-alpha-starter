@@ -97,4 +97,5 @@ view maybeUrl sharedModel static =
                     Html.text "Hello, I didn't find your name"
             ]
         ]
+    , withMenu = View.NoMenu
     }

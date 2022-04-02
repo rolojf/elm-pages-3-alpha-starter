@@ -131,9 +131,9 @@ viewMenu ligas menuOpen toMsg =
 
                 View.Interna rutaLiga ->
                     Route.link
-                        rutaLiga
                         [ class clases ]
                         [ queHtml ]
+                        rutaLiga
 
         ligaNormalDesk : Html msg
         ligaNormalDesk =
@@ -282,7 +282,8 @@ viewMenu ligas menuOpen toMsg =
                                     [ class "sr-only" ]
                                     [ text "Close menu" ]
                                 , HeroIcons.outlineX
-                                ] |> Html.map toMsg
+                                ]
+                                |> Html.map toMsg
                             ]
                         ]
                     , div
