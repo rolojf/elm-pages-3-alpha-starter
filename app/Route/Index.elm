@@ -81,9 +81,10 @@ view maybeUrl sharedModel static =
         , Html.p []
             [ Html.text <| "The message is: " ++ static.data.message
             ]
-        , Html.a [ Attr.href "/blog/hola" ] [ Html.text "My blog post" ]
+        , Route.Blog__Slug_ { slug = "hello" }
+            |> Route.link [] [ Html.text "My blog post" ]
         ]
-    , withMenu = View.SiMenu ligas { mainHero = div [][], afterHero = div [][] }
+    , withMenu = View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
     }
 
 

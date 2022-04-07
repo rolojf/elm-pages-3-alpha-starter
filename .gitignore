@@ -2,5 +2,7 @@ node_modules/
 elm-stuff/
 dist/
 .elm-pages/
-functions/render/elm-pages-cli.js
 /tailwind.css
+functions/render
+functions/server-render
+.idea
