@@ -104,7 +104,9 @@ view sharedData page model toMsg pageView =
 
                 View.SiMenu ligasRecibidas _ ->
                     viewMenu ligasRecibidas model.showMenu toMsg
-            , Html.main_ [] pageView.body
+            , Html.main_
+                [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
+                pageView.body
             ]
     , title = pageView.title
     }
