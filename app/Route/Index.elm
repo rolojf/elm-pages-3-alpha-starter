@@ -7,6 +7,8 @@ import Head.Seo as Seo
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Json.Decode as Decode exposing (Decoder)
+import Markdown.Block
+import MdConverter
 import MenuDecoder
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
@@ -29,12 +31,6 @@ type alias RouteParams =
     {}
 
 
-type alias Data =
-    { title : String
-    , menu : View.MenuInfo Msg
-    }
-
-
 route : StatelessRoute RouteParams Data
 route =
     RouteBuilder.single
@@ -44,22 +40,41 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
+type alias Data =
+    { delMD : ContenidoConDatos }
+
+
+type alias ContenidoConDatos =
+    { body : Result String (List Markdown.Block.Block)
+    , title : String
+    , menu : View.MenuInfo Msg
+    }
+
+
 data : DataSource Data
 data =
     let
-        miDecoder : Decoder Data
-        miDecoder =
-            Decode.map2 Data
+        miDecoder : String -> Decoder ContenidoConDatos
+        miDecoder elCuerpo =
+            Decode.map3 ContenidoConDatos
+                (elCuerpo
+                    |> MdConverter.parsea
+                    |> Decode.succeed
+                )
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
                     , afterHero = div [] []
                     }
                 )
+
+        getDataFromMD =
+            File.bodyWithFrontmatter
+                miDecoder
+                "content/index.md"
     in
-    File.onlyFrontmatter
-        miDecoder
-        "content/index.md"
+    DataSource.map Data
+        getDataFromMD
 
 
 head :
@@ -88,15 +103,15 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view maybeUrl sharedModel static =
-    { title = static.data.title
+    { title = static.data.delMD.title
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
-        , Html.p []
-            [ Html.text "The message dale duro"
-            ]
+        , Html.div
+            [ class "prose" ]
+            (MdConverter.renderea static.data.delMD.body)
         , Route.Blog__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
     , withMenu =
-        static.data.menu
+        static.data.delMD.menu
     }
