@@ -8,6 +8,7 @@ import Head.Seo as Seo
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Json.Decode as Decode exposing (Decoder)
+import Markdown.Block
 import MdConverter
 import MenuDecoder
 import Pages.PageUrl exposing (PageUrl)
@@ -72,7 +73,7 @@ type alias Data =
 
 
 type alias ContenidoConDatos =
-    { body : String
+    { body : Result String (List Markdown.Block.Block)
     , title : String
     , menu : View.MenuInfo Msg
     }
@@ -83,9 +84,11 @@ data routeParams =
     let
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
-            Decode.map2
-                (ContenidoConDatos elCuerpo)
-                -- MdConverter.renderea elCuerpo)
+            Decode.map3 ContenidoConDatos
+                (elCuerpo
+                    |> MdConverter.parsea
+                    |> Decode.succeed
+                )
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
@@ -129,9 +132,7 @@ view maybeUrl sharedModel static =
     , body =
         [ Html.div
             [ class "prose" ]
-            ((MdConverter.parsea >> MdConverter.renderea)
-                static.data.delMD.body
-            )
+            (MdConverter.renderea static.data.delMD.body)
         ]
     , withMenu =
         -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
