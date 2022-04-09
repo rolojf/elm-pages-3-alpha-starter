@@ -72,7 +72,10 @@ type alias Data =
 
 
 type alias ContenidoConDatos =
-    { body : String, title : String, menu : View.MenuInfo Msg }
+    { body : String
+    , title : String
+    , menu : View.MenuInfo Msg
+    }
 
 
 data : RouteParams -> DataSource Data
@@ -126,7 +129,9 @@ view maybeUrl sharedModel static =
     , body =
         [ Html.div
             [ class "prose" ]
-            (MdConverter.renderea static.data.delMD.body)
+            ((MdConverter.parsea >> MdConverter.renderea)
+                static.data.delMD.body
+            )
         ]
     , withMenu =
         -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }

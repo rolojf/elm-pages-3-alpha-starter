@@ -1,36 +1,38 @@
-module MdConverter exposing (renderea)
+module MdConverter exposing (parsea, renderea)
 
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
+import Markdown.Block exposing (Block)
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 
 
-renderea : String -> List (Html ())
-renderea mdStr =
+parsea : String -> Result String (List Block)
+parsea mdStr =
     let
         deadEndsToString deadEnds =
             deadEnds
                 |> List.map Markdown.Parser.deadEndToString
                 |> String.join "\n"
-
-        mdAResult elMD =
-            elMD
-                |> Markdown.Parser.parse
-                |> Result.mapError deadEndsToString
-                |> Result.andThen
-                    (\ast ->
-                        Markdown.Renderer.render
-                            myRenderer
-                            ast
-                    )
     in
-    case
-        mdAResult mdStr
-    of
-        Ok rendereado ->
-            rendereado
+    mdStr
+        |> Markdown.Parser.parse
+        |> Result.mapError deadEndsToString
+
+
+renderea : Result String (List Block) -> List (Html ())
+renderea resultado =
+    let
+        resultadoProcesado : Result String (List (Html ()))
+        resultadoProcesado =
+            resultado
+                |> Result.andThen
+                    (Markdown.Renderer.render myRenderer)
+    in
+    case resultadoProcesado of
+        Ok html ->
+            html
 
         Err errors ->
             [ text errors ]
