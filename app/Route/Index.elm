@@ -1,12 +1,13 @@
 module Route.Index exposing (Data, Model, Msg, route)
 
 import DataSource exposing (DataSource)
-import DataSource.Http
+import DataSource.File as File
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder)
+import MenuDecoder
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
@@ -29,7 +30,8 @@ type alias RouteParams =
 
 
 type alias Data =
-    { message : String
+    { title : String
+    , menu : View.MenuInfo Msg
     }
 
 
@@ -44,9 +46,20 @@ route =
 
 data : DataSource Data
 data =
-    DataSource.succeed Data
-        |> DataSource.andMap
-            (DataSource.succeed "Hello!")
+    let
+        miDecoder : Decoder Data
+        miDecoder =
+            Decode.map2 Data
+                (Decode.field "title" Decode.string)
+                (MenuDecoder.opMenuToDecode
+                    { mainHero = div [] []
+                    , afterHero = div [] []
+                    }
+                )
+    in
+    File.onlyFrontmatter
+        miDecoder
+        "content/index.md"
 
 
 head :
@@ -75,30 +88,15 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view maybeUrl sharedModel static =
-    { title = "elm-pages is running"
+    { title = static.data.title
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
         , Html.p []
-            [ Html.text <| "The message is: " ++ static.data.message
+            [ Html.text "The message dale duro"
             ]
-        , Route.Blog__Slug_ { slug = "hello" }
+        , Route.Blog__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
-    , withMenu = View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
+    , withMenu =
+        static.data.menu
     }
-
-
-ligas : List View.Liga
-ligas =
-    [ { queDice = "Comunícate"
-      , dir = View.Interna Route.Index
-      , especial = True
-      }
-    , { queDice = "Más Información"
-      , dir =
-            "#features"
-                |> Path.fromString
-                |> View.Otra
-      , especial = False
-      }
-    ]
