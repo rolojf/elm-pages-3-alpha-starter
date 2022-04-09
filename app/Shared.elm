@@ -43,6 +43,7 @@ type SharedMsg
 
 type alias Model =
     { showMenu : Bool
+    , desapareceMenu : Bool
     }
 
 
@@ -60,7 +61,9 @@ init :
             }
     -> ( Model, Effect Msg )
 init flags maybePagePath =
-    ( { showMenu = False }
+    ( { showMenu = False
+      , desapareceMenu = True
+      }
     , Effect.none
     )
 
@@ -72,7 +75,11 @@ update msg model =
             ( model, Effect.none )
 
         ToggleMenu ->
-            ( { model | showMenu = not model.showMenu }, Effect.none )
+            ( { model
+               | desapareceMenu = False
+               , showMenu = not model.showMenu
+               }
+           , Effect.none )
 
 
 subscriptions : Path -> Model -> Sub Msg
@@ -103,7 +110,7 @@ view sharedData page model toMsg pageView =
                     div [] []
 
                 View.SiMenu ligasRecibidas _ ->
-                    viewMenu ligasRecibidas model.showMenu toMsg
+                    viewMenu ligasRecibidas model.showMenu model.desapareceMenu toMsg
             , Html.main_
                 [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
@@ -112,8 +119,8 @@ view sharedData page model toMsg pageView =
     }
 
 
-viewMenu : List View.Liga -> Bool -> (Msg -> msg) -> Html msg
-viewMenu ligas menuOpen toMsg =
+viewMenu : List View.Liga -> Bool -> Bool ->  (Msg -> msg) -> Html msg
+viewMenu ligas menuOpen byeMenu toMsg =
     let
         ligasNormales =
             List.filter (\liga -> liga.especial == False) ligas
@@ -190,11 +197,11 @@ viewMenu ligas menuOpen toMsg =
                     ligasEspeciales
                 )
 
-        showMovilMenu : Bool -> Animation
-        showMovilMenu show =
-            if show then
+        showMovilMenu :  Animation
+        showMovilMenu  =
+            if menuOpen then
                 Animation.fromTo
-                    { duration = 180
+                    { duration = 580
                     , options = [ Animation.easeOut ]
                     }
                     [ P.opacity 0, P.scale 0.92 ]
@@ -202,7 +209,7 @@ viewMenu ligas menuOpen toMsg =
 
             else
                 Animation.fromTo
-                    { duration = 125
+                    { duration = 525
                     , options = [ Animation.easeIn ]
                     }
                     [ P.opacity 1, P.scale 1 ]
@@ -246,18 +253,9 @@ viewMenu ligas menuOpen toMsg =
                 , ligaEspecialDesk
                 ]
             ]
-        , {-
-             Mobile menu, show/hide based on mobile menu state.
-
-             Entering: "duration-200 ease-out"
-               From: "opacity-0 scale-95"
-               To: "opacity-100 scale-100"
-             Leaving: "duration-100 ease-in"
-               From: "opacity-100 scale-100"
-               To: "opacity-0 scale-95"
-          -}
+        , if not byeMenu then
           Animated.div
-            (showMovilMenu menuOpen)
+            showMovilMenu
             [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
             [ div
                 [ class " bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
@@ -302,4 +300,6 @@ viewMenu ligas menuOpen toMsg =
                     ]
                 ]
             ]
+          else
+            div [][]
         ]
