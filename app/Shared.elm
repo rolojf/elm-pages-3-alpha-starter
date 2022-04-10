@@ -43,7 +43,7 @@ type SharedMsg
 
 type alias Model =
     { showMenu : Bool
-    , desapareceMenu : Bool
+    , showMenuInicial : Bool
     }
 
 
@@ -62,7 +62,7 @@ init :
     -> ( Model, Effect Msg )
 init flags maybePagePath =
     ( { showMenu = False
-      , desapareceMenu = True
+      , showMenuInicial = False
       }
     , Effect.none
     )
@@ -76,10 +76,11 @@ update msg model =
 
         ToggleMenu ->
             ( { model
-               | desapareceMenu = False
-               , showMenu = not model.showMenu
-               }
-           , Effect.none )
+                | showMenuInicial = True
+                , showMenu = not model.showMenu
+              }
+            , Effect.none
+            )
 
 
 subscriptions : Path -> Model -> Sub Msg
@@ -110,7 +111,7 @@ view sharedData page model toMsg pageView =
                     div [] []
 
                 View.SiMenu ligasRecibidas _ ->
-                    viewMenu ligasRecibidas model.showMenu model.desapareceMenu toMsg
+                    viewMenu ligasRecibidas model.showMenu model.showMenuInicial toMsg
             , Html.main_
                 [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
@@ -119,7 +120,7 @@ view sharedData page model toMsg pageView =
     }
 
 
-viewMenu : List View.Liga -> Bool -> Bool ->  (Msg -> msg) -> Html msg
+viewMenu : List View.Liga -> Bool -> Bool -> (Msg -> msg) -> Html msg
 viewMenu ligas menuOpen byeMenu toMsg =
     let
         ligasNormales =
@@ -197,8 +198,8 @@ viewMenu ligas menuOpen byeMenu toMsg =
                     ligasEspeciales
                 )
 
-        showMovilMenu :  Animation
-        showMovilMenu  =
+        showMovilMenu : Animation
+        showMovilMenu =
             if menuOpen then
                 Animation.fromTo
                     { duration = 580
@@ -253,53 +254,54 @@ viewMenu ligas menuOpen byeMenu toMsg =
                 , ligaEspecialDesk
                 ]
             ]
-        , if not byeMenu then
-          Animated.div
-            showMovilMenu
-            [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
-            [ div
-                [ class " bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
+        , if byeMenu then
+            Animated.div
+                showMovilMenu
+                [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
                 [ div
-                    [ class "pt-5 pb-6 px-5" ]
+                    [ class " bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
                     [ div
-                        [ class "flex items-center justify-between" ]
-                        [ div []
-                            [ Html.img
-                                [ class "h-8 w-auto"
-                                , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-                                , Attr.alt "Workflow"
+                        [ class "pt-5 pb-6 px-5" ]
+                        [ div
+                            [ class "flex items-center justify-between" ]
+                            [ div []
+                                [ Html.img
+                                    [ class "h-8 w-auto"
+                                    , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                                    , Attr.alt "Workflow"
+                                    ]
+                                    []
                                 ]
-                                []
+                            , div
+                                [ class "-mr-2" ]
+                                [ Html.button
+                                    [ Attr.type_ "button"
+                                    , Event.onClick ToggleMenu
+                                    , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                                    ]
+                                    [ Html.span
+                                        [ class "sr-only" ]
+                                        [ text "Close menu" ]
+                                    , HeroIcons.outlineX
+                                    ]
+                                    |> Html.map toMsg
+                                ]
                             ]
                         , div
-                            [ class "-mr-2" ]
-                            [ Html.button
-                                [ Attr.type_ "button"
-                                , Event.onClick ToggleMenu
-                                , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                                ]
-                                [ Html.span
-                                    [ class "sr-only" ]
-                                    [ text "Close menu" ]
-                                , HeroIcons.outlineX
-                                ]
-                                |> Html.map toMsg
+                            [ class "mt-6" ]
+                            [ Html.nav
+                                [ class "grid gap-y-8" ]
+                                ligaNormalMovil
                             ]
                         ]
                     , div
-                        [ class "mt-6" ]
-                        [ Html.nav
-                            [ class "grid gap-y-8" ]
-                            ligaNormalMovil
+                        [ class "py-6 px-5 space-y-6"
+                        ]
+                        [ ligaEspecialMovil
                         ]
                     ]
-                , div
-                    [ class "py-6 px-5 space-y-6"
-                    ]
-                    [ ligaEspecialMovil
-                    ]
                 ]
-            ]
+
           else
-            div [][]
+            div [] []
         ]

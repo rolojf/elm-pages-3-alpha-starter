@@ -8,6 +8,11 @@ menu:
     especial: false
     externa: false
   -
+    queDice: Nota Hola
+    dir: blog/hola
+    especial: false
+    externa: true
+  -
     queDice: Sobre Nosotros
     dir: about
     especial: false
