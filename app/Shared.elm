@@ -24,13 +24,18 @@ template =
     , view = view
     , data = data
     , subscriptions = subscriptions
-    , onPageChange = Nothing
+    , onPageChange = Just OnPageChange
     }
 
 
 type Msg
     = SharedMsg SharedMsg
     | ToggleMenu
+    | OnPageChange
+            { path : Path
+            , query : Maybe String
+            , fragment : Maybe String
+            }
 
 
 type alias Data =
@@ -81,7 +86,8 @@ update msg model =
               }
             , Effect.none
             )
-
+        OnPageChange _ ->
+            ( { model | showMenu = False }, Effect.none )
 
 subscriptions : Path -> Model -> Sub Msg
 subscriptions _ _ =
@@ -93,16 +99,7 @@ data =
     DataSource.succeed ()
 
 
-view :
-    Data
-    ->
-        { path : Path
-        , route : Maybe Route
-        }
-    -> Model
-    -> (Msg -> msg)
-    -> View msg
-    -> { body : Html msg, title : String }
+view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }
 view sharedData page model toMsg pageView =
     { body =
         Html.div []
