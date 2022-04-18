@@ -52,6 +52,41 @@ ligasDecoder =
         )
 
 
+
+{- En el markdown usamos cuatro campos
+   espacial es la liga resaltada o con color primario.
+   liga externa (True)o liga interna (False)
+   Direccion en minúsculas.  Externa va con https://...
+   interna va solo el nombre y/o submódulo.
+
+   menu:
+     -
+       queDice: Inicio
+       dir: ""
+       especial: false
+       externa: false
+     -
+       queDice: Sobre Nosotros
+       dir: about
+       especial: false
+       externa: false
+
+   ----------
+
+   En data tenemos que tener un menu : View.MenuInfo Msg que es a lo que compila el decoder.
+
+   En la función data, junto con otras cosas que se decodifican, se pasa el decodificador ahí definido así:
+
+                   (MenuDecoder.opMenuToDecode
+                       { mainHero = div [] []
+                       , afterHero = div [] []
+                       }
+                   )
+   Obviamente el mainHero y afterHero van definido según el menu en la parte principal. Para el menú básico va así.
+
+-}
+
+
 opMenuToDecode : { complementos | mainHero : Html (), afterHero : Html () } -> Decoder (View.MenuInfo ())
 opMenuToDecode complementos =
     let
