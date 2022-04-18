@@ -3,15 +3,15 @@ module.exports = {
      files: ["./app/**/*.elm", "./src/**/*.elm", "./content/index.html"],
       extract: {
          elm: (contenido) => {
-            let matchado = contenido.match(/class\s+"(.+?)"/);
+            let matchado = contenido.match(/.*"([a-z-].+?)"/);
             let regresa = matchado ? matchado[1].split(" ") : [];
-           if (regresa.length>0) {console.log("elm: " + regresa)};
+            // if (regresa.length>0) {console.log("elm: " + regresa)};
             return regresa;
          },
         html: (contenido) => {
             let matchado = contenido.match(/class\s?=\s?"(.+?)"/);
             let regresa = matchado ? matchado[1].split(" ") : [];
-          if (regresa.length>0) {console.log("html: " + regresa)};
+            // if (regresa.length>0) {console.log("html: " + regresa)};
             return regresa;
         }
       },
