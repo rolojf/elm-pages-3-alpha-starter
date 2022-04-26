@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, UsuarioSt(..))
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
 
 import DataSource
 import Effect exposing (Effect)
@@ -7,6 +7,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Html.Events as Event
 import Http
+import Json.Decode as D
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
@@ -37,10 +38,6 @@ type Msg
         , query : Maybe String
         , fragment : Maybe String
         }
-
-
-type alias Data =
-    ()
 
 
 type UsuarioSt
@@ -121,9 +118,29 @@ subscriptions _ _ =
     Sub.none
 
 
+type alias Data =
+    { logoTrans : String
+    , logoResource : String
+    }
+
+
 data : DataSource.DataSource Data
 data =
-    DataSource.succeed ()
+    DataSource.succeed
+        { logoTrans = "Uno"
+        , logoResource = "Dos"
+        }
+
+
+yamlDecoder : D.Decoder Data
+yamlDecoder =
+    let
+        logoDecoder =
+            D.map2 Data
+                (D.field "transformacion" D.string)
+                (D.field "nota" D.string)
+    in
+    D.field "menuLogo" logoDecoder
 
 
 view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }
