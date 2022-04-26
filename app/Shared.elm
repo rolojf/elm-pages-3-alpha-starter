@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, UsuarioSt(..))
 
 import DataSource
 import Effect exposing (Effect)
@@ -6,6 +6,7 @@ import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
 import Html.Events as Event
+import Http
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
@@ -32,23 +33,33 @@ type Msg
     = SharedMsg SharedMsg
     | ToggleMenu
     | OnPageChange
-            { path : Path
-            , query : Maybe String
-            , fragment : Maybe String
-            }
+        { path : Path
+        , query : Maybe String
+        , fragment : Maybe String
+        }
 
 
 type alias Data =
     ()
 
 
+type UsuarioSt
+    = Desconocido
+    | Rechazado
+    | Conocido (Result Http.Error String)
+
+
 type SharedMsg
     = NoOp
+    | CambiaStatus UsuarioSt
+    | ErrorAlNotificar Http.Error
 
 
 type alias Model =
     { showMenu : Bool
     , showMenuInicial : Bool
+    , errorAlNotificar : Maybe Http.Error
+    , usuarioStatus : UsuarioSt
     }
 
 
@@ -68,6 +79,8 @@ init :
 init flags maybePagePath =
     ( { showMenu = False
       , showMenuInicial = False
+      , errorAlNotificar = Nothing
+      , usuarioStatus = Desconocido
       }
     , Effect.none
     )
@@ -76,9 +89,6 @@ init flags maybePagePath =
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        SharedMsg globalMsg ->
-            ( model, Effect.none )
-
         ToggleMenu ->
             ( { model
                 | showMenuInicial = True
@@ -86,8 +96,25 @@ update msg model =
               }
             , Effect.none
             )
+
         OnPageChange _ ->
             ( { model | showMenu = False }, Effect.none )
+
+        SharedMsg mensajePasado ->
+            case mensajePasado of
+                CambiaStatus nuevoSt ->
+                    ( { model | usuarioStatus = nuevoSt }
+                    , Effect.none
+                    )
+
+                NoOp ->
+                    ( model, Effect.none )
+
+                ErrorAlNotificar cualError ->
+                    ( { model | errorAlNotificar = Just cualError }
+                    , Effect.none
+                    )
+
 
 subscriptions : Path -> Model -> Sub Msg
 subscriptions _ _ =
@@ -302,3 +329,32 @@ viewMenu ligas menuOpen byeMenu toMsg =
           else
             div [] []
         ]
+
+
+viewErroresAlNotificar : Maybe Http.Error -> List (Html msg)
+viewErroresAlNotificar cualError =
+    case cualError of
+        Nothing ->
+            []
+
+        Just error ->
+            [ div [] [ text <| viewHttpError error ] ]
+
+
+viewHttpError : Http.Error -> String
+viewHttpError error =
+    case error of
+        Http.BadUrl texto ->
+            "Bad Url " ++ texto ++ " al reportar evento."
+
+        Http.Timeout ->
+            "Se tardo en reportar evento."
+
+        Http.NetworkError ->
+            "Falla de red al reportar evento."
+
+        Http.BadStatus cual ->
+            "Status que regreso " ++ String.fromInt cual ++ " al reportar evento."
+
+        Http.BadBody texto ->
+            "Mensaje mal compuesto al reportar evento. " ++ texto

@@ -13,6 +13,13 @@
     </elmProjects>
     <settings elmCompilerPath="$PROJECT_DIR$/node_modules/.bin/elm" elmFormatPath="$PROJECT_DIR$/node_modules/.bin/elm-format" elmTestPath="$PROJECT_DIR$/elm-pages/node_modules/.bin/elm-test" isElmFormatOnSaveEnabled="false" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Elm Module" />
+      </list>
+    </option>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
