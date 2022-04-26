@@ -18,7 +18,6 @@ import Path exposing (Path)
 import Route
 import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
 import Shared
-import Task
 import View exposing (View)
 
 
@@ -60,8 +59,6 @@ type alias Model =
 type Intentos
     = VaPues
     | RespondioMal
-    | VaDeNuevo
-    | EstaFrito
     | YaOk
 
 
@@ -213,21 +210,20 @@ update pageUrl sharedModel static msg model =
                     else
                         RespondioMal
               }
+              {- Http.post
+                 { url = "https://usebasin.com/f/41489cfac434"
+                 , body = Http.jsonBody cuerpoPost
+                 , expect = Http.expectString RespondeBasin
+              -}
+            , Effect.EsperaPues
+                500.0
+                IntentaDeNuez
             , if seLaSupo then
-                Effect.none
-
-              else
-                Effect.EsperaPues
-                    500.0
-                    IntentaDeNuez
-            , if seLaSupo then
-                Nothing
-                --Just (Shared.CambiaStatus Shared.Desconocido)
-                {- Http.post
-                   { url = "https://usebasin.com/f/41489cfac434"
-                   , body = Http.jsonBody cuerpoPost
-                   , expect = Http.expectString RespondeBasin
-                -}
+                Ok "Todos Felices y Contentos"
+                    |> Shared.Conocido
+                    |> Shared.CambiaStatus
+                    |> Shared.SharedMsg
+                    |> Just
 
               else
                 Nothing
@@ -236,15 +232,9 @@ update pageUrl sharedModel static msg model =
         IntentaDeNuez ->
             ( { model
                 | queRespondio = ""
-                , intento =
-                    if model.intentos >= 3 then
-                        EstaFrito
-
-                    else
-                        VaDeNuevo
                 , intentos = model.intentos + 1
               }
-            , if model.intento == EstaFrito then
+            , if model.intentos >= 3 || model.intento == YaOk then
                 Route.toPath Route.Index
                     |> Pages.Url.fromPath
                     |> Pages.Url.toString
@@ -252,7 +242,7 @@ update pageUrl sharedModel static msg model =
 
               else
                 Effect.none
-            , if model.intento == EstaFrito then
+            , if model.intentos >= 3 then
                 Just (Shared.SharedMsg <| Shared.CambiaStatus Shared.Rechazado)
 
               else
@@ -611,14 +601,8 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
                             RespondioMal ->
                                 Attr.value respondioQue
 
-                            VaDeNuevo ->
-                                Attr.value respondioQue
-
                             YaOk ->
                                 class "animate-ping"
-
-                            EstaFrito ->
-                                class "no-se-que-decirle"
                         , Events.onInput Respondio
                         ]
                         []
