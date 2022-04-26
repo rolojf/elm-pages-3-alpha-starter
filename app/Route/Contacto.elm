@@ -15,8 +15,6 @@ import MiCloudinary
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
-import Process
-import Reto
 import Route
 import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
 import Shared
@@ -50,10 +48,21 @@ type alias Model =
     , telefono : String
     , apellido : String
     , listo : Bool
-    , reModel : Reto.Model
     , respondio : Bool
     , deBasin : Result Http.Error String
+    , intentos : Int
+    , listoReto : Bool
+    , intento : Intentos
+    , queRespondio : String
     }
+
+
+type Intentos
+    = VaPues
+    | RespondioMal
+    | VaDeNuevo
+    | EstaFrito
+    | YaOk
 
 
 type Msg
@@ -65,10 +74,11 @@ type Msg
     | Comentario String
     | CompletadoFormulario
     | EnfocaDespuesDeEsperar
-    | ReMsg Reto.Msg
     | NoOp
     | RespondeBasin (Result Http.Error String)
     | Notificado (Result Http.Error ())
+    | IntentaDeNuez
+    | Respondio String
 
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Effect Msg )
@@ -80,9 +90,12 @@ init maybePageUrl sharedModel static =
       , telefono = ""
       , apellido = ""
       , listo = False
-      , reModel = Reto.newModel
       , respondio = False
       , deBasin = Err (Http.BadStatus 9999)
+      , intentos = 0
+      , listoReto = False
+      , intento = VaPues
+      , queRespondio = ""
       }
     , Effect.none
     )
@@ -91,45 +104,11 @@ init maybePageUrl sharedModel static =
 track : Msg -> Analytics.Event
 track msg =
     case msg of
-        Nombre _ ->
-            Analytics.none
-
-        ComoSupo _ ->
-            Analytics.none
-
-        Correo _ ->
-            Analytics.none
-
-        Apellido _ ->
-            Analytics.none
-
-        Telefono _ ->
-            Analytics.none
-
-        Comentario _ ->
-            Analytics.none
-
         CompletadoFormulario ->
             Analytics.eventoXReportar "completo-formulario"
 
-        EnfocaDespuesDeEsperar ->
+        _ ->
             Analytics.none
-
-        ReMsg _ ->
-            Analytics.none
-
-        NoOp ->
-            Analytics.none
-
-        RespondeBasin resultado ->
-            Analytics.none
-
-        Notificado _ ->
-            Analytics.none
-
-
-
---superUpdate : PageUrl -> Maybe Browser.Navigation.Key -> Shared.Model -> StaticPayload templateData routeParams -> Msg -> Model -> ( Model, Cmd Msg, Maybe Shared.Msg )
 
 
 superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
@@ -159,6 +138,18 @@ superUpdate url sharedModel static msg model =
 
 update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 update pageUrl sharedModel static msg model =
+    let
+        cuerpoPost : Encode.Value
+        cuerpoPost =
+            Encode.object
+                [ ( "name", Encode.string model.nombre )
+                , ( "apellido", Encode.string model.apellido )
+                , ( "correo", Encode.string model.correo )
+                , ( "telefono", Encode.string model.telefono )
+                , ( "llego", Encode.string model.comoSupo )
+                , ( "comentario", Encode.string model.comentario )
+                ]
+    in
     case msg of
         Nombre cCampo ->
             ( { model | nombre = cCampo }, Effect.none, Nothing )
@@ -204,57 +195,68 @@ update pageUrl sharedModel static msg model =
             , Nothing
             )
 
-        ReMsg reMsg ->
+        Respondio conQue ->
             let
-                modeloQResulta =
-                    Reto.update reMsg model.reModel
+                seLaSupo =
+                    if conQue == "4" then
+                        True
 
-                cuerpoPost : Encode.Value
-                cuerpoPost =
-                    Encode.object
-                        [ ( "name", Encode.string model.nombre )
-                        , ( "apellido", Encode.string model.apellido )
-                        , ( "correo", Encode.string model.correo )
-                        , ( "telefono", Encode.string model.telefono )
-                        , ( "llego", Encode.string model.comoSupo )
-                        , ( "comentario", Encode.string model.comentario )
-                        ]
-
-                mandaForma =
-                    {- Http.post
-                       { url = "https://usebasin.com/f/41489cfac434"
-                       , body = Http.jsonBody cuerpoPost
-                       , expect = Http.expectString RespondeBasin
-                    -}
-                    Effect.none
+                    else
+                        False
             in
-            ( { model | reModel = modeloQResulta }
-            , if modeloQResulta.vaDeNuez then
-                Effect.EsperaPues
-                    500.0
-                    (ReMsg Reto.IntentaDeNuez)
+            ( { model
+                | queRespondio = conQue
+                , intento =
+                    if seLaSupo then
+                        YaOk
+
+                    else
+                        RespondioMal
+              }
+            , if seLaSupo then
+                Effect.none
 
               else
-                case modeloQResulta.intento of
-                    Reto.YaOk ->
-                        mandaForma
-
-                    Reto.EstaFrito ->
-                        Route.toPath Route.Index
-                            |> Pages.Url.fromPath
-                            |> Pages.Url.toString
-                            |> Effect.PushUrl NoOp
-
-                    _ ->
-                        Effect.none
-            , if modeloQResulta.intento == Reto.YaOk then
+                Effect.EsperaPues
+                    500.0
+                    IntentaDeNuez
+            , if seLaSupo then
                 Nothing
+                --Just (Shared.CambiaStatus Shared.Desconocido)
+                {- Http.post
+                   { url = "https://usebasin.com/f/41489cfac434"
+                   , body = Http.jsonBody cuerpoPost
+                   , expect = Http.expectString RespondeBasin
+                -}
 
-              else if modeloQResulta.intento == Reto.EstaFrito then
+              else
+                Nothing
+            )
+
+        IntentaDeNuez ->
+            ( { model
+                | queRespondio = ""
+                , intento =
+                    if model.intentos >= 3 then
+                        EstaFrito
+
+                    else
+                        VaDeNuevo
+                , intentos = model.intentos + 1
+              }
+            , if model.intento == EstaFrito then
+                Route.toPath Route.Index
+                    |> Pages.Url.fromPath
+                    |> Pages.Url.toString
+                    |> Effect.PushUrl NoOp
+
+              else
+                Effect.none
+            , if model.intento == EstaFrito then
                 Just (Shared.SharedMsg <| Shared.CambiaStatus Shared.Rechazado)
 
               else
-                Just (Shared.SharedMsg <| Shared.CambiaStatus Shared.Desconocido)
+                Nothing
             )
 
         NoOp ->
@@ -265,18 +267,10 @@ update pageUrl sharedModel static msg model =
 
         RespondeBasin respuesta ->
             ( { model | deBasin = respuesta }
-            , Effect.none
-              {- navKey
-                 |> Maybe.map
-                     (\llave ->
-                         Browser.Navigation.pushUrl
-                             llave
-                             (Pages.Url.fromPath (Route.toPath Route.Index)
-                                 |> Pages.Url.toString
-                             )
-                     )
-                 |> Maybe.withDefault Cmd.none
-              -}
+            , Route.toPath Route.Index
+                |> Pages.Url.fromPath
+                |> Pages.Url.toString
+                |> Effect.PushUrl NoOp
             , Shared.Conocido respuesta
                 |> Shared.CambiaStatus
                 |> Shared.SharedMsg
@@ -332,17 +326,7 @@ view maybeUrl sharedModel model static =
     { title = "Formulario de Contacto"
     , withMenu = View.NoMenu
     , body =
-        [ {- div
-             [ css
-                 [ Tw.max_w_7xl
-                 , Tw.mx_auto
-                 , TwBp.sm [ Tw.px_6 ]
-                 , TwBp.lg [ Tw.px_8 ]
-                 ]
-             ]
-             [
-          -}
-          div
+        [ div
             [ class "relative bg-white" ]
             [ viewLayout
             , viewFormulario model
@@ -350,8 +334,7 @@ view maybeUrl sharedModel model static =
                 div
                     [ class "lg:h-72" ]
                     [ if sharedModel.usuarioStatus == Shared.Desconocido then
-                        Reto.view model.reModel
-                            |> Html.map ReMsg
+                        viewChallenge model.intentos model.queRespondio model.intento
 
                       else
                         text ""
@@ -575,6 +558,92 @@ viewFormulario model =
                     , viewComoSupoDeNos
                     , viewBotonSubmit
                     ]
+                ]
+            ]
+        ]
+
+
+viewChallenge : Int -> String -> Intentos -> Html Msg
+viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
+    div
+        [ class "la-base-modal" ]
+        [ div
+            [ class <|
+                "bg-green-100 shadow rounded-lg mx-auto mt-24 w-10/12 h-64 md:max-w-md md:mx-auto md:mt-48"
+                    ++ (if queHaRespondido == RespondioMal then
+                            " animate-bounce"
+
+                        else
+                            ""
+                       )
+            ]
+            [ Html.h3
+                [ class "pt-4 ml-3 text-xl leading-6 font-medium text-gray-900 md:ml-6" ]
+                [ text "Validación Rápida" ]
+            , Html.p
+                [ class "mt-2 mx-6 text-base leading-5 text-gray-500" ]
+                [ Html.text "Contesta lo siguiente para validar que eres humano y no un bot" ]
+            , div
+                [ class "w-4/5 bg-yellow-100 mt-6 mx-auto h-32" ]
+                [ Html.p
+                    [ class "pt-5 pl-12 text-base font-medium text-gray-700" ]
+                    [ Html.text "Resuleve la siguiente ecuación: " ]
+                , div
+                    [ class "ml-6 mt-4 flex flex-row items-center content-center justify-center text-base" ]
+                    [ Html.p
+                        []
+                        [ Html.text "7 + " ]
+                    , Html.label
+                        [ class "sr-only"
+                        , Attr.for "valor"
+                        ]
+                        [ Html.text "número" ]
+                    , Html.input
+                        [ class "text-center mx-2 w-5 rounded-md shadow-sm sm:leading-5 sm:text-sm"
+
+                        -- Tw.block, Tw.w_full del .apparel-campo
+                        , Attr.id "valor-challenge"
+                        , Attr.autofocus True
+                        , case queHaRespondido of
+                            VaPues ->
+                                Attr.placeholder "?"
+
+                            RespondioMal ->
+                                Attr.value respondioQue
+
+                            VaDeNuevo ->
+                                Attr.value respondioQue
+
+                            YaOk ->
+                                class "animate-ping"
+
+                            EstaFrito ->
+                                class "no-se-que-decirle"
+                        , Events.onInput Respondio
+                        ]
+                        []
+                    , Html.p
+                        []
+                        [ Html.text "= 11" ]
+                    ]
+                , if cuantosIntentosVan >= 1 then
+                    Html.p
+                        [ class <|
+                            "text-right pt-4 mx-4 "
+                                ++ (if cuantosIntentosVan == 1 then
+                                        "text-black"
+
+                                    else if cuantosIntentosVan == 2 then
+                                        "text-red-500"
+
+                                    else
+                                        "text-red-500 font-bold italic"
+                                   )
+                        ]
+                        [ text "Intenta de nuevo!" ]
+
+                  else
+                    Html.p [] []
                 ]
             ]
         ]
