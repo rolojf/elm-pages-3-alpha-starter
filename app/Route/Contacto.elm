@@ -1,8 +1,6 @@
 module Route.Contacto exposing (Data, Model, Msg, route)
 
 import Analytics
-import Browser.Dom as Dom
-import Browser.Navigation
 import DataSource exposing (DataSource)
 import Effect exposing (Effect)
 import Head
@@ -202,11 +200,7 @@ update pageUrl sharedModel static msg model =
 
         EnfocaDespuesDeEsperar ->
             ( model
-            , Effect.none
-              {- Task.attempt
-                 (\_ -> NoOp)
-                 (Dom.focus "valor-challenge")
-              -}
+            , Effect.Enfoca NoOp "valor-challenge"
             , Nothing
             )
 
@@ -246,19 +240,11 @@ update pageUrl sharedModel static msg model =
                         mandaForma
 
                     Reto.EstaFrito ->
-                        Effect.none
+                        Route.toPath Route.Index
+                            |> Pages.Url.fromPath
+                            |> Pages.Url.toString
+                            |> Effect.PushUrl NoOp
 
-                    {- navKey
-                       |> Maybe.map
-                           (\llave ->
-                               Browser.Navigation.pushUrl
-                                   llave
-                                   (Pages.Url.fromPath (Route.toPath Route.Index)
-                                       |> Pages.Url.toString
-                                   )
-                           )
-                       |> Maybe.withDefault Cmd.none
-                    -}
                     _ ->
                         Effect.none
             , if modeloQResulta.intento == Reto.YaOk then

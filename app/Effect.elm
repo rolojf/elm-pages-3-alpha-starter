@@ -1,5 +1,6 @@
 module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
 
+import Browser.Dom as Dom
 import Browser.Navigation
 import Http
 import Process
@@ -18,6 +19,8 @@ type Effect msg
         , path : Maybe String
         , toMsg : Result Http.Error Url -> msg
         }
+    | PushUrl msg String
+    | Enfoca msg String
 
 
 type alias RequestInfo =
@@ -66,6 +69,12 @@ map fn effect =
                 , toMsg = fetchInfo.toMsg >> fn
                 }
 
+        PushUrl msg dire ->
+            PushUrl (fn msg) dire
+
+        Enfoca msg queID ->
+            Enfoca (fn msg) queID
+
 
 perform :
     { fetchRouteData :
@@ -81,7 +90,7 @@ perform :
     }
     -> Effect pageMsg
     -> Cmd msg
-perform ({ fetchRouteData, fromPageMsg } as info) effect =
+perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
     case effect of
         None ->
             Cmd.none
@@ -94,7 +103,7 @@ perform ({ fetchRouteData, fromPageMsg } as info) effect =
 
         EsperaPues cuantosMS toMsg ->
             Task.perform
-                (\() -> (fromPageMsg toMsg))
+                (\() -> fromPageMsg toMsg)
                 (Process.sleep cuantosMS)
 
         SoloAccedeLiga direccion toMsg ->
@@ -111,3 +120,13 @@ perform ({ fetchRouteData, fromPageMsg } as info) effect =
                 , path = fetchInfo.path
                 , toMsg = fetchInfo.toMsg
                 }
+
+        PushUrl toMsg dir ->
+            Browser.Navigation.pushUrl
+                key
+                dir
+
+        Enfoca toMsg queId ->
+            Task.attempt
+                (\_ -> fromPageMsg toMsg)
+                (Dom.focus queId)
