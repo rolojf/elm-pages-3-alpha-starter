@@ -123,6 +123,7 @@ subscriptions _ _ =
 type alias Data =
     { logoTrans : String
     , logoResource : String
+    , altMenuLogo : String
     }
 
 
@@ -137,9 +138,10 @@ yamlDecoder : D.Decoder Data
 yamlDecoder =
     let
         logoDecoder =
-            D.map2 Data
+            D.map3 Data
                 (D.field "transformacion" D.string)
                 (D.field "recurso" D.string)
+                (D.field "altMenuLogo" D.string)
     in
     D.field "menuLogo" logoDecoder
 
@@ -272,7 +274,7 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                         , Html.img
                             [ class "h-8 w-auto sm:h-10"
                             , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
-                            , Attr.alt ""
+                            , Attr.alt dataDelYaml.altMenuLogo
                             ]
                             []
                         ]
@@ -310,7 +312,7 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                                 [ Html.img
                                     [ class "h-8 w-auto"
                                     , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
-                                    , Attr.alt "Workflow"
+                                    , Attr.alt dataDelYaml.altMenuLogo
                                     ]
                                     []
                                 ]
