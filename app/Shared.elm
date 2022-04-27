@@ -1,6 +1,7 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
 
 import DataSource
+import DataSource.File as File
 import Effect exposing (Effect)
 import HeroIcons
 import Html exposing (Html, div, text)
@@ -8,6 +9,7 @@ import Html.Attributes as Attr exposing (class)
 import Html.Events as Event
 import Http
 import Json.Decode as D
+import MiCloudinary
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
@@ -126,10 +128,9 @@ type alias Data =
 
 data : DataSource.DataSource Data
 data =
-    DataSource.succeed
-        { logoTrans = "Uno"
-        , logoResource = "Dos"
-        }
+    File.onlyFrontmatter
+        yamlDecoder
+        "content/shared.yaml"
 
 
 yamlDecoder : D.Decoder Data
@@ -138,7 +139,7 @@ yamlDecoder =
         logoDecoder =
             D.map2 Data
                 (D.field "transformacion" D.string)
-                (D.field "nota" D.string)
+                (D.field "recurso" D.string)
     in
     D.field "menuLogo" logoDecoder
 
@@ -152,7 +153,7 @@ view sharedData page model toMsg pageView =
                     div [] []
 
                 View.SiMenu ligasRecibidas _ ->
-                    viewMenu ligasRecibidas model.showMenu model.showMenuInicial toMsg
+                    viewMenu sharedData ligasRecibidas model.showMenu model.showMenuInicial toMsg
             , Html.main_
                 [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
@@ -161,8 +162,8 @@ view sharedData page model toMsg pageView =
     }
 
 
-viewMenu : List View.Liga -> Bool -> Bool -> (Msg -> msg) -> Html msg
-viewMenu ligas menuOpen byeMenu toMsg =
+viewMenu : Data -> List View.Liga -> Bool -> Bool -> (Msg -> msg) -> Html msg
+viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
     let
         ligasNormales =
             List.filter (\liga -> liga.especial == False) ligas
@@ -270,7 +271,7 @@ viewMenu ligas menuOpen byeMenu toMsg =
                             [ text "Workflow" ]
                         , Html.img
                             [ class "h-8 w-auto sm:h-10"
-                            , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                            , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
                             , Attr.alt ""
                             ]
                             []
@@ -308,7 +309,7 @@ viewMenu ligas menuOpen byeMenu toMsg =
                             [ div []
                                 [ Html.img
                                     [ class "h-8 w-auto"
-                                    , Attr.src "https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                                    , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
                                     , Attr.alt "Workflow"
                                     ]
                                     []
