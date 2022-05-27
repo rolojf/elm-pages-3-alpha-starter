@@ -6,3 +6,4 @@ dist/
 functions/render
 functions/server-render
 .idea
+/.pnpm-debug.log

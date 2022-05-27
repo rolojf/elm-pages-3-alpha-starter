@@ -1,5 +1,5 @@
 {
-  "name": "elm-pages-app",
+  "name": "mep3-app",
   "scripts": {
     "postinstall": "elm-tooling install",
     "elm": "elm-pages dev",
@@ -11,18 +11,18 @@
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.0",
-    "@tailwindcss/forms": "0.5.0",
-    "@tailwindcss/line-clamp": "^0.3.1",
+    "@tailwindcss/forms": "0.5.2",
+    "@tailwindcss/line-clamp": "^0.4.0",
     "@tailwindcss/typography": "^0.5.2",
-    "autoprefixer": "^10.4.4",
-    "concurrently": "7.1.0",
+    "autoprefixer": "^10.4.7",
+    "concurrently": "7.2.1",
     "elm-optimize-level-2": "^0.3.4",
     "elm-pages": "file:elm-pages",
-    "elm-review": "^2.7.1",
-    "elm-tooling": "^1.7.0",
-    "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23",
-    "vite": "^2.9.1"
+    "elm-review": "^2.7.2",
+    "elm-tooling": "^1.8.0",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.0.24",
+    "vite": "^2.9.9"
   },
   "dependencies": {
     "@netlify/functions": "^1.0.0"
