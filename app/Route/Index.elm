@@ -243,55 +243,45 @@ notifAppear show =
 
 retroFinal : String -> String -> StatusNotificacion -> Html Msg
 retroFinal titulo subtitulo debeAparecer =
-    {- Animated.div
-       (notifAppear debeAparecer)
-    -}
-    case debeAparecer of
-        ConStatusMostrar ->
-            div
-                [ Attr.attribute "aria-live" "assertive"
-                , class "tw fixed inset-0 flex items-end px-4 py-6 z-20 pointer-events-none sm:p-6 lg:items-center"
-                ]
+    Animated.div
+        (notifAppear debeAparecer)
+        [ Attr.attribute "aria-live" "assertive"
+        , class "tw fixed inset-0 flex items-end px-4 py-6 z-20 pointer-events-none sm:p-6 lg:items-center"
+        ]
+        [ div
+            [ class "tw w-full flex flex-col items-center space-y-4z sm:items-start lg:items-end" ]
+            [ div
+                [ class "tw max-w-sm w-full bg-gray-200 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden" ]
                 [ div
-                    [ class "tw w-full flex flex-col items-center space-y-4z sm:items-start lg:items-end" ]
+                    [ class "tw p-4" ]
                     [ div
-                        [ class "tw max-w-sm w-full bg-gray-200 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden" ]
+                        [ class "tw flex items-start" ]
                         [ div
-                            [ class "tw p-4" ]
-                            [ div
-                                [ class "tw flex items-start" ]
-                                [ div
-                                    [ class "tw flex-shrink-0" ]
-                                    [ HeroIcons.outlineCheckCircle ]
-                                , div
-                                    [ class "tw ml-3 w-0 flex-1 pt-0.5" ]
-                                    [ Html.p
-                                        [ class "tw text-sm font-medium text-gray-900" ]
-                                        [ text titulo ]
-                                    , Html.p
-                                        [ class "tw mt-1 text-sm text-gray-500" ]
-                                        [ text subtitulo ]
-                                    ]
-                                , div
-                                    [ class "tw ml-4 flex-shrink-0 flex" ]
-                                    [ Html.button
-                                        [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        , Event.onClick CierraNoti
-                                        ]
-                                        [ Html.span
-                                            [ class "tw sr-only" ]
-                                            [ text "Close" ]
-                                        , HeroIcons.solidX
-                                        ]
-                                    ]
+                            [ class "tw flex-shrink-0" ]
+                            [ HeroIcons.outlineCheckCircle ]
+                        , div
+                            [ class "tw ml-3 w-0 flex-1 pt-0.5" ]
+                            [ Html.p
+                                [ class "tw text-sm font-medium text-gray-900" ]
+                                [ text titulo ]
+                            , Html.p
+                                [ class "tw mt-1 text-sm text-gray-500" ]
+                                [ text subtitulo ]
+                            ]
+                        , div
+                            [ class "tw ml-4 flex-shrink-0 flex" ]
+                            [ Html.button
+                                [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                , Event.onClick CierraNoti
+                                ]
+                                [ Html.span
+                                    [ class "tw sr-only" ]
+                                    [ text "Close" ]
+                                , HeroIcons.solidX
                                 ]
                             ]
                         ]
                     ]
                 ]
-
-        NoStatusYet ->
-            div [] []
-
-        ConStatusOcultar ->
-            div [] []
+            ]
+        ]
