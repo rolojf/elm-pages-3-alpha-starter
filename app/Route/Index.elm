@@ -2,10 +2,14 @@ module Route.Index exposing (Data, Model, Msg, route)
 
 import DataSource exposing (DataSource)
 import DataSource.File as File
+import Effect exposing (Effect)
 import Head
 import Head.Seo as Seo
+import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
+import Html.Events as Event
+import Http
 import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
@@ -14,30 +18,65 @@ import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
 import Route exposing (Route)
-import RouteBuilder exposing (StatelessRoute, StaticPayload)
+import RouteBuilder exposing (StatefulRoute, StaticPayload)
 import Shared
+import Simple.Animation as Animation exposing (Animation)
+import Simple.Animation.Animated as Animated
+import Simple.Animation.Property as P
 import View exposing (View)
 
 
+
+-- StatefulRoute routeParams data model msg
+
+
 type alias Model =
-    {}
+    { verNotificaciones : Maybe Bool }
 
 
-type alias Msg =
-    ()
+type Msg
+    = CierraNoti
+    | NoOp
 
 
 type alias RouteParams =
     {}
 
 
-route : StatelessRoute RouteParams Data
+route : StatefulRoute RouteParams Data Model Msg
 route =
     RouteBuilder.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> RouteBuilder.buildWithLocalState
+            { view = view
+            , update = update
+            , subscriptions = subscriptions
+            , init = init
+            }
+
+
+init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Effect Msg )
+init maybePageUrl sharedModel static =
+    ( { verNotificaciones = Nothing }, Effect.none )
+
+
+update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
+update pageUrl sharedModel static msg model =
+    case msg of
+        NoOp ->
+            ( model, Effect.none )
+
+        CierraNoti ->
+            ( { model | verNotificaciones = Just False }
+            , Effect.none
+            )
+
+
+subscriptions : Maybe PageUrl -> RouteParams -> Path -> Shared.Model -> Model -> Sub Msg
+subscriptions maybePageUrl routeParams path sharedModel model =
+    Sub.none
 
 
 type alias Data =
@@ -77,9 +116,7 @@ data =
         getDataFromMD
 
 
-head :
-    StaticPayload Data RouteParams
-    -> List Head.Tag
+head : StaticPayload Data RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
@@ -97,21 +134,151 @@ head static =
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view maybeUrl sharedModel static =
+view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data RouteParams -> View Msg
+view maybeUrl sharedModel model static =
     { title = static.data.delMD.title
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
         , Html.div
             [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
+            |> Html.map (\_ -> NoOp)
         , Route.Blog__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
     , withMenu =
         static.data.delMD.menu
     }
+
+
+
+-- Notificaciones - modals
+
+
+respFromPost : Result Http.Error String -> String
+respFromPost resp =
+    case resp of
+        Ok _ ->
+            "Registrado Ok, nos comunicaremos pronto."
+
+        Err cual ->
+            case cual of
+                Http.BadUrl urlBad ->
+                    "Pero, error en programa " ++ urlBad
+
+                Http.Timeout ->
+                    "No respondió el servidor, Intente de nuevo."
+
+                Http.NetworkError ->
+                    "Falló el internet."
+
+                Http.BadStatus codigo ->
+                    "Servidor regresó error " ++ String.fromInt codigo
+
+                Http.BadBody infoEnviada ->
+                    "Problemas con la información " ++ String.left 20 infoEnviada
+
+
+viewNotificacion : Shared.UsuarioSt -> Maybe Bool -> Html Msg
+viewNotificacion usrStatus verNotif =
+    case usrStatus of
+        Shared.Conocido respBasin ->
+            retroFinal
+                HeroIcons.outlineCheckCircle
+                "Formulario Recibido"
+                (respFromPost respBasin)
+                verNotif
+                |> Html.map (\_ -> CierraNoti)
+
+        Shared.Rechazado ->
+            retroFinal
+                HeroIcons.outlineCheckCircle
+                "¡Información no registrada!"
+                "Era necesario resolver la ecuación."
+                verNotif
+                |> Html.map (\_ -> CierraNoti)
+
+        Shared.Desconocido ->
+            div [] []
+
+
+notifAppear : Maybe Bool -> Animation
+notifAppear show =
+    case show of
+        Nothing ->
+            Animation.empty
+
+        Just siAmimar ->
+            if siAmimar then
+                Animation.fromTo
+                    { duration = 750
+                    , options =
+                        [ Animation.delay 1100
+                        , Animation.easeOut
+                        ]
+                    }
+                    [ P.opacity 0, P.scale 0.92 ]
+                    [ P.opacity 1, P.scale 1 ]
+
+            else
+                Animation.fromTo
+                    { duration = 125
+                    , options = [ Animation.easeIn ]
+                    }
+                    [ P.opacity 1, P.scale 1, P.y 0.8 ]
+                    [ P.opacity 0, P.scale 0.92, P.y 0 ]
+
+
+retroFinal : Html Msg -> String -> String -> Maybe Bool -> Html Msg
+retroFinal icono titulo subtitulo debeAparecer =
+    Animated.div
+        (notifAppear debeAparecer)
+        [ Attr.attribute "tw aria-live" "assertive"
+        , class "tw fixed inset-0 flex items-end px-4 py-6 z-20 pointer-events-none sm:p-6 lg:items-center"
+        ]
+        [ div [ class "tw w-full flex flex-col items-center space-y-4z sm:items-start lg:items-end" ]
+            [ {-
+                 Notification panel, dynamically insert this into the live region when it needs to be displayed
+
+                 Entering: "transform ease-out duration-300 transition"
+                   From: "translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                   To: "translate-y-0 opacity-100 sm:translate-x-0"
+                 Leaving: "transition ease-in duration-100"
+                   From: "opacity-100"
+                   To: "opacity-0"
+              -}
+              div
+                [ class "tw max-w-sm w-full bg-gray-200 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden" ]
+                [ div
+                    [ class "tw p-4" ]
+                    [ div
+                        [ class "tw flex items-start" ]
+                        [ div
+                            [ class "tw flex-shrink-0" ]
+                            [ icono ]
+                        , div
+                            [ class "tw ml-3 w-0 flex-1 pt-0.5" ]
+                            [ Html.p
+                                [ class "tw text-sm font-medium text-gray-900" ]
+                                [ text titulo ]
+                            , Html.p
+                                [ class "tw mt-1 text-sm text-gray-500" ]
+                                [ text subtitulo ]
+                            ]
+                        , div
+                            [ class "tw ml-4 flex-shrink-0 flex" ]
+                            [ Html.button
+                                [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                , Event.onClick CierraNoti
+                                ]
+                                [ Html.span
+                                    [ class "tw sr-only" ]
+                                    [ text "Close" ]
+                                , HeroIcons.solidX
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]

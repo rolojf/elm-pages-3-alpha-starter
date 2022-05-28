@@ -87,10 +87,10 @@ ligasDecoder =
 -}
 
 
-opMenuToDecode : { complementos | mainHero : Html (), afterHero : Html () } -> Decoder (View.MenuInfo ())
+opMenuToDecode : { complementos | mainHero : Html msg, afterHero : Html msg } -> Decoder (View.MenuInfo msg)
 opMenuToDecode complementos =
     let
-        decodeMenu : Decoder (View.MenuInfo ())
+        decodeMenu : Decoder (View.MenuInfo msg)
         decodeMenu =
             Decode.field
                 "menu"
