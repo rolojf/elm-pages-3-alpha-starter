@@ -131,7 +131,7 @@ view maybeUrl sharedModel static =
     { title = static.data.delMD.title
     , body =
         [ Html.div
-            [ class "prose" ]
+            [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
         ]
     , withMenu =

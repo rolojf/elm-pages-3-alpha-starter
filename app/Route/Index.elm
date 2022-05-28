@@ -107,7 +107,7 @@ view maybeUrl sharedModel static =
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
         , Html.div
-            [ class "prose" ]
+            [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
         , Route.Blog__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]

@@ -157,7 +157,7 @@ view sharedData page model toMsg pageView =
                 View.SiMenu ligasRecibidas _ ->
                     viewMenu sharedData ligasRecibidas model.showMenu model.showMenuInicial toMsg
             , Html.main_
-                [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
+                [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
             ]
     , title = pageView.title
@@ -192,11 +192,11 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
         ligaNormalDesk : Html msg
         ligaNormalDesk =
             Html.nav
-                [ class "hidden md:flex space-x-10" ]
+                [ class "tw hidden md:flex space-x-10" ]
                 (List.map
                     (\cadaLiga ->
                         setLink
-                            "text-base font-medium text-gray-500 hover:text-gray-900"
+                            "tw text-base font-medium text-gray-500 hover:text-gray-900"
                             (text cadaLiga.queDice)
                             cadaLiga
                     )
@@ -206,11 +206,11 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
         ligaEspecialDesk : Html msg
         ligaEspecialDesk =
             div
-                [ class "hidden md:flex items-center justify-end md:flex-1 lg:w-0" ]
+                [ class "tw hidden md:flex items-center justify-end md:flex-1 lg:w-0" ]
                 (List.map
                     (\cadaLiga ->
                         setLink
-                            "ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            "tw ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                             (text cadaLiga.queDice)
                             cadaLiga
                     )
@@ -221,9 +221,9 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
             List.map
                 (\cadaLiga ->
                     setLink
-                        "-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                        "tw -m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
                         (Html.span
-                            [ class "ml-3 text-base font-medium text-gray-900" ]
+                            [ class "tw ml-3 text-base font-medium text-gray-900" ]
                             [ text cadaLiga.queDice ]
                         )
                         cadaLiga
@@ -235,7 +235,7 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                 (List.map
                     (\cadaLiga ->
                         setLink
-                            "w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            "tw w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                             (text cadaLiga.queDice)
                             cadaLiga
                     )
@@ -261,18 +261,18 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                     [ P.opacity 0, P.scale 0.92 ]
     in
     div
-        [ class "relative bg-white"
+        [ class "tw relative bg-white"
         ]
-        [ div [ class "max-w-7xl mx-auto px-4 sm:px-6" ]
-            [ div [ class "flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10" ]
-                [ div [ class "flex justify-start lg:w-0 lg:flex-1" ]
+        [ div [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
+            [ div [ class "tw flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10" ]
+                [ div [ class "tw flex justify-start lg:w-0 lg:flex-1" ]
                     [ Html.a
                         [ Attr.href "#" ]
                         [ Html.span
-                            [ class "sr-only" ]
+                            [ class "tw sr-only" ]
                             [ text "Workflow" ]
                         , Html.img
-                            [ class "h-8 w-auto sm:h-10"
+                            [ class "tw h-8 w-auto sm:h-10"
                             , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
                             , Attr.alt dataDelYaml.altMenuLogo
                             ]
@@ -280,15 +280,15 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                         ]
                     ]
                 , div
-                    [ class "-mr-2 -my-2 md:hidden" ]
+                    [ class "tw -mr-2 -my-2 md:hidden" ]
                     [ Html.button
                         [ Attr.type_ "button"
-                        , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        , class "tw bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                         , Attr.attribute "aria-expanded" "false"
                         , Event.onClick ToggleMenu
                         ]
                         [ Html.span
-                            [ class "sr-only" ]
+                            [ class "tw sr-only" ]
                             [ text "Open menu" ]
                         , HeroIcons.outlineMenu
                         ]
@@ -301,30 +301,30 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
         , if byeMenu then
             Animated.div
                 showMovilMenu
-                [ class "absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
+                [ class "tw absolute top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden" ]
                 [ div
-                    [ class " bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
+                    [ class " tw bg-slate-100 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white divide-y-2 divide-gray-50" ]
                     [ div
-                        [ class "pt-5 pb-6 px-5" ]
+                        [ class "tw pt-5 pb-6 px-5" ]
                         [ div
-                            [ class "flex items-center justify-between" ]
+                            [ class "tw flex items-center justify-between" ]
                             [ div []
                                 [ Html.img
-                                    [ class "h-8 w-auto"
+                                    [ class "tw h-8 w-auto"
                                     , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
                                     , Attr.alt dataDelYaml.altMenuLogo
                                     ]
                                     []
                                 ]
                             , div
-                                [ class "-mr-2" ]
+                                [ class "tw -mr-2" ]
                                 [ Html.button
                                     [ Attr.type_ "button"
                                     , Event.onClick ToggleMenu
-                                    , class "bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                                    , class "tw bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                                     ]
                                     [ Html.span
-                                        [ class "sr-only" ]
+                                        [ class "tw sr-only" ]
                                         [ text "Close menu" ]
                                     , HeroIcons.outlineX
                                     ]
@@ -332,14 +332,14 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                                 ]
                             ]
                         , div
-                            [ class "mt-6" ]
+                            [ class "tw mt-6" ]
                             [ Html.nav
-                                [ class "grid gap-y-8" ]
+                                [ class "tw grid gap-y-8" ]
                                 ligaNormalMovil
                             ]
                         ]
                     , div
-                        [ class "py-6 px-5 space-y-6"
+                        [ class "tw py-6 px-5 space-y-6"
                         ]
                         [ ligaEspecialMovil
                         ]
