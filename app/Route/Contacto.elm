@@ -60,6 +60,7 @@ type Intentos
     = VaPues
     | RespondioMal
     | YaOk
+    | VaDeNuevo
 
 
 type Msg
@@ -233,6 +234,7 @@ update pageUrl sharedModel static msg model =
             ( { model
                 | queRespondio = ""
                 , intentos = model.intentos + 1
+                , intento = VaDeNuevo
               }
             , if model.intentos >= 3 || model.intento == YaOk then
                 Route.toPath Route.Index
@@ -603,6 +605,9 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
 
                             YaOk ->
                                 class "tw animate-ping"
+
+                            VaDeNuevo ->
+                                Attr.value " "
                         , Events.onInput Respondio
                         ]
                         []
