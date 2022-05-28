@@ -31,7 +31,13 @@ import View exposing (View)
 
 
 type alias Model =
-    { verNotificaciones : Maybe Bool }
+    { verNotificaciones : StatusNotificacion }
+
+
+type StatusNotificacion
+    = NoStatusYet
+    | ConStatusMostrar
+    | ConStatusOcultar
 
 
 type Msg
@@ -59,7 +65,15 @@ route =
 
 init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Effect Msg )
 init maybePageUrl sharedModel static =
-    ( { verNotificaciones = Nothing }, Effect.none )
+    ( { verNotificaciones =
+            if sharedModel.usuarioStatus == Shared.Desconocido then
+                NoStatusYet
+
+            else
+                ConStatusMostrar
+      }
+    , Effect.none
+    )
 
 
 update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
@@ -69,7 +83,7 @@ update pageUrl sharedModel static msg model =
             ( model, Effect.none )
 
         CierraNoti ->
-            ( { model | verNotificaciones = Just False }
+            ( { model | verNotificaciones = ConStatusOcultar }
             , Effect.none
             )
 
@@ -138,8 +152,9 @@ view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data RouteParams 
 view maybeUrl sharedModel model static =
     { title = static.data.delMD.title
     , body =
-        [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
-        , Html.div
+        [ Html.h1 [] [ text "elm-pages is up and running!" ]
+        , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
+        , div
             [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> NoOp)
@@ -179,106 +194,104 @@ respFromPost resp =
                     "Problemas con la información " ++ String.left 20 infoEnviada
 
 
-viewNotificacion : Shared.UsuarioSt -> Maybe Bool -> Html Msg
+viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html Msg
 viewNotificacion usrStatus verNotif =
     case usrStatus of
         Shared.Conocido respBasin ->
             retroFinal
-                HeroIcons.outlineCheckCircle
                 "Formulario Recibido"
                 (respFromPost respBasin)
                 verNotif
-                |> Html.map (\_ -> CierraNoti)
 
+        --                |> Html.map (\_ -> CierraNoti)
         Shared.Rechazado ->
             retroFinal
-                HeroIcons.outlineCheckCircle
                 "¡Información no registrada!"
                 "Era necesario resolver la ecuación."
                 verNotif
-                |> Html.map (\_ -> CierraNoti)
 
+        --                |> Html.map (\_ -> CierraNoti)
         Shared.Desconocido ->
             div [] []
 
 
-notifAppear : Maybe Bool -> Animation
+notifAppear : StatusNotificacion -> Animation
 notifAppear show =
     case show of
-        Nothing ->
+        NoStatusYet ->
             Animation.empty
 
-        Just siAmimar ->
-            if siAmimar then
-                Animation.fromTo
-                    { duration = 750
-                    , options =
-                        [ Animation.delay 1100
-                        , Animation.easeOut
-                        ]
-                    }
-                    [ P.opacity 0, P.scale 0.92 ]
-                    [ P.opacity 1, P.scale 1 ]
+        ConStatusMostrar ->
+            Animation.fromTo
+                { duration = 750
+                , options =
+                    [ Animation.delay 1100
+                    , Animation.easeOut
+                    ]
+                }
+                [ P.opacity 0, P.scale 0.92 ]
+                [ P.opacity 1, P.scale 1 ]
 
-            else
-                Animation.fromTo
-                    { duration = 125
-                    , options = [ Animation.easeIn ]
-                    }
-                    [ P.opacity 1, P.scale 1, P.y 0.8 ]
-                    [ P.opacity 0, P.scale 0.92, P.y 0 ]
+        ConStatusOcultar ->
+            Animation.fromTo
+                { duration = 125
+                , options = [ Animation.easeIn ]
+                }
+                [ P.opacity 1, P.scale 1, P.y 0.8 ]
+                [ P.opacity 0, P.scale 0.92, P.y 0 ]
 
 
-retroFinal : Html Msg -> String -> String -> Maybe Bool -> Html Msg
-retroFinal icono titulo subtitulo debeAparecer =
-    Animated.div
-        (notifAppear debeAparecer)
-        [ Attr.attribute "tw aria-live" "assertive"
-        , class "tw fixed inset-0 flex items-end px-4 py-6 z-20 pointer-events-none sm:p-6 lg:items-center"
-        ]
-        [ div [ class "tw w-full flex flex-col items-center space-y-4z sm:items-start lg:items-end" ]
-            [ {-
-                 Notification panel, dynamically insert this into the live region when it needs to be displayed
-
-                 Entering: "transform ease-out duration-300 transition"
-                   From: "translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                   To: "translate-y-0 opacity-100 sm:translate-x-0"
-                 Leaving: "transition ease-in duration-100"
-                   From: "opacity-100"
-                   To: "opacity-0"
-              -}
-              div
-                [ class "tw max-w-sm w-full bg-gray-200 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden" ]
+retroFinal : String -> String -> StatusNotificacion -> Html Msg
+retroFinal titulo subtitulo debeAparecer =
+    {- Animated.div
+       (notifAppear debeAparecer)
+    -}
+    case debeAparecer of
+        ConStatusMostrar ->
+            div
+                [ Attr.attribute "aria-live" "assertive"
+                , class "tw fixed inset-0 flex items-end px-4 py-6 z-20 pointer-events-none sm:p-6 lg:items-center"
+                ]
                 [ div
-                    [ class "tw p-4" ]
+                    [ class "tw w-full flex flex-col items-center space-y-4z sm:items-start lg:items-end" ]
                     [ div
-                        [ class "tw flex items-start" ]
+                        [ class "tw max-w-sm w-full bg-gray-200 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden" ]
                         [ div
-                            [ class "tw flex-shrink-0" ]
-                            [ icono ]
-                        , div
-                            [ class "tw ml-3 w-0 flex-1 pt-0.5" ]
-                            [ Html.p
-                                [ class "tw text-sm font-medium text-gray-900" ]
-                                [ text titulo ]
-                            , Html.p
-                                [ class "tw mt-1 text-sm text-gray-500" ]
-                                [ text subtitulo ]
-                            ]
-                        , div
-                            [ class "tw ml-4 flex-shrink-0 flex" ]
-                            [ Html.button
-                                [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                , Event.onClick CierraNoti
-                                ]
-                                [ Html.span
-                                    [ class "tw sr-only" ]
-                                    [ text "Close" ]
-                                , HeroIcons.solidX
+                            [ class "tw p-4" ]
+                            [ div
+                                [ class "tw flex items-start" ]
+                                [ div
+                                    [ class "tw flex-shrink-0" ]
+                                    [ HeroIcons.outlineCheckCircle ]
+                                , div
+                                    [ class "tw ml-3 w-0 flex-1 pt-0.5" ]
+                                    [ Html.p
+                                        [ class "tw text-sm font-medium text-gray-900" ]
+                                        [ text titulo ]
+                                    , Html.p
+                                        [ class "tw mt-1 text-sm text-gray-500" ]
+                                        [ text subtitulo ]
+                                    ]
+                                , div
+                                    [ class "tw ml-4 flex-shrink-0 flex" ]
+                                    [ Html.button
+                                        [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        , Event.onClick CierraNoti
+                                        ]
+                                        [ Html.span
+                                            [ class "tw sr-only" ]
+                                            [ text "Close" ]
+                                        , HeroIcons.solidX
+                                        ]
+                                    ]
                                 ]
                             ]
                         ]
                     ]
                 ]
-            ]
-        ]
+
+        NoStatusYet ->
+            div [] []
+
+        ConStatusOcultar ->
+            div [] []
