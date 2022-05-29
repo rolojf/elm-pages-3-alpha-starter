@@ -3,6 +3,7 @@ module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
 import Browser.Dom as Dom
 import Browser.Navigation
 import Http
+import Json.Encode as Encode
 import Process
 import Task
 import Url exposing (Url)
@@ -19,8 +20,12 @@ type Effect msg
         , path : Maybe String
         , toMsg : Result Http.Error Url -> msg
         }
-    | PushUrl msg String
+    | PushUrl String
     | Enfoca msg String
+    | MandaABasin
+        { respuestas : Encode.Value
+        , toMsg : Result Http.Error String -> msg
+        }
 
 
 type alias RequestInfo =
@@ -69,11 +74,17 @@ map fn effect =
                 , toMsg = fetchInfo.toMsg >> fn
                 }
 
-        PushUrl msg dire ->
-            PushUrl (fn msg) dire
+        PushUrl dire ->
+            PushUrl dire
 
         Enfoca msg queID ->
             Enfoca (fn msg) queID
+
+        MandaABasin someInfo ->
+            MandaABasin
+                { respuestas = someInfo.respuestas
+                , toMsg = someInfo.toMsg >> fn
+                }
 
 
 perform :
@@ -121,7 +132,7 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
                 , toMsg = fetchInfo.toMsg
                 }
 
-        PushUrl toMsg dir ->
+        PushUrl dir ->
             Browser.Navigation.pushUrl
                 key
                 dir
@@ -130,3 +141,12 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
             Task.attempt
                 (\_ -> fromPageMsg toMsg)
                 (Dom.focus queId)
+
+        MandaABasin infoPasada ->
+            Http.post
+                { url = "https://usebasin.com/f/41489cfac434"
+                , body = Http.jsonBody infoPasada.respuestas
+                , expect =
+                    Http.expectString
+                        (infoPasada.toMsg >> fromPageMsg)
+                }

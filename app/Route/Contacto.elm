@@ -48,7 +48,8 @@ type alias Model =
     , apellido : String
     , listo : Bool
     , respondio : Bool
-    , deBasin : Result Http.Error String
+
+    --, deBasin : Result Http.Error String
     , intentos : Int
     , listoReto : Bool
     , intento : Intentos
@@ -74,7 +75,7 @@ type Msg
     | EnfocaDespuesDeEsperar
     | NoOp
     | RespondeBasin (Result Http.Error String)
-    | Notificado (Result Http.Error ())
+    | AvisadoAnalytics (Result Http.Error ())
     | IntentaDeNuez
     | Respondio String
 
@@ -89,7 +90,8 @@ init maybePageUrl sharedModel static =
       , apellido = ""
       , listo = False
       , respondio = False
-      , deBasin = Err (Http.BadStatus 9999)
+
+      --, deBasin = Err (Http.BadStatus 9999)
       , intentos = 0
       , listoReto = False
       , intento = VaPues
@@ -124,7 +126,7 @@ superUpdate url sharedModel static msg model =
         [ comandos
         , Analytics.toCmd
             analyticsEvent
-            Notificado
+            AvisadoAnalytics
         ]
     , siSharedMsg
     )
@@ -136,18 +138,6 @@ superUpdate url sharedModel static msg model =
 
 update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 update pageUrl sharedModel static msg model =
-    let
-        cuerpoPost : Encode.Value
-        cuerpoPost =
-            Encode.object
-                [ ( "name", Encode.string model.nombre )
-                , ( "apellido", Encode.string model.apellido )
-                , ( "correo", Encode.string model.correo )
-                , ( "telefono", Encode.string model.telefono )
-                , ( "llego", Encode.string model.comoSupo )
-                , ( "comentario", Encode.string model.comentario )
-                ]
-    in
     case msg of
         Nombre cCampo ->
             ( { model | nombre = cCampo }, Effect.none, Nothing )
@@ -201,6 +191,17 @@ update pageUrl sharedModel static msg model =
 
                     else
                         False
+
+                cuerpoPost : Encode.Value
+                cuerpoPost =
+                    Encode.object
+                        [ ( "name", Encode.string model.nombre )
+                        , ( "apellido", Encode.string model.apellido )
+                        , ( "correo", Encode.string model.correo )
+                        , ( "telefono", Encode.string model.telefono )
+                        , ( "llego", Encode.string model.comoSupo )
+                        , ( "comentario", Encode.string model.comentario )
+                        ]
             in
             ( { model
                 | queRespondio = conQue
@@ -211,23 +212,24 @@ update pageUrl sharedModel static msg model =
                     else
                         RespondioMal
               }
-              {- Http.post
-                 { url = "https://usebasin.com/f/41489cfac434"
-                 , body = Http.jsonBody cuerpoPost
-                 , expect = Http.expectString RespondeBasin
-              -}
-            , Effect.EsperaPues
-                500.0
-                IntentaDeNuez
             , if seLaSupo then
-                Ok "Todos Felices y Contentos"
-                    |> Shared.Conocido
-                    |> Shared.CambiaStatus
-                    |> Shared.SharedMsg
-                    |> Just
+                Effect.MandaABasin
+                    { respuestas = cuerpoPost
+                    , toMsg = RespondeBasin
+                    }
 
               else
-                Nothing
+                Effect.EsperaPues 500.0 IntentaDeNuez
+            , {- if seLaSupo then
+                   Ok "Todos Felices y Contentos"
+                       |> Shared.Conocido
+                       |> Shared.CambiaStatus
+                       |> Shared.SharedMsg
+                       |> Just
+
+                 else
+              -}
+              Nothing
             )
 
         IntentaDeNuez ->
@@ -236,11 +238,11 @@ update pageUrl sharedModel static msg model =
                 , intentos = model.intentos + 1
                 , intento = VaDeNuevo
               }
-            , if model.intentos >= 3 || model.intento == YaOk then
+            , if model.intentos >= 3 then
                 Route.toPath Route.Index
                     |> Pages.Url.fromPath
                     |> Pages.Url.toString
-                    |> Effect.PushUrl NoOp
+                    |> Effect.PushUrl
 
               else
                 Effect.none
@@ -258,18 +260,19 @@ update pageUrl sharedModel static msg model =
             )
 
         RespondeBasin respuesta ->
-            ( { model | deBasin = respuesta }
+            ( model
+              -- { model | deBasin = respuesta }
             , Route.toPath Route.Index
                 |> Pages.Url.fromPath
                 |> Pages.Url.toString
-                |> Effect.PushUrl NoOp
+                |> Effect.PushUrl
             , Shared.Conocido respuesta
                 |> Shared.CambiaStatus
                 |> Shared.SharedMsg
                 |> Just
             )
 
-        Notificado resulto ->
+        AvisadoAnalytics resulto ->
             ( model
             , Effect.none
             , case resulto of
