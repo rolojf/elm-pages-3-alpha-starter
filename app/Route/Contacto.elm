@@ -605,7 +605,7 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
                                 class "tw animate-ping"
 
                             VaDeNuevo ->
-                                Attr.value " "
+                                Attr.value ""
                         , Events.onInput Respondio
                         ]
                         []
