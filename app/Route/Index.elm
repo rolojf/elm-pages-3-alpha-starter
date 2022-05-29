@@ -203,14 +203,12 @@ viewNotificacion usrStatus verNotif =
                 (respFromPost respBasin)
                 verNotif
 
-        --                |> Html.map (\_ -> CierraNoti)
         Shared.Rechazado ->
             retroFinal
                 "¡Información no registrada!"
                 "Era necesario resolver la ecuación."
                 verNotif
 
-        --                |> Html.map (\_ -> CierraNoti)
         Shared.Desconocido ->
             div [] []
 

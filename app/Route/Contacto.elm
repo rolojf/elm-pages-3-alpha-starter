@@ -325,12 +325,7 @@ view maybeUrl sharedModel model static =
             , if model.listo then
                 div
                     [ class "tw lg:h-72" ]
-                    [ if sharedModel.usuarioStatus == Shared.Desconocido then
-                        viewChallenge model.intentos model.queRespondio model.intento
-
-                      else
-                        text ""
-                    ]
+                    [ viewChallenge model.intentos model.queRespondio model.intento ]
 
               else
                 div [] []
@@ -618,7 +613,7 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
                 , if cuantosIntentosVan >= 1 then
                     Html.p
                         [ class <|
-                            "text-right pt-4 mx-4 "
+                            "tw text-right pt-4 mx-4 "
                                 ++ (if cuantosIntentosVan == 1 then
                                         "tw text-black"
 
