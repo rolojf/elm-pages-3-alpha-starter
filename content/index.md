@@ -11,7 +11,7 @@ menu:
     queDice: Nota Hola
     dir: blog/hola
     especial: false
-    externa: true
+    externa: false
   -
     queDice: Sobre Nosotros
     dir: about
@@ -21,7 +21,7 @@ menu:
     queDice: ¡Contáctanos!
     dir: contacto
     especial: true
-    externa: true
+    externa: false
 ---
 GitHub Flavored Markdown
 ================================

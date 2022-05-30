@@ -163,7 +163,7 @@ view sharedData page model toMsg pageView =
                     div [] []
 
                 View.SiMenu ligasRecibidas _ ->
-                    viewMenu sharedData ligasRecibidas model.showMenu model.showMenuInicial toMsg
+                    viewMenu page.route sharedData ligasRecibidas model.showMenu model.showMenuInicial toMsg
             , Html.main_
                 [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
@@ -173,9 +173,24 @@ view sharedData page model toMsg pageView =
     }
 
 
-viewMenu : Data -> List View.Liga -> Bool -> Bool -> (Msg -> msg) -> Html msg
-viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
+viewMenu : Maybe Route -> Data -> List View.Liga -> Bool -> Bool -> (Msg -> msg) -> Html msg
+viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
     let
+        quePagina : String
+        quePagina =
+            localRoute
+                |> Maybe.map Route.routeToPath
+                |> Maybe.withDefault [ "pagina-rara" ]
+                |> List.foldr String.append ""
+
+        quePaginaCompuesta : String
+        quePaginaCompuesta =
+            if String.isEmpty quePagina then
+                "pag-index"
+
+            else
+                String.append "pag-" quePagina
+
         ligasNormales =
             List.filter (\liga -> liga.especial == False) ligas
 
@@ -191,7 +206,8 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                             |> Path.toSegments
                             |> List.reverse
                             |> List.head
-                            |> Maybe.withDefault "liga-externa-rara"
+                            |> Maybe.withDefault "-ligaexterna-rara-"
+                            |> String.append (quePaginaCompuesta ++ "-menuliga-externa-")
                             |> AnalyticsUsoMenu
                             |> Event.onClick
                         ]
@@ -210,7 +226,8 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
                             |> Path.toSegments
                             |> List.reverse
                             |> List.head
-                            |> Maybe.withDefault "liga-rara"
+                            |> Maybe.withDefault "-ligainterna-rara-"
+                            |> String.append (quePaginaCompuesta ++ "-menuliga-interna-")
                             |> AnalyticsUsoMenu
                             |> Event.onClick
                         ]
