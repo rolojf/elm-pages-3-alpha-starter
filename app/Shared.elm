@@ -159,6 +159,7 @@ view sharedData page model toMsg pageView =
             , Html.main_
                 [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
+            , div [] (viewErroresAlNotificar model.errorAlNotificar)
             ]
     , title = pageView.title
     }
@@ -358,7 +359,7 @@ viewErroresAlNotificar cualError =
             []
 
         Just error ->
-            [ div [] [ text <| viewHttpError error ] ]
+            [ text <| viewHttpError error ]
 
 
 viewHttpError : Http.Error -> String
