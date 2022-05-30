@@ -1,5 +1,6 @@
 module Route.Index exposing (Data, Model, Msg, route)
 
+import Analytics
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import Effect exposing (Effect)
@@ -43,6 +44,7 @@ type StatusNotificacion
 type Msg
     = CierraNoti
     | NoOp
+    | AvisadoAnalytics (Result Http.Error ())
 
 
 type alias RouteParams =
@@ -76,6 +78,33 @@ init maybePageUrl sharedModel static =
     )
 
 
+superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
+superUpdate url sharedModel static msg model =
+    let
+        ( newModel, comandos ) =
+            update url sharedModel static msg model
+    in
+    ( newModel
+    , Effect.batch
+        [ comandos
+        , Analytics.toEffect
+            url.host
+            (track msg)
+            AvisadoAnalytics
+        ]
+    )
+
+
+track : Msg -> Analytics.Event
+track msg =
+    case msg of
+        CierraNoti ->
+            Analytics.eventoXReportar "cerró-notificación"
+
+        _ ->
+            Analytics.none
+
+
 update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
 update pageUrl sharedModel static msg model =
     case msg of
@@ -85,6 +114,18 @@ update pageUrl sharedModel static msg model =
         CierraNoti ->
             ( { model | verNotificaciones = ConStatusOcultar }
             , Effect.none
+            )
+
+        AvisadoAnalytics resulto ->
+            ( model
+            , Effect.none
+              {- , case resulto of
+                 Err quePaso ->
+                     Just (Shared.SharedMsg <| Shared.ErrorAlNotificar quePaso)
+
+                 Ok _ ->
+                     Nothing
+              -}
             )
 
 
