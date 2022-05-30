@@ -2,6 +2,7 @@ module Analytics exposing (Event, eventoXReportar, none, toEffect)
 
 import Effect exposing (Effect)
 import Http
+import Path
 
 
 
@@ -36,10 +37,11 @@ toEffect host event msg =
     case event of
         Event cualEvento ->
             Effect.SoloAccedeLiga
-                ("https://"
-                    ++ host
-                    ++ "/api-v1/msg/"
-                    ++ cualEvento
+                ("https:/"
+                    ++ ([ host, "api-v1", "msg", cualEvento ]
+                            |> Path.join
+                            |> Path.toAbsolute
+                       )
                 )
                 msg
 

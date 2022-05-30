@@ -40,6 +40,7 @@ type Msg
         , query : Maybe String
         , fragment : Maybe String
         }
+    | AnalyticsUsoMenu String
 
 
 type UsuarioSt
@@ -114,6 +115,13 @@ update msg model =
                     , Effect.none
                     )
 
+        AnalyticsUsoMenu liga ->
+            let
+                _ =
+                    Debug.log "Analytics picaronLiga" liga
+            in
+            ( model, Effect.none )
+
 
 subscriptions : Path -> Model -> Sub Msg
 subscriptions _ _ =
@@ -174,21 +182,44 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
         ligasEspeciales =
             List.filter .especial ligas
 
-        setLink : String -> Html msg -> View.Liga -> Html msg
+        setLink : String -> Html Msg -> View.Liga -> Html msg
         setLink clases htmlHijos liga =
             case liga.dir of
                 View.Otra camino ->
-                    Html.a
-                        [ Attr.href <| Path.toRelative camino
-                        , class clases
+                    div
+                        [ camino
+                            |> Path.toSegments
+                            |> List.reverse
+                            |> List.head
+                            |> Maybe.withDefault "liga-externa-rara"
+                            |> AnalyticsUsoMenu
+                            |> Event.onClick
                         ]
-                        [ htmlHijos ]
+                        [ Html.a
+                            [ Attr.href <| Path.toRelative camino
+                            , class clases
+                            ]
+                            [ htmlHijos ]
+                        ]
+                        |> Html.map toMsg
 
                 View.Interna rutaLiga ->
-                    Route.link
-                        [ class clases ]
-                        [ htmlHijos ]
-                        rutaLiga
+                    div
+                        [ rutaLiga
+                            |> Route.toPath
+                            |> Path.toSegments
+                            |> List.reverse
+                            |> List.head
+                            |> Maybe.withDefault "liga-rara"
+                            |> AnalyticsUsoMenu
+                            |> Event.onClick
+                        ]
+                        [ Route.link
+                            [ class clases ]
+                            [ htmlHijos ]
+                            rutaLiga
+                        ]
+                        |> Html.map toMsg
 
         ligaNormalDesk : Html msg
         ligaNormalDesk =
