@@ -175,19 +175,19 @@ viewMenu dataDelYaml ligas menuOpen byeMenu toMsg =
             List.filter .especial ligas
 
         setLink : String -> Html msg -> View.Liga -> Html msg
-        setLink clases queHtml liga =
+        setLink clases htmlHijos liga =
             case liga.dir of
                 View.Otra camino ->
                     Html.a
                         [ Attr.href <| Path.toRelative camino
                         , class clases
                         ]
-                        [ queHtml ]
+                        [ htmlHijos ]
 
                 View.Interna rutaLiga ->
                     Route.link
                         [ class clases ]
-                        [ queHtml ]
+                        [ htmlHijos ]
                         rutaLiga
 
         ligaNormalDesk : Html msg
