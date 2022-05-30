@@ -1,4 +1,4 @@
-module Analytics exposing (Event, eventoXReportar, none, toCmd)
+module Analytics exposing (Event, eventoXReportar, none, toEffect)
 
 import Effect exposing (Effect)
 import Http
@@ -31,12 +31,14 @@ none =
     None
 
 
-toCmd : Event -> (Result Http.Error () -> msg) -> Effect msg
-toCmd event msg =
+toEffect : String -> Event -> (Result Http.Error () -> msg) -> Effect msg
+toEffect host event msg =
     case event of
         Event cualEvento ->
             Effect.SoloAccedeLiga
-                ("https://psolar.mx/api-v1/msg/"
+                ("https://"
+                    ++ host
+                    ++ "/api-v1/msg/"
                     ++ cualEvento
                 )
                 msg

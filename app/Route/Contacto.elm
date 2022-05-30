@@ -114,18 +114,15 @@ track msg =
 superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 superUpdate url sharedModel static msg model =
     let
-        analyticsEvent : Analytics.Event
-        analyticsEvent =
-            track msg
-
         ( newModel, comandos, siSharedMsg ) =
             update url sharedModel static msg model
     in
     ( newModel
     , Effect.batch
         [ comandos
-        , Analytics.toCmd
-            analyticsEvent
+        , Analytics.toEffect
+            url.host
+            (track msg)
             AvisadoAnalytics
         ]
     , siSharedMsg
