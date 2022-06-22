@@ -118,13 +118,19 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
                 (Process.sleep cuantosMS)
 
         SoloAccedeLiga direccion toMsg ->
-            Http.get
-                { url = direccion
-                , expect =
-                    Http.expectWhatever
-                        (toMsg >> fromPageMsg)
-                }
+            let
+                _ =
+                    Debug.log "accediendo liga:" direccion
+            in
+            Cmd.none
 
+        {- Http.get
+           { url = direccion
+           , expect =
+               Http.expectWhatever
+                   (toMsg >> fromPageMsg)
+           }
+        -}
         FetchPageData fetchInfo ->
             fetchRouteData
                 { body = fetchInfo.body

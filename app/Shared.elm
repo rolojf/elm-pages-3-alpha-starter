@@ -1,5 +1,6 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
 
+import Analytics
 import DataSource
 import DataSource.File as File
 import Effect exposing (Effect)
@@ -24,7 +25,7 @@ import View exposing (View)
 template : SharedTemplate Msg Model Data msg
 template =
     { init = init
-    , update = update
+    , update = superUpdate
     , view = view
     , data = data
     , subscriptions = subscriptions
@@ -41,6 +42,7 @@ type Msg
         , fragment : Maybe String
         }
     | AnalyticsUsoMenu String
+    | AvisadoAnalytics (Result Http.Error ())
 
 
 type UsuarioSt
@@ -60,6 +62,7 @@ type alias Model =
     , showMenuInicial : Bool
     , errorAlNotificar : Maybe Http.Error
     , usuarioStatus : UsuarioSt
+    , elHost : String
     }
 
 
@@ -81,8 +84,53 @@ init flags maybePagePath =
       , showMenuInicial = False
       , errorAlNotificar = Nothing
       , usuarioStatus = Desconocido
+      , elHost =
+            case maybePagePath of
+                Nothing ->
+                    ""
+
+                Just pagina ->
+                    case pagina.pageUrl of
+                        Nothing ->
+                            "pageUrl Nothing"
+
+                        Just laUrl ->
+                            laUrl.host
       }
     , Effect.none
+    )
+
+
+track : Msg -> Analytics.Event
+track msg =
+    case msg of
+        OnPageChange nuevaPagina ->
+            nuevaPagina.path
+                |> Path.toSegments
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault "index"
+                |> String.append ("cambio-pagina" ++ "-menuliga-interna-")
+                |> Analytics.eventoXReportar
+
+        _ ->
+            Analytics.none
+
+
+superUpdate : Msg -> Model -> ( Model, Effect Msg )
+superUpdate msg model =
+    let
+        ( newModel, efectos ) =
+            update msg model
+    in
+    ( newModel
+    , Effect.batch
+        [ efectos
+        , Analytics.toEffect
+            model.elHost
+            (track msg)
+            AvisadoAnalytics
+        ]
     )
 
 
@@ -118,9 +166,19 @@ update msg model =
         AnalyticsUsoMenu liga ->
             let
                 _ =
-                    Debug.log "Analytics picaronLiga" liga
+                    Debug.log "Analytics liga externa: " liga
             in
             ( model, Effect.none )
+
+        AvisadoAnalytics resulto ->
+            ( case resulto of
+                Err quePaso ->
+                    { model | errorAlNotificar = Just quePaso }
+
+                Ok _ ->
+                    model
+            , Effect.none
+            )
 
 
 subscriptions : Path -> Model -> Sub Msg
@@ -220,22 +278,10 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                         |> Html.map toMsg
 
                 View.Interna rutaLiga ->
-                    div
-                        [ rutaLiga
-                            |> Route.toPath
-                            |> Path.toSegments
-                            |> List.reverse
-                            |> List.head
-                            |> Maybe.withDefault "-ligainterna-rara-"
-                            |> String.append (quePaginaCompuesta ++ "-menuliga-interna-")
-                            |> AnalyticsUsoMenu
-                            |> Event.onClick
-                        ]
-                        [ Route.link
-                            [ class clases ]
-                            [ htmlHijos ]
-                            rutaLiga
-                        ]
+                    Route.link
+                        [ class clases ]
+                        [ htmlHijos ]
+                        rutaLiga
                         |> Html.map toMsg
 
         ligaNormalDesk : Html msg
