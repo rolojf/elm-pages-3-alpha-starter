@@ -2,10 +2,13 @@ module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
 
 import Browser.Dom as Dom
 import Browser.Navigation
+import FormDecoder
 import Http
 import Json.Encode as Encode
 import Process
 import Task
+import Json.Decode as Decode
+import Pages.Fetcher
 import Url exposing (Url)
 
 
@@ -18,6 +21,8 @@ type Effect msg
     | FetchPageData
         { body : Maybe { contentType : String, body : String }
         , path : Maybe String
+    | FetchRouteData
+        { data : Maybe FormDecoder.FormData
         , toMsg : Result Http.Error Url -> msg
         }
     | PushUrl String
@@ -67,10 +72,9 @@ map fn effect =
         EsperaPues cuantoEsperar msg ->
             EsperaPues cuantoEsperar <| fn msg
 
-        FetchPageData fetchInfo ->
-            FetchPageData
-                { body = fetchInfo.body
-                , path = fetchInfo.path
+        FetchRouteData fetchInfo ->
+            FetchRouteData
+                { data = fetchInfo.data
                 , toMsg = fetchInfo.toMsg >> fn
                 }
 
@@ -89,15 +93,21 @@ map fn effect =
 
 perform :
     { fetchRouteData :
-        { body : Maybe { contentType : String, body : String }
-        , path : Maybe String
+        { data : Maybe FormDecoder.FormData
         , toMsg : Result Http.Error Url -> pageMsg
         }
         -> Cmd msg
-
-    --, fromSharedMsg : Shared.Msg -> msg
+    , submit :
+        { values : FormDecoder.FormData
+        , toMsg : Result Http.Error Url -> pageMsg
+        }
+        -> Cmd msg
+    , runFetcher :
+        Pages.Fetcher.Fetcher pageMsg
+        -> Cmd msg
     , fromPageMsg : pageMsg -> msg
     , key : Browser.Navigation.Key
+    , setField : { formId : String, name : String, value : String } -> Cmd msg
     }
     -> Effect pageMsg
     -> Cmd msg
@@ -156,3 +166,5 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
                     Http.expectString
                         (infoPasada.toMsg >> fromPageMsg)
                 }
+        FetchRouteData fetchInfo ->
+            info.fetchRouteData fetchInfo

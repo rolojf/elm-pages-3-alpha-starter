@@ -1,4 +1,4 @@
-module Route.Index exposing (Data, Model, Msg, route)
+module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import Analytics
 import DataSource exposing (DataSource)
@@ -15,6 +15,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
 import MenuDecoder
+import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
@@ -51,7 +52,16 @@ type alias RouteParams =
     {}
 
 
-route : StatefulRoute RouteParams Data Model Msg
+type alias Data =
+    { message : String
+    }
+
+
+type alias ActionData =
+    {}
+
+
+route : StatelessRoute RouteParams Data ActionData
 route =
     RouteBuilder.single
         { head = head
@@ -171,7 +181,7 @@ data =
         getDataFromMD
 
 
-head : StaticPayload Data RouteParams -> List Head.Tag
+head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
@@ -189,9 +199,15 @@ head static =
         |> Seo.website
 
 
-view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data RouteParams -> View Msg
-view maybeUrl sharedModel model static =
-    { title = static.data.delMD.title
+view :
+    Maybe PageUrl
+    -> Shared.Model
+    -> StaticPayload Data ActionData RouteParams
+    -> View (Pages.Msg.Msg Msg)
+view maybeUrl sharedModel static =
+    { title =
+        static.data.delMD.title
+            >>>>>>> main
     , body =
         [ Html.h1 [] [ text "elm-pages is up and running!" ]
         , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones

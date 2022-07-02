@@ -1,4 +1,4 @@
-module Route.Blog.Slug_ exposing (Data, Model, Msg, route)
+module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
 import DataSource exposing (DataSource)
 import DataSource.File as File
@@ -11,6 +11,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
 import MenuDecoder
+import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url as Url
 import Path exposing (Path)
@@ -33,7 +34,7 @@ type alias RouteParams =
     { slug : String }
 
 
-route : StatelessRoute RouteParams Data
+route : StatelessRoute RouteParams Data ActionData
 route =
     RouteBuilder.preRender
         { head = head
@@ -79,6 +80,10 @@ type alias ContenidoConDatos =
     }
 
 
+type alias ActionData =
+    {}
+
+
 data : RouteParams -> DataSource Data
 data routeParams =
     let
@@ -108,7 +113,9 @@ data routeParams =
         getDataFromMD
 
 
-head : StaticPayload Data RouteParams -> List Head.Tag
+head :
+    StaticPayload Data ActionData RouteParams
+    -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
@@ -124,9 +131,14 @@ head static =
         , title = "TODO title" -- metadata.title -- TODO
         }
         |> Seo.website
+        <<<<<<< HEAD
 
 
-view : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> View Msg
+view :
+    Maybe PageUrl
+    -> Shared.Model
+    -> StaticPayload Data ActionData RouteParams
+    -> View (Pages.Msg.Msg Msg)
 view maybeUrl sharedModel static =
     { title = static.data.delMD.title
     , body =
