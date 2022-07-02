@@ -5,10 +5,9 @@ import Browser.Navigation
 import FormDecoder
 import Http
 import Json.Encode as Encode
+import Pages.Fetcher
 import Process
 import Task
-import Json.Decode as Decode
-import Pages.Fetcher
 import Url exposing (Url)
 
 
@@ -18,9 +17,6 @@ type Effect msg
     | Batch (List (Effect msg))
     | EsperaPues Float msg
     | SoloAccedeLiga String (Result Http.Error () -> msg)
-    | FetchPageData
-        { body : Maybe { contentType : String, body : String }
-        , path : Maybe String
     | FetchRouteData
         { data : Maybe FormDecoder.FormData
         , toMsg : Result Http.Error Url -> msg
@@ -134,20 +130,6 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
             in
             Cmd.none
 
-        {- Http.get
-           { url = direccion
-           , expect =
-               Http.expectWhatever
-                   (toMsg >> fromPageMsg)
-           }
-        -}
-        FetchPageData fetchInfo ->
-            fetchRouteData
-                { body = fetchInfo.body
-                , path = fetchInfo.path
-                , toMsg = fetchInfo.toMsg
-                }
-
         PushUrl dir ->
             Browser.Navigation.pushUrl
                 key
@@ -166,5 +148,6 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
                     Http.expectString
                         (infoPasada.toMsg >> fromPageMsg)
                 }
+
         FetchRouteData fetchInfo ->
             info.fetchRouteData fetchInfo

@@ -12,6 +12,7 @@ import Http
 import Json.Decode as D
 import MiCloudinary
 import Pages.Flags
+import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Path exposing (Path)
 import Route exposing (Route)

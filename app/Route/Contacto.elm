@@ -1,4 +1,4 @@
-module Route.Contacto exposing (Data, Model, Msg, route)
+module Route.Contacto exposing (ActionData, Data, Model, Msg, route)
 
 import Analytics
 import DataSource exposing (DataSource)
@@ -12,6 +12,7 @@ import Html.Events as Events
 import Http
 import Json.Encode as Encode
 import MiCloudinary
+import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
@@ -25,7 +26,7 @@ type alias RouteParams =
     {}
 
 
-route : StatefulRoute RouteParams Data Model Msg
+route : StatefulRoute RouteParams Data ActionData Model Msg
 route =
     RouteBuilder.single
         { head = head
@@ -64,6 +65,10 @@ type Intentos
     | VaDeNuevo
 
 
+type alias ActionData =
+    {}
+
+
 type Msg
     = Nombre String
     | ComoSupo String
@@ -80,7 +85,7 @@ type Msg
     | Respondio String
 
 
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Effect Msg )
+init : Maybe PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> ( Model, Effect Msg )
 init maybePageUrl sharedModel static =
     ( { nombre = ""
       , comoSupo = ""
@@ -111,7 +116,7 @@ track msg =
             Analytics.none
 
 
-superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+superUpdate : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 superUpdate url sharedModel static msg model =
     let
         ( newModel, comandos, siSharedMsg ) =
@@ -133,7 +138,7 @@ superUpdate url sharedModel static msg model =
 -- ( Model, Effect Msg, Maybe Shared.Msg )
 
 
-update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 update pageUrl sharedModel static msg model =
     case msg of
         Nombre cCampo ->
@@ -295,7 +300,7 @@ data =
     DataSource.succeed Data
 
 
-head : StaticPayload Data RouteParams -> List Head.Tag
+head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
@@ -313,7 +318,12 @@ head static =
         |> Seo.website
 
 
-view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data RouteParams -> View Msg
+view :
+    Maybe PageUrl
+    -> Shared.Model
+    -> Model
+    -> StaticPayload Data ActionData RouteParams
+    -> View (Pages.Msg.Msg Msg)
 view maybeUrl sharedModel model static =
     { title = "Formulario de Contacto"
     , withMenu = View.NoMenu
@@ -334,7 +344,7 @@ view maybeUrl sharedModel model static =
     }
 
 
-viewLayout : Html Msg
+viewLayout : Html (Pages.Msg.Msg Msg)
 viewLayout =
     div
         [ class "tw lg:absolute lg:inset-0" ]
@@ -353,7 +363,7 @@ viewLayout =
         ]
 
 
-viewFormulario : Model -> Html Msg
+viewFormulario : Model -> Html (Pages.Msg.Msg Msg)
 viewFormulario model =
     let
         viewCampoNombre =
@@ -375,7 +385,7 @@ viewFormulario model =
                         , Attr.maxlength 15
                         , Attr.autocomplete True -- "given-name"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput Nombre
+                        , Events.onInput (\name -> Pages.Msg.UserMsg <| Nombre name)
                         ]
                         []
                     ]
@@ -396,7 +406,7 @@ viewFormulario model =
                         , Attr.id "last_name"
                         , Attr.autocomplete True -- "family-name"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput Apellido
+                        , Events.onInput (\lastName -> Pages.Msg.UserMsg <| Apellido lastName)
                         ]
                         []
                     ]
@@ -418,7 +428,7 @@ viewFormulario model =
                         , Attr.type_ "email"
                         , Attr.autocomplete True --"email"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput Correo
+                        , Events.onInput (\elMail -> Pages.Msg.UserMsg <| Correo elMail)
                         ]
                         []
                     ]
@@ -452,7 +462,7 @@ viewFormulario model =
                         , Attr.autocomplete True -- "tel"
                         , Aria.ariaDescribedby "phone_description"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput Telefono
+                        , Events.onInput (\phone -> Pages.Msg.UserMsg <| Telefono phone)
                         ]
                         []
                     ]
@@ -482,7 +492,7 @@ viewFormulario model =
                         , Aria.ariaDescribedby "how_can_we_help_description"
                         , Attr.rows 4
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border_gray_300 rounded-md"
-                        , Events.onInput Comentario
+                        , Events.onInput (\comment -> Pages.Msg.UserMsg <| Comentario comment)
                         ]
                         []
                     ]
@@ -503,7 +513,7 @@ viewFormulario model =
                         , Attr.name "how_did_you_hear_about_us"
                         , Attr.id "how_did_you_hear_about_us"
                         , class "tw shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w_full sm:text-sm border-gray-300 rounded-md"
-                        , Events.onInput ComoSupo
+                        , Events.onInput (\deDonde -> Pages.Msg.UserMsg <| ComoSupo deDonde)
                         ]
                         []
                     ]
@@ -534,7 +544,7 @@ viewFormulario model =
                 , Html.form
                     [ Attr.action "#"
                     , Attr.method "POST"
-                    , Events.onSubmit CompletadoFormulario
+                    , Events.onSubmit (Pages.Msg.UserMsg CompletadoFormulario)
                     , class "tw mt-9 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
                     ]
                     [ viewCampoNombre
@@ -550,7 +560,7 @@ viewFormulario model =
         ]
 
 
-viewChallenge : Int -> String -> Intentos -> Html Msg
+viewChallenge : Int -> String -> Intentos -> Html (Pages.Msg.Msg Msg)
 viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
     div
         [ class "la-base-modal" ]
@@ -603,7 +613,7 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
 
                             VaDeNuevo ->
                                 Attr.value ""
-                        , Events.onInput Respondio
+                        , Events.onInput (\respuesta -> Pages.Msg.UserMsg <| Respondio respuesta)
                         ]
                         []
                     , Html.p

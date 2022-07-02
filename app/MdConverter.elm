@@ -6,6 +6,7 @@ import Markdown.Block exposing (Block)
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
+import Pages.Msg
 
 
 parsea : String -> Result String (List Block)
@@ -21,10 +22,10 @@ parsea mdStr =
         |> Result.mapError deadEndsToString
 
 
-renderea : Result String (List Block) -> List (Html ())
+renderea : Result String (List Block) -> List (Html (Pages.Msg.Msg ()))
 renderea resultado =
     let
-        resultadoProcesado : Result String (List (Html ()))
+        resultadoProcesado : Result String (List (Html (Pages.Msg.Msg ())))
         resultadoProcesado =
             resultado
                 |> Result.andThen
@@ -38,7 +39,7 @@ renderea resultado =
             [ text errors ]
 
 
-myRenderer : Markdown.Renderer.Renderer (Html ())
+myRenderer : Markdown.Renderer.Renderer (Html (Pages.Msg.Msg ()))
 myRenderer =
     let
         defaultOne =
@@ -47,10 +48,10 @@ myRenderer =
     { defaultOne | html = procesaHtml }
 
 
-procesaHtml : Markdown.Html.Renderer (List (Html ()) -> Html ())
+procesaHtml : Markdown.Html.Renderer (List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ()))
 procesaHtml =
     let
-        showDiv : Maybe String -> Maybe String -> List (Html ()) -> Html ()
+        showDiv : Maybe String -> Maybe String -> List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ())
         showDiv clase identidad hijos =
             div
                 [ case clase of
@@ -68,7 +69,7 @@ procesaHtml =
                 ]
                 hijos
 
-        showSpan : String -> List (Html ()) -> Html ()
+        showSpan : String -> List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ())
         showSpan clase children =
             Html.span
                 [ class clase ]

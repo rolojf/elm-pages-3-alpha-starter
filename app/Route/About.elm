@@ -1,4 +1,4 @@
-module Route.About exposing (Data, Model, Msg, route)
+module Route.About exposing (ActionData, Data, Model, Msg, route)
 
 import Browser.Navigation
 import DataSource exposing (DataSource)
@@ -25,7 +25,11 @@ type alias RouteParams =
     {}
 
 
-route : StatefulRoute RouteParams Data Model Msg
+type alias ActionData =
+    {}
+
+
+route : StatefulRoute RouteParams Data ActionData Model Msg
 route =
     RouteBuilder.single
         { head = head
@@ -42,7 +46,7 @@ route =
 init :
     Maybe PageUrl
     -> Shared.Model
-    -> StaticPayload Data RouteParams
+    -> StaticPayload Data RouteParams ActionData
     -> ( Model, Effect Msg )
 init maybePageUrl sharedModel static =
     ( {}, Effect.none )
@@ -51,7 +55,7 @@ init maybePageUrl sharedModel static =
 update :
     PageUrl
     -> Shared.Model
-    -> StaticPayload Data RouteParams
+    -> StaticPayload Data RouteParams ActionData
     -> Msg
     -> Model
     -> ( Model, Effect.Effect Msg )
@@ -76,7 +80,7 @@ data =
 
 
 head :
-    StaticPayload Data RouteParams
+    StaticPayload Data ActionData RouteParams
     -> List Head.Tag
 head static =
     Seo.summary
@@ -99,7 +103,7 @@ view :
     Maybe PageUrl
     -> Shared.Model
     -> templateModel
-    -> StaticPayload templateData routeParams
+    -> StaticPayload Data ActionData RouteParams
     -> View templateMsg
 view maybeUrl sharedModel model static =
     View.placeholder "About"

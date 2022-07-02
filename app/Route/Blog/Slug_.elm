@@ -76,7 +76,7 @@ type alias Data =
 type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
-    , menu : View.MenuInfo Msg
+    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     }
 
 
@@ -131,14 +131,13 @@ head static =
         , title = "TODO title" -- metadata.title -- TODO
         }
         |> Seo.website
-        <<<<<<< HEAD
 
 
 view :
     Maybe PageUrl
     -> Shared.Model
     -> StaticPayload Data ActionData RouteParams
-    -> View (Pages.Msg.Msg Msg)
+    -> View (Pages.Msg.Msg ())
 view maybeUrl sharedModel static =
     { title = static.data.delMD.title
     , body =

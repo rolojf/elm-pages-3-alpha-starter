@@ -52,16 +52,11 @@ type alias RouteParams =
     {}
 
 
-type alias Data =
-    { message : String
-    }
-
-
 type alias ActionData =
     {}
 
 
-route : StatelessRoute RouteParams Data ActionData
+route : StatefulRoute RouteParams Data ActionData Model Msg
 route =
     RouteBuilder.single
         { head = head
@@ -75,7 +70,7 @@ route =
             }
 
 
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> ( Model, Effect Msg )
+init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams ActionData -> ( Model, Effect Msg )
 init maybePageUrl sharedModel static =
     ( { verNotificaciones =
             if sharedModel.usuarioStatus == Shared.Desconocido then
@@ -88,7 +83,7 @@ init maybePageUrl sharedModel static =
     )
 
 
-superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
+superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams ActionData -> Msg -> Model -> ( Model, Effect Msg )
 superUpdate url sharedModel static msg model =
     let
         ( newModel, comandos ) =
@@ -115,7 +110,7 @@ track msg =
             Analytics.none
 
 
-update : PageUrl -> Shared.Model -> StaticPayload Data RouteParams -> Msg -> Model -> ( Model, Effect Msg )
+update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg )
 update pageUrl sharedModel static msg model =
     case msg of
         NoOp ->
@@ -151,7 +146,7 @@ type alias Data =
 type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
-    , menu : View.MenuInfo Msg
+    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     }
 
 
@@ -202,19 +197,19 @@ head static =
 view :
     Maybe PageUrl
     -> Shared.Model
+    -> Model
     -> StaticPayload Data ActionData RouteParams
     -> View (Pages.Msg.Msg Msg)
-view maybeUrl sharedModel static =
+view maybeUrl sharedModel model static =
     { title =
         static.data.delMD.title
-            >>>>>>> main
     , body =
         [ Html.h1 [] [ text "elm-pages is up and running!" ]
         , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
             [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
-            |> Html.map (\_ -> NoOp)
+            |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
         , Route.Blog__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
@@ -251,7 +246,7 @@ respFromPost resp =
                     "Problemas con la información " ++ String.left 20 infoEnviada
 
 
-viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html Msg
+viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
 viewNotificacion usrStatus verNotif =
     case usrStatus of
         Shared.Conocido respBasin ->
@@ -296,7 +291,7 @@ notifAppear show =
                 [ P.opacity 0, P.scale 0.92, P.y 0 ]
 
 
-retroFinal : String -> String -> StatusNotificacion -> Html Msg
+retroFinal : String -> String -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
 retroFinal titulo subtitulo debeAparecer =
     Animated.div
         (notifAppear debeAparecer)
@@ -327,7 +322,7 @@ retroFinal titulo subtitulo debeAparecer =
                             [ class "tw ml-4 flex-shrink-0 flex" ]
                             [ Html.button
                                 [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                , Event.onClick CierraNoti
+                                , Event.onClick (Pages.Msg.UserMsg CierraNoti)
                                 ]
                                 [ Html.span
                                     [ class "tw sr-only" ]
