@@ -38,7 +38,7 @@ toEffect host event msg =
         Event cualEvento ->
             Effect.SoloAccedeLiga
                 ("https:/"
-                    ++ ([ host, "api-v1", "msg", cualEvento ]
+                    ++ ([ host, "api-v2", cualEvento ]
                             |> Path.join
                             |> Path.toAbsolute
                        )
