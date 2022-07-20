@@ -7,3 +7,6 @@ functions/render
 functions/server-render
 .idea
 /.pnpm-debug.log
+.idea/
+/.vscode/
+/pnpm-lock.yaml
