@@ -19,6 +19,7 @@ import Path exposing (Path)
 import Route
 import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
 import Shared
+import Url
 import View exposing (View)
 
 
@@ -34,7 +35,7 @@ route =
         }
         |> RouteBuilder.buildWithSharedState
             { view = view
-            , update = superUpdate
+            , update = update
             , subscriptions = subscriptions
             , init = init
             }
@@ -80,7 +81,7 @@ type Msg
     | EnfocaDespuesDeEsperar
     | NoOp
     | RespondeBasin (Result Http.Error String)
-    | AvisadoAnalytics (Result Http.Error ())
+    | AvisadoAnalytics (Result Http.Error String)
     | IntentaDeNuez
     | Respondio String
 
@@ -104,38 +105,6 @@ init maybePageUrl sharedModel static =
       }
     , Effect.none
     )
-
-
-track : Msg -> Analytics.Event
-track msg =
-    case msg of
-        CompletadoFormulario ->
-            Analytics.eventoXReportar "completo-formulario"
-
-        _ ->
-            Analytics.none
-
-
-superUpdate : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
-superUpdate url sharedModel static msg model =
-    let
-        ( newModel, comandos, siSharedMsg ) =
-            update url sharedModel static msg model
-    in
-    ( newModel
-    , Effect.batch
-        [ comandos
-        , Analytics.toEffect
-            url.host
-            (track msg)
-            AvisadoAnalytics
-        ]
-    , siSharedMsg
-    )
-
-
-
--- ( Model, Effect Msg, Maybe Shared.Msg )
 
 
 update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
@@ -175,7 +144,13 @@ update pageUrl sharedModel static msg model =
 
         CompletadoFormulario ->
             ( { model | listo = True }
-            , Effect.EsperaPues 150 EnfocaDespuesDeEsperar
+            , Effect.batch
+                [ Effect.EsperaPues 150 EnfocaDespuesDeEsperar
+                , Analytics.toEffect
+                    pageUrl
+                    (Analytics.eventoXReportar "completo-formulario")
+                    AvisadoAnalytics
+                ]
             , Nothing
             )
 

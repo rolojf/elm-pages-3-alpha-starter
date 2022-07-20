@@ -16,7 +16,7 @@ type Effect msg
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
     | EsperaPues Float msg
-    | SoloAccedeLiga String (Result Http.Error () -> msg)
+    | SoloAccedeLiga String (Result Http.Error String -> msg)
     | FetchRouteData
         { data : Maybe FormDecoder.FormData
         , toMsg : Result Http.Error Url -> msg
@@ -27,12 +27,6 @@ type Effect msg
         { respuestas : Encode.Value
         , toMsg : Result Http.Error String -> msg
         }
-
-
-type alias RequestInfo =
-    { contentType : String
-    , body : String
-    }
 
 
 none : Effect msg
@@ -124,11 +118,10 @@ perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
                 (Process.sleep cuantosMS)
 
         SoloAccedeLiga direccion toMsg ->
-            let
-                _ =
-                    Debug.log "accediendo liga:" direccion
-            in
-            Cmd.none
+            Http.get
+                { url = direccion
+                , expect = Http.expectString (toMsg >> fromPageMsg)
+                }
 
         PushUrl dir ->
             Browser.Navigation.pushUrl

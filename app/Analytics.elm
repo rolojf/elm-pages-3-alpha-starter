@@ -2,7 +2,9 @@ module Analytics exposing (Event, eventoXReportar, none, toEffect)
 
 import Effect exposing (Effect)
 import Http
+import Pages.PageUrl exposing (PageUrl)
 import Path
+import Url
 
 
 
@@ -32,17 +34,18 @@ none =
     None
 
 
-toEffect : String -> Event -> (Result Http.Error () -> msg) -> Effect msg
-toEffect host event msg =
-    case event of
+toEffect : PageUrl -> Event -> (Result Http.Error String -> msg) -> Effect msg
+toEffect url hayEvento msg =
+    case hayEvento of
         Event cualEvento ->
+            let
+                direccion =
+                    [ "api-v2", cualEvento ++ ".json" ]
+                        |> Path.join
+                        |> Path.toAbsolute
+            in
             Effect.SoloAccedeLiga
-                ("https:/"
-                    ++ ([ host, "api-v2", cualEvento ]
-                            |> Path.join
-                            |> Path.toAbsolute
-                       )
-                )
+                direccion
                 msg
 
         None ->

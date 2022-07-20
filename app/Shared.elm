@@ -20,13 +20,14 @@ import SharedTemplate exposing (SharedTemplate)
 import Simple.Animation as Animation exposing (Animation)
 import Simple.Animation.Animated as Animated
 import Simple.Animation.Property as P
+import Url
 import View exposing (View)
 
 
 template : SharedTemplate Msg Model Data msg
 template =
     { init = init
-    , update = superUpdate
+    , update = update
     , view = view
     , data = data
     , subscriptions = subscriptions
@@ -42,8 +43,8 @@ type Msg
         , query : Maybe String
         , fragment : Maybe String
         }
-    | AnalyticsUsoMenu String
-    | AvisadoAnalytics (Result Http.Error ())
+    | AnalyticsUsoMenuLigaExterna String
+    | AvisadoAnalytics (Result Http.Error String)
 
 
 type UsuarioSt
@@ -63,7 +64,7 @@ type alias Model =
     , showMenuInicial : Bool
     , errorAlNotificar : Maybe Http.Error
     , usuarioStatus : UsuarioSt
-    , elHost : String
+    , elHost : PageUrl
     }
 
 
@@ -86,17 +87,24 @@ init flags maybePagePath =
       , errorAlNotificar = Nothing
       , usuarioStatus = Desconocido
       , elHost =
+            let
+                defaultPageUrl =
+                    { protocol = Url.Http
+                    , host = "localhost"
+                    , port_ = Just 1234
+                    , path = Path.fromString "yo-no-se"
+                    , query = Nothing
+                    , fragment = Nothing
+                    }
+            in
             case maybePagePath of
                 Nothing ->
-                    ""
+                    defaultPageUrl
 
                 Just pagina ->
-                    case pagina.pageUrl of
-                        Nothing ->
-                            "pageUrl Nothing"
-
-                        Just laUrl ->
-                            laUrl.host
+                    Maybe.withDefault
+                        defaultPageUrl
+                        pagina.pageUrl
       }
     , Effect.none
     )
@@ -106,33 +114,24 @@ track : Msg -> Analytics.Event
 track msg =
     case msg of
         OnPageChange nuevaPagina ->
-            nuevaPagina.path
-                |> Path.toSegments
-                |> List.reverse
-                |> List.head
-                |> Maybe.withDefault "index"
-                |> String.append ("cambio-pagina" ++ "-menuliga-interna-")
-                |> Analytics.eventoXReportar
+            let
+                queCambioReportar =
+                    nuevaPagina.path
+                        |> Path.toSegments
+                        |> List.reverse
+                        |> List.head
+                        |> Maybe.withDefault "index"
+                        |> String.append ("cambio-pagina" ++ "-menuliga-interna-")
+            in
+            Analytics.eventoXReportar
+                queCambioReportar
+
+        AnalyticsUsoMenuLigaExterna queLiga ->
+            Analytics.eventoXReportar
+                queLiga
 
         _ ->
             Analytics.none
-
-
-superUpdate : Msg -> Model -> ( Model, Effect Msg )
-superUpdate msg model =
-    let
-        ( newModel, efectos ) =
-            update msg model
-    in
-    ( newModel
-    , Effect.batch
-        [ efectos
-        , Analytics.toEffect
-            model.elHost
-            (track msg)
-            AvisadoAnalytics
-        ]
-    )
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -147,7 +146,12 @@ update msg model =
             )
 
         OnPageChange _ ->
-            ( { model | showMenu = False }, Effect.none )
+            ( { model | showMenu = False }
+            , Analytics.toEffect
+                model.elHost
+                (track msg)
+                AvisadoAnalytics
+            )
 
         SharedMsg mensajePasado ->
             case mensajePasado of
@@ -164,12 +168,13 @@ update msg model =
                     , Effect.none
                     )
 
-        AnalyticsUsoMenu liga ->
-            let
-                _ =
-                    Debug.log "Analytics liga externa: " liga
-            in
-            ( model, Effect.none )
+        AnalyticsUsoMenuLigaExterna _ ->
+            ( model
+            , Analytics.toEffect
+                model.elHost
+                (track msg)
+                AvisadoAnalytics
+            )
 
         AvisadoAnalytics resulto ->
             ( case resulto of
@@ -267,7 +272,7 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             |> List.head
                             |> Maybe.withDefault "-ligaexterna-rara-"
                             |> String.append (quePaginaCompuesta ++ "-menuliga-externa-")
-                            |> AnalyticsUsoMenu
+                            |> AnalyticsUsoMenuLigaExterna
                             |> Event.onClick
                         ]
                         [ Html.a

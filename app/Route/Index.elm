@@ -45,7 +45,7 @@ type StatusNotificacion
 type Msg
     = CierraNoti
     | NoOp
-    | AvisadoAnalytics (Result Http.Error ())
+    | AvisadoAnalytics (Result Http.Error String)
 
 
 type alias RouteParams =
@@ -83,33 +83,6 @@ init maybePageUrl sharedModel static =
     )
 
 
-superUpdate : PageUrl -> Shared.Model -> StaticPayload Data RouteParams ActionData -> Msg -> Model -> ( Model, Effect Msg )
-superUpdate url sharedModel static msg model =
-    let
-        ( newModel, comandos ) =
-            update url sharedModel static msg model
-    in
-    ( newModel
-    , Effect.batch
-        [ comandos
-        , Analytics.toEffect
-            url.host
-            (track msg)
-            AvisadoAnalytics
-        ]
-    )
-
-
-track : Msg -> Analytics.Event
-track msg =
-    case msg of
-        CierraNoti ->
-            Analytics.eventoXReportar "cerró-notificación"
-
-        _ ->
-            Analytics.none
-
-
 update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg )
 update pageUrl sharedModel static msg model =
     case msg of
@@ -118,7 +91,10 @@ update pageUrl sharedModel static msg model =
 
         CierraNoti ->
             ( { model | verNotificaciones = ConStatusOcultar }
-            , Effect.none
+            , Analytics.toEffect
+                pageUrl
+                (Analytics.eventoXReportar "cerro-notificacion")
+                AvisadoAnalytics
             )
 
         AvisadoAnalytics resulto ->
