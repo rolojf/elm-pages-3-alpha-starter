@@ -93,7 +93,7 @@ head static =
             , mimeType = Nothing
             }
         , description = "TODO"
-        , locale = Nothing
+        , locale = static.sharedData.locale
         , title = "TODO title" -- metadata.title -- TODO
         }
         |> Seo.website

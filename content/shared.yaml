@@ -1,4 +1,5 @@
 ---
+siteName: "Nombre de la página"
 menuLogo:
   transformacion: "f_auto"
   recurso: "v1634944374/logo-psolar2_nrh1xt.svg"

@@ -10,6 +10,8 @@ import Html.Attributes as Attr exposing (class)
 import Html.Events as Event
 import Http
 import Json.Decode as D
+import LanguageTag.Country
+import LanguageTag.Language
 import MiCloudinary
 import Pages.Flags
 import Pages.Msg
@@ -193,6 +195,12 @@ subscriptions _ _ =
 
 
 type alias Data =
+    { logoImg : LogoImg
+    , locale : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
+    }
+
+
+type alias LogoImg =
     { logoTrans : String
     , logoResource : String
     , altMenuLogo : String
@@ -210,12 +218,20 @@ yamlDecoder : D.Decoder Data
 yamlDecoder =
     let
         logoDecoder =
-            D.map3 Data
+            D.map3 LogoImg
                 (D.field "transformacion" D.string)
                 (D.field "recurso" D.string)
                 (D.field "altMenuLogo" D.string)
     in
-    D.field "menuLogo" logoDecoder
+    D.map2 Data
+        (D.field "menuLogo" logoDecoder)
+        (D.succeed
+            (Just
+                ( LanguageTag.Language.es
+                , LanguageTag.Country.mx
+                )
+            )
+        )
 
 
 view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }
@@ -374,8 +390,12 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ text "Workflow" ]
                         , Html.img
                             [ class "tw h-8 w-auto sm:h-10"
-                            , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
-                            , Attr.alt dataDelYaml.altMenuLogo
+                            , Attr.src <|
+                                MiCloudinary.url
+                                    dataDelYaml.logoImg.logoTrans
+                                    dataDelYaml.logoImg.logoResource
+                            , Attr.alt
+                                dataDelYaml.logoImg.altMenuLogo
                             ]
                             []
                         ]
@@ -412,8 +432,12 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ div []
                                 [ Html.img
                                     [ class "tw h-8 w-auto"
-                                    , Attr.src <| MiCloudinary.url dataDelYaml.logoTrans dataDelYaml.logoResource
-                                    , Attr.alt dataDelYaml.altMenuLogo
+                                    , Attr.src <|
+                                        MiCloudinary.url
+                                            dataDelYaml.logoImg.logoTrans
+                                            dataDelYaml.logoImg.logoResource
+                                    , Attr.alt
+                                        dataDelYaml.logoImg.altMenuLogo
                                     ]
                                     []
                                 ]

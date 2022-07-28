@@ -166,7 +166,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.delMD.description
-        , locale = Nothing
+        , locale = static.sharedData.locale
         , title = static.data.delMD.title
         }
         |> Seo.website
