@@ -197,6 +197,7 @@ subscriptions _ _ =
 type alias Data =
     { logoImg : LogoImg
     , locale : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
+    , siteName : String
     }
 
 
@@ -223,7 +224,7 @@ yamlDecoder =
                 (D.field "recurso" D.string)
                 (D.field "altMenuLogo" D.string)
     in
-    D.map2 Data
+    D.map3 Data
         (D.field "menuLogo" logoDecoder)
         (D.succeed
             (Just
@@ -232,6 +233,7 @@ yamlDecoder =
                 )
             )
         )
+        (D.field "siteName" D.string)
 
 
 view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }

@@ -158,7 +158,7 @@ head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
+        , siteName = static.sharedData.siteName
         , image =
             { url = [ "images", "icon-png.png" ] |> Path.join |> Pages.Url.fromPath
             , alt = "elm-pages logo"

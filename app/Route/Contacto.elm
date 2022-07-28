@@ -279,7 +279,7 @@ head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
+        , siteName = static.sharedData.siteName
         , image =
             { url = Pages.Url.external "TODO"
             , alt = "elm-pages logo"
