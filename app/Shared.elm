@@ -195,10 +195,10 @@ subscriptions _ _ =
 
 
 type alias Data =
-    { logoImg : LogoImg
-    , locale : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
+    { locale : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
     , siteName : String
     , nosotros : String
+    , logoImg : LogoImg
     }
 
 
@@ -224,18 +224,18 @@ yamlDecoder =
                 (D.field "transformacion" D.string)
                 (D.field "recurso" D.string)
                 (D.field "altMenuLogo" D.string)
-    in
-    D.map4 Data
-        (D.field "menuLogo" logoDecoder)
-        (D.succeed
-            (Just
+
+        hardCodedLocale =
+            Just
                 ( LanguageTag.Language.es
                 , LanguageTag.Country.mx
                 )
-            )
-        )
+    in
+    D.map4 Data
+        (D.succeed hardCodedLocale)
         (D.field "siteName" D.string)
         (D.field "nosotros" D.string)
+        (D.field "menuLogo" logoDecoder)
 
 
 view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }

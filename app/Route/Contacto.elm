@@ -291,7 +291,7 @@ head static =
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = static.data.description ++ static.sharedData.siteName
+        , description = static.data.description ++ static.sharedData.nosotros
         , locale = static.sharedData.locale
         , title = static.data.title ++ static.sharedData.nosotros
         }
