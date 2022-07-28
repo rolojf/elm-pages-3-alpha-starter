@@ -98,7 +98,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.description ++ static.sharedData.siteName
-        , locale = static.sharedData.locale
+        , locale = Shared.localito
         , title = static.data.title ++ static.sharedData.nosotros
         }
         |> Seo.website

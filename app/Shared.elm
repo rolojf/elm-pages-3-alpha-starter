@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template, localito)
 
 import Analytics
 import DataSource
@@ -194,9 +194,16 @@ subscriptions _ _ =
     Sub.none
 
 
+localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
+localito =
+    Just
+        ( LanguageTag.Language.es
+        , LanguageTag.Country.mx
+        )
+
+
 type alias Data =
-    { locale : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
-    , siteName : String
+    { siteName : String
     , nosotros : String
     , logoImg : LogoImg
     }
@@ -224,15 +231,8 @@ yamlDecoder =
                 (D.field "transformacion" D.string)
                 (D.field "recurso" D.string)
                 (D.field "altMenuLogo" D.string)
-
-        hardCodedLocale =
-            Just
-                ( LanguageTag.Language.es
-                , LanguageTag.Country.mx
-                )
     in
-    D.map4 Data
-        (D.succeed hardCodedLocale)
+    D.map3 Data
         (D.field "siteName" D.string)
         (D.field "nosotros" D.string)
         (D.field "menuLogo" logoDecoder)
