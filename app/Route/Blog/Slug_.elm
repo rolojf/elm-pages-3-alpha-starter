@@ -77,6 +77,7 @@ type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
     , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , description : String
     }
 
 
@@ -89,7 +90,7 @@ data routeParams =
     let
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
-            Decode.map3 ContenidoConDatos
+            Decode.map4 ContenidoConDatos
                 (elCuerpo
                     |> MdConverter.parsea
                     |> Decode.succeed
@@ -100,6 +101,7 @@ data routeParams =
                     , afterHero = div [] []
                     }
                 )
+                (Decode.field "description" Decode.string)
 
         getDataFromMD =
             File.bodyWithFrontmatter
@@ -126,9 +128,9 @@ head static =
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = "TODO"
+        , description = static.data.delMD.description
         , locale = static.sharedData.locale
-        , title = "TODO title" -- metadata.title -- TODO
+        , title = static.data.delMD.title
         }
         |> Seo.website
 

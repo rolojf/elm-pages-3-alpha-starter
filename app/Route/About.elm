@@ -71,12 +71,17 @@ subscriptions maybePageUrl routeParams path sharedModel model =
 
 
 type alias Data =
-    {}
+    { description : String
+    , title : String
+    }
 
 
 data : DataSource Data
 data =
-    DataSource.succeed Data
+    DataSource.succeed
+        { description = "Formulario para enviar dudas, comentarios o retroalimentación y hacer contacto o establecer comunicación con "
+        , title = "Información sobre "
+        }
 
 
 head :
@@ -92,9 +97,9 @@ head static =
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = "TODO"
+        , description = static.data.description ++ static.sharedData.siteName
         , locale = static.sharedData.locale
-        , title = "TODO title" -- metadata.title -- TODO
+        , title = static.data.title ++ static.sharedData.nosotros
         }
         |> Seo.website
 
