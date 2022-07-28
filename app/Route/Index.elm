@@ -122,6 +122,7 @@ type alias Data =
 type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
+    , description : String
     , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     }
 
@@ -131,12 +132,13 @@ data =
     let
         miDecoder : String -> Decoder ContenidoConDatos
         miDecoder elCuerpo =
-            Decode.map3 ContenidoConDatos
+            Decode.map4 ContenidoConDatos
                 (elCuerpo
                     |> MdConverter.parsea
                     |> Decode.succeed
                 )
                 (Decode.field "title" Decode.string)
+                (Decode.field "description" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
                     , afterHero = div [] []
@@ -163,9 +165,9 @@ head static =
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = "Welcome to elm-pages!"
+        , description = static.data.delMD.description
         , locale = Nothing
-        , title = "elm-pages is running"
+        , title = static.data.delMD.title
         }
         |> Seo.website
 

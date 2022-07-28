@@ -1,5 +1,6 @@
 ---
 title: "Probando matonamente"
+description: "Descripcion del contenido"
 menuGoes: true
 menu:
   -
