@@ -10,7 +10,7 @@ menu:
     externa: false
   -
     queDice: Nota Hola
-    dir: blog/hola
+    dir: sub/hola
     especial: false
     externa: false
   -

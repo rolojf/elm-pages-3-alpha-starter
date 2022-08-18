@@ -1,4 +1,4 @@
-module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
+module Route.Sub.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
 import DataSource exposing (DataSource)
 import DataSource.File as File

@@ -22,7 +22,7 @@ menu:
     queDice: ¡Contáctanos!
     dir: contacto
     especial: true
-    externa: true
+    externa: false
 ---
 
 ## Otros

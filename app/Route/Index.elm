@@ -188,7 +188,7 @@ view maybeUrl sharedModel model static =
             [ class "tw prose" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
-        , Route.Blog__Slug_ { slug = "hola" }
+        , Route.Sub__Slug_ { slug = "hola" }
             |> Route.link [] [ Html.text "My blog post" ]
         ]
     , withMenu =
