@@ -148,7 +148,7 @@ data =
         getDataFromMD =
             File.bodyWithFrontmatter
                 miDecoder
-                "content/index.md"
+                (Shared.siteName ++ "/index.md")
     in
     DataSource.map Data
         getDataFromMD

@@ -107,7 +107,8 @@ data routeParams =
             File.bodyWithFrontmatter
                 miDecoder
             <|
-                "content/"
+                Shared.siteName
+                    ++ "/"
                     ++ routeParams.slug
                     ++ ".md"
     in

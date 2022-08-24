@@ -79,8 +79,8 @@ type alias Data =
 data : DataSource Data
 data =
     DataSource.succeed
-        { description = "Formulario para enviar dudas, comentarios o retroalimentación y hacer contacto o establecer comunicación con "
-        , title = "Información sobre "
+        { description = "Hoja básica con información sobre Nosotros"
+        , title = "Información Sobre Nosotros "
         }
 
 

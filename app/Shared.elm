@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template, localito)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), localito, siteName, template)
 
 import Analytics
 import DataSource
@@ -70,6 +70,15 @@ type alias Model =
     }
 
 
+
+-- La idea es que el contenido para cada página este en un folder diferente
+
+
+siteName : String
+siteName =
+    "content"
+
+
 init :
     Pages.Flags.Flags
     ->
@@ -92,7 +101,7 @@ init flags maybePagePath =
             let
                 defaultPageUrl =
                     { protocol = Url.Http
-                    , host = "localhost"
+                    , host = "content"
                     , port_ = Just 1234
                     , path = Path.fromString "yo-no-se"
                     , query = Nothing
