@@ -1,4 +1,4 @@
-module Site exposing (config)
+module Site exposing (config, canonicalUrl)
 
 import DataSource exposing (DataSource)
 import Head
@@ -6,10 +6,12 @@ import SiteConfig exposing (SiteConfig)
 import MimeType
 import Pages.Url as Url
 
+canonicalUrl : String
+canonicalUrl = "https://solarpaq.com"
 
 config : SiteConfig
 config =
-    { canonicalUrl = "https://solarpaq.com"
+    { canonicalUrl = canonicalUrl
     , head = head
     }
 
@@ -23,3 +25,4 @@ head =
 
     ]
         |> DataSource.succeed
+
