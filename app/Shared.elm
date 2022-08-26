@@ -403,12 +403,14 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ text "Workflow" ]
                         , Html.img
                             [ class "tw h-8 w-auto sm:h-10"
-                            , Attr.src <|
+                            , Attr.src "/logo.svg"
+                            , Attr.alt "Logotipo"
+                            {-<|
                                 MiCloudinary.url
                                     dataDelYaml.logoImg.logoTrans
                                     dataDelYaml.logoImg.logoResource
                             , Attr.alt
-                                dataDelYaml.logoImg.altMenuLogo
+                                dataDelYaml.logoImg.altMenuLogo -}
                             ]
                             []
                         ]
@@ -445,12 +447,8 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ div []
                                 [ Html.img
                                     [ class "tw h-8 w-auto"
-                                    , Attr.src <|
-                                        MiCloudinary.url
-                                            dataDelYaml.logoImg.logoTrans
-                                            dataDelYaml.logoImg.logoResource
-                                    , Attr.alt
-                                        dataDelYaml.logoImg.altMenuLogo
+                                    , Attr.src "/logo.svg"
+                                    , Attr.alt "Logotipo"
                                     ]
                                     []
                                 ]
