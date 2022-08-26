@@ -214,14 +214,6 @@ localito =
 type alias Data =
     { siteName : String
     , nosotros : String
-    , logoImg : LogoImg
-    }
-
-
-type alias LogoImg =
-    { logoTrans : String
-    , logoResource : String
-    , altMenuLogo : String
     }
 
 
@@ -234,17 +226,9 @@ data =
 
 yamlDecoder : D.Decoder Data
 yamlDecoder =
-    let
-        logoDecoder =
-            D.map3 LogoImg
-                (D.field "transformacion" D.string)
-                (D.field "recurso" D.string)
-                (D.field "altMenuLogo" D.string)
-    in
-    D.map3 Data
+    D.map2 Data
         (D.field "siteName" D.string)
         (D.field "nosotros" D.string)
-        (D.field "menuLogo" logoDecoder)
 
 
 view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }
@@ -405,14 +389,6 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ class "tw h-8 w-auto sm:h-10"
                             , Attr.src "/logo.svg"
                             , Attr.alt "Logotipo"
-
-                            {- <|
-                                   MiCloudinary.url
-                                       dataDelYaml.logoImg.logoTrans
-                                       dataDelYaml.logoImg.logoResource
-                               , Attr.alt
-                                   dataDelYaml.logoImg.altMenuLogo
-                            -}
                             ]
                             []
                         ]
