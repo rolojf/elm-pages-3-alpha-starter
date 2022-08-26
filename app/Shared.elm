@@ -396,8 +396,8 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
         [ div [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
             [ div [ class "tw flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10" ]
                 [ div [ class "tw flex justify-start lg:w-0 lg:flex-1" ]
-                    [ Html.a
-                        [ Attr.href "#" ]
+                    [ div
+                        []
                         [ Html.span
                             [ class "tw sr-only" ]
                             [ text "Workflow" ]
@@ -405,12 +405,14 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             [ class "tw h-8 w-auto sm:h-10"
                             , Attr.src "/logo.svg"
                             , Attr.alt "Logotipo"
-                            {-<|
-                                MiCloudinary.url
-                                    dataDelYaml.logoImg.logoTrans
-                                    dataDelYaml.logoImg.logoResource
-                            , Attr.alt
-                                dataDelYaml.logoImg.altMenuLogo -}
+
+                            {- <|
+                                   MiCloudinary.url
+                                       dataDelYaml.logoImg.logoTrans
+                                       dataDelYaml.logoImg.logoResource
+                               , Attr.alt
+                                   dataDelYaml.logoImg.altMenuLogo
+                            -}
                             ]
                             []
                         ]
