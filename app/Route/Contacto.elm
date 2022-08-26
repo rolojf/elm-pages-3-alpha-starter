@@ -323,6 +323,18 @@ view maybeUrl sharedModel model static =
         ]
     }
 
+-- imagen a modificar manualmente para cada página de contacto de cada sitio
+imagen :
+    { logoTrans : String
+    , logoResource : String
+    , altMenuLogo : String
+    }
+imagen =
+    { logoTrans = "f_auto"
+    , logoResource = "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
+    , altMenuLogo = "nada"
+    }
+
 
 viewLayout : Html (Pages.Msg.Msg Msg)
 viewLayout =
@@ -334,9 +346,9 @@ viewLayout =
                 [ class "tw h-56 w-full object-cover object-top lg:absolute lg:h-screen"
                 , Attr.src <|
                     MiCloudinary.url
-                        "f_auto"
-                        "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
-                , Attr.alt ""
+                        imagen.logoTrans
+                        imagen.logoResource
+                , Attr.alt imagen.altMenuLogo
                 ]
                 []
             ]
