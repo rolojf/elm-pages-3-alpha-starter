@@ -17,10 +17,6 @@ type Effect msg
     | Batch (List (Effect msg))
     | EsperaPues Float msg
     | SoloAccedeLiga String (Result Http.Error String -> msg)
-      {-
-         | GetStargazers (Result Http.Error Int -> msg)
-         | SetField { formId : String, name : String, value : String }
-      -}
     | FetchRouteData
         { data : Maybe FormData
         , toMsg : Result Http.Error Url -> msg
@@ -35,6 +31,8 @@ type Effect msg
 
 
 {-
+       | GetStargazers (Result Http.Error Int -> msg)
+       | SetField { formId : String, name : String, value : String }
        | Submit
            { values : FormData
            , toMsg : Result Http.Error Url -> msg
@@ -154,10 +152,6 @@ perform ({ fromPageMsg, key } as helpers) effect =
         Cmd cmd ->
             Cmd.map fromPageMsg cmd
 
-        {-
-           SetField info ->
-               helpers.setField info
-        -}
         Batch list ->
             Cmd.batch (List.map (perform helpers) list)
 
@@ -198,6 +192,9 @@ perform ({ fromPageMsg, key } as helpers) effect =
 
 
 {-
+   SetField info ->
+       helpers.setField info
+
    Submit record ->
        helpers.submit record
 
