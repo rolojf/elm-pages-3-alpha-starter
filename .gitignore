@@ -10,3 +10,4 @@ functions/server-render
 .idea/
 /.vscode/
 /pnpm-lock.yaml
+/.local/
