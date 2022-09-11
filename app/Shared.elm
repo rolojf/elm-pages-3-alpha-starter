@@ -70,7 +70,7 @@ type alias Model =
     }
 
 
-
+-- HARDCODED Site Info
 -- La idea es que el contenido para cada página este en un folder diferente
 
 
@@ -78,6 +78,15 @@ siteName : String
 siteName =
     "content"
 
+
+localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
+localito =
+    Just
+        ( LanguageTag.Language.es
+        , LanguageTag.Country.mx
+        )
+
+-- Back to normal
 
 init :
     Pages.Flags.Flags
@@ -202,13 +211,6 @@ subscriptions : Path -> Model -> Sub Msg
 subscriptions _ _ =
     Sub.none
 
-
-localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
-localito =
-    Just
-        ( LanguageTag.Language.es
-        , LanguageTag.Country.mx
-        )
 
 
 type alias Data =
