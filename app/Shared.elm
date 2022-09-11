@@ -70,6 +70,7 @@ type alias Model =
     }
 
 
+
 -- HARDCODED Site Info
 -- La idea es que el contenido para cada página este en un folder diferente
 
@@ -86,7 +87,10 @@ localito =
         , LanguageTag.Country.mx
         )
 
+
+
 -- Back to normal
+
 
 init :
     Pages.Flags.Flags
@@ -210,7 +214,6 @@ update msg model =
 subscriptions : Path -> Model -> Sub Msg
 subscriptions _ _ =
     Sub.none
-
 
 
 type alias Data =
@@ -390,7 +393,7 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                         , Html.img
                             [ class "tw h-8 w-auto sm:h-10"
                             , Attr.src "/logo.svg"
-                            , Attr.alt "Logotipo"
+                            , Attr.alt <| "Logotipo de " ++ dataDelYaml.nosotros
                             ]
                             []
                         ]
