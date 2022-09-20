@@ -185,7 +185,7 @@ view maybeUrl sharedModel model static =
         [ Html.h1 [] [ text "elm-pages is up and running!" ]
         , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
-            [ class "tw prose" ]
+            [ class "tw prose prose-headings:font-serif" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
         , Route.Sub__Slug_ { slug = "hola" }
