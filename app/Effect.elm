@@ -1,5 +1,11 @@
 module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
 
+{-|
+
+@docs Effect, batch, fromCmd, map, none, perform
+
+-}
+
 import Browser.Dom as Dom
 import Browser.Navigation
 import Form.FormData exposing (FormData)
@@ -11,6 +17,7 @@ import Task
 import Url exposing (Url)
 
 
+{-| -}
 type Effect msg
     = None
     | Cmd (Cmd msg)
@@ -31,14 +38,13 @@ type Effect msg
 
 
 {-
-       | GetStargazers (Result Http.Error Int -> msg)
-       | SetField { formId : String, name : String, value : String }
-       | Submit
-           { values : FormData
-           , toMsg : Result Http.Error Url -> msg
-           }
-       | SubmitFetcher (Pages.Fetcher.Fetcher msg)
-
+          | GetStargazers (Result Http.Error Int -> msg)
+          | SetField { formId : String, name : String, value : String }
+          | Submit
+              { values : FormData
+              , toMsg : Result Http.Error Url -> msg
+              }
+          | SubmitFetcher (Pages.Fetcher.Fetcher msg)
 
    type alias RequestInfo =
        { contentType : String
@@ -47,21 +53,25 @@ type Effect msg
 -}
 
 
+{-| -}
 none : Effect msg
 none =
     None
 
 
+{-| -}
 batch : List (Effect msg) -> Effect msg
 batch =
     Batch
 
 
+{-| -}
 fromCmd : Cmd msg -> Effect msg
 fromCmd =
     Cmd
 
 
+{-| -}
 map : (a -> b) -> Effect a -> Effect b
 map fn effect =
     case effect of
@@ -118,6 +128,7 @@ map fn effect =
 -}
 
 
+{-| -}
 perform :
     { fetchRouteData :
         { data : Maybe FormData

@@ -1,10 +1,20 @@
-module View exposing (View, map, placeholder, Liga, MenuComplemento, MenuInfo(..), LigaTipo(..) )
+module View exposing
+    ( View, map, placeholder
+    , Liga, LigaTipo(..), MenuComplemento, MenuInfo(..)
+    )
+
+{-|
+
+@docs View, map, placeholder
+
+-}
 
 import Html exposing (Html)
 import Path exposing (Path)
 import Route exposing (Route)
 
 
+{-| -}
 type alias View msg =
     { title : String
     , body : List (Html msg)
@@ -35,6 +45,7 @@ type LigaTipo
     | Interna Route
 
 
+{-| -}
 map : (msg1 -> msg2) -> View msg1 -> View msg2
 map fn doc =
     { title = doc.title
@@ -53,6 +64,7 @@ map fn doc =
     }
 
 
+{-| -}
 placeholder : String -> View msg
 placeholder moduleName =
     { title = "Placeholder - " ++ moduleName
