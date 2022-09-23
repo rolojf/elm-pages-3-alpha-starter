@@ -4,6 +4,7 @@ import Analytics
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import Effect exposing (Effect)
+import HardCodedData
 import Head
 import Head.Seo as Seo
 import HeroIcons
@@ -148,7 +149,7 @@ data =
         getDataFromMD =
             File.bodyWithFrontmatter
                 miDecoder
-                (Shared.siteName ++ "/index.md")
+                (HardCodedData.siteName ++ "/index.md")
     in
     DataSource.map Data
         getDataFromMD
@@ -166,7 +167,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.delMD.description
-        , locale = Shared.localito
+        , locale = HardCodedData.localito
         , title = static.data.delMD.title
         }
         |> Seo.website

@@ -3,6 +3,7 @@ module Route.About exposing (ActionData, Data, Model, Msg, route)
 import Browser.Navigation
 import DataSource exposing (DataSource)
 import Effect exposing (Effect)
+import HardCodedData
 import Head
 import Head.Seo as Seo
 import Pages.PageUrl exposing (PageUrl)
@@ -98,7 +99,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.description ++ static.sharedData.siteName
-        , locale = Shared.localito
+        , locale = HardCodedData.localito
         , title = static.data.title ++ static.sharedData.nosotros
         }
         |> Seo.website

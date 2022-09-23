@@ -3,6 +3,7 @@ module Route.Sub.Slug_ exposing (ActionData, Data, Model, Msg, route)
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import DataSource.Glob as Glob
+import HardCodedData
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, div, text)
@@ -107,7 +108,7 @@ data routeParams =
             File.bodyWithFrontmatter
                 miDecoder
             <|
-                Shared.siteName
+                HardCodedData.siteName
                     ++ "/"
                     ++ routeParams.slug
                     ++ ".md"
@@ -130,7 +131,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.delMD.description
-        , locale = Shared.localito
+        , locale = HardCodedData.localito
         , title = static.data.delMD.title
         }
         |> Seo.website

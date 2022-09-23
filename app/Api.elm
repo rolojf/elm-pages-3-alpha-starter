@@ -2,6 +2,7 @@ module Api exposing (routes)
 
 import ApiRoute exposing (ApiRoute)
 import DataSource exposing (DataSource)
+import HardCodedData
 import Html exposing (Html)
 import LanguageTag exposing (LanguageTag, emptySubtags)
 import LanguageTag.Country as Country
@@ -39,7 +40,7 @@ manifest =
             ]
     in
     Manifest.init
-        { name = Shared.siteName
+        { name = HardCodedData.siteName
         , description = ""
         , startUrl = Route.Index |> Route.toPath
         , icons = iconos

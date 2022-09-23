@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), localito, siteName, template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
 
 import Analytics
 import DataSource
@@ -10,8 +10,6 @@ import Html.Attributes as Attr exposing (class)
 import Html.Events as Event
 import Http
 import Json.Decode as D
-import LanguageTag.Country
-import LanguageTag.Language
 import MiCloudinary
 import Pages.Flags
 import Pages.Msg
@@ -68,28 +66,6 @@ type alias Model =
     , usuarioStatus : UsuarioSt
     , elHost : PageUrl
     }
-
-
-
--- HARDCODED Site Info
--- La idea es que el contenido para cada página este en un folder diferente
-
-
-siteName : String
-siteName =
-    "content"
-
-
-localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
-localito =
-    Just
-        ( LanguageTag.Language.es
-        , LanguageTag.Country.mx
-        )
-
-
-
--- Back to normal
 
 
 init :
@@ -217,8 +193,8 @@ subscriptions _ _ =
 
 
 type alias Data =
-    { siteName : String
-    , nosotros : String
+    { siteName : String -- descipción comercial de la página en cuestión para siteName en SEO summary
+    , nosotros : String -- descipción alternativa al logo en menú navegación
     }
 
 

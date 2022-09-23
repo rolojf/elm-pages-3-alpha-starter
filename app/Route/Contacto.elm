@@ -3,6 +3,7 @@ module Route.Contacto exposing (ActionData, Data, Model, Msg, route)
 import Analytics
 import DataSource exposing (DataSource)
 import Effect exposing (Effect)
+import HardCodedData
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, div, text)
@@ -275,9 +276,7 @@ type alias Data =
 data : DataSource Data
 data =
     DataSource.succeed
-        { description = "Formulario para enviar dudas, comentarios o retroalimentación y hacer contacto o establecer comunicación con "
-        , title = "Formato para comunicarse con "
-        }
+        HardCodedData.dataModContacto
 
 
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
@@ -292,7 +291,7 @@ head static =
             , mimeType = Nothing
             }
         , description = static.data.description ++ static.sharedData.nosotros
-        , locale = Shared.localito
+        , locale = HardCodedData.localito
         , title = static.data.title ++ static.sharedData.nosotros
         }
         |> Seo.website
@@ -323,17 +322,10 @@ view maybeUrl sharedModel model static =
         ]
     }
 
--- imagen a modificar manualmente para cada página de contacto de cada sitio
-imagen :
-    { logoTrans : String
-    , logoResource : String
-    , altMenuLogo : String
-    }
-imagen =
-    { logoTrans = "f_auto"
-    , logoResource = "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
-    , altMenuLogo = "nada"
-    }
+
+
+
+
 
 
 viewLayout : Html (Pages.Msg.Msg Msg)
@@ -346,9 +338,9 @@ viewLayout =
                 [ class "tw h-56 w-full object-cover object-top lg:absolute lg:h-screen"
                 , Attr.src <|
                     MiCloudinary.url
-                        imagen.logoTrans
-                        imagen.logoResource
-                , Attr.alt imagen.altMenuLogo
+                        HardCodedData.imagen.logoTrans
+                        HardCodedData.imagen.logoResource
+                , Attr.alt HardCodedData.imagen.altMenuLogo
                 ]
                 []
             ]
