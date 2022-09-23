@@ -4,6 +4,7 @@ import Analytics
 import DataSource
 import DataSource.File as File
 import Effect exposing (Effect)
+import ErroresHttp
 import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
@@ -225,7 +226,7 @@ view sharedData page model toMsg pageView =
             , Html.main_
                 [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
-            , div [] (viewErroresAlNotificar model.errorAlNotificar)
+            , div [ class "tw text-neutral-100"] (viewErroresAlNotificar model.errorAlNotificar)
             ]
     , title = pageView.title
     }
@@ -453,23 +454,4 @@ viewErroresAlNotificar cualError =
             []
 
         Just error ->
-            [ text <| viewHttpError error ]
-
-
-viewHttpError : Http.Error -> String
-viewHttpError error =
-    case error of
-        Http.BadUrl texto ->
-            "Bad Url " ++ texto ++ " al reportar evento."
-
-        Http.Timeout ->
-            "Se tardo en reportar evento."
-
-        Http.NetworkError ->
-            "Falla de red al reportar evento."
-
-        Http.BadStatus cual ->
-            "Status que regreso " ++ String.fromInt cual ++ " al reportar evento."
-
-        Http.BadBody texto ->
-            "Mensaje mal compuesto al reportar evento. " ++ texto
+            [ text <| ErroresHttp.viewHttpError error ]

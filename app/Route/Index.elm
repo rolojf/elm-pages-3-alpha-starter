@@ -4,6 +4,7 @@ import Analytics
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import Effect exposing (Effect)
+import ErroresHttp
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -207,22 +208,8 @@ respFromPost resp =
         Ok _ ->
             "Registrado Ok, nos comunicaremos pronto."
 
-        Err cual ->
-            case cual of
-                Http.BadUrl urlBad ->
-                    "Pero, error en programa " ++ urlBad
-
-                Http.Timeout ->
-                    "No respondió el servidor, Intente de nuevo."
-
-                Http.NetworkError ->
-                    "Falló el internet."
-
-                Http.BadStatus codigo ->
-                    "Servidor regresó error " ++ String.fromInt codigo
-
-                Http.BadBody infoEnviada ->
-                    "Problemas con la información " ++ String.left 20 infoEnviada
+        Err cualError ->
+            ErroresHttp.viewHttpError cualError
 
 
 viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
