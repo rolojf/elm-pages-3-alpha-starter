@@ -179,6 +179,7 @@ update pageUrl sharedModel static msg model =
                         , ( "telefono", Encode.string model.telefono )
                         , ( "llego", Encode.string model.comoSupo )
                         , ( "comentario", Encode.string model.comentario )
+                        , ( "sitio" , Encode.string HardCodedData.siteName)
                         ]
             in
             ( { model
@@ -198,7 +199,7 @@ update pageUrl sharedModel static msg model =
 
               else
                 Effect.EsperaPues 500.0 IntentaDeNuez
-            , {- if seLaSupo then
+            , if seLaSupo then
                    Ok "Todos Felices y Contentos"
                        |> Shared.Conocido
                        |> Shared.CambiaStatus
@@ -206,8 +207,7 @@ update pageUrl sharedModel static msg model =
                        |> Just
 
                  else
-              -}
-              Nothing
+                   Nothing
             )
 
         IntentaDeNuez ->
