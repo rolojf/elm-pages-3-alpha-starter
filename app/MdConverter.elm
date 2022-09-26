@@ -1,4 +1,4 @@
-module MdConverter exposing (parsea, renderea)
+module MdConverter exposing (myLink, parsea, renderea)
 
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
@@ -7,6 +7,7 @@ import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
 import Pages.Msg
+import Route exposing (link)
 
 
 parsea : String -> Result String (List Block)
@@ -45,7 +46,23 @@ myRenderer =
         defaultOne =
             Markdown.Renderer.defaultHtmlRenderer
     in
-    { defaultOne | html = procesaHtml }
+    { defaultOne
+        | html = procesaHtml
+        , link = myLink
+    }
+
+
+myLink liga contenido =
+    case liga.title of
+        Just title ->
+            Html.a
+                [ Attr.href liga.destination
+                , Attr.title title
+                ]
+                contenido
+
+        Nothing ->
+            Html.a [ Attr.href liga.destination ] contenido
 
 
 procesaHtml : Markdown.Html.Renderer (List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ()))
