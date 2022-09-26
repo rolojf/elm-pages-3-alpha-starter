@@ -56,15 +56,6 @@ myLink liga contenido =
     let
         posibleRuta =
             Route.urlToRoute { path = liga.destination }
-
-        _ =
-            Debug.log
-                "posibleRuta: "
-                posibleRuta
-
-        {- link : List (Attribute msg) -> List (Html msg) -> Route -> Html msg
-           link attributes children route =
-        -}
     in
     case liga.title of
         Just title ->
