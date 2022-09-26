@@ -61,17 +61,39 @@ myLink liga contenido =
             Debug.log
                 "posibleRuta: "
                 posibleRuta
+
+        {- link : List (Attribute msg) -> List (Html msg) -> Route -> Html msg
+           link attributes children route =
+        -}
     in
     case liga.title of
         Just title ->
-            Html.a
-                [ Attr.href liga.destination
-                , Attr.title title
-                ]
-                contenido
+            case posibleRuta of
+                Nothing ->
+                    Html.a
+                        [ Attr.href liga.destination
+                        , Attr.title title
+                        ]
+                        contenido
+
+                Just ruta ->
+                    Route.link
+                        [ Attr.title title ]
+                        contenido
+                        ruta
 
         Nothing ->
-            Html.a [ Attr.href liga.destination ] contenido
+            case posibleRuta of
+                Nothing ->
+                    Html.a
+                        [ Attr.href liga.destination ]
+                        contenido
+
+                Just ruta ->
+                    Route.link
+                        []
+                        contenido
+                        ruta
 
 
 procesaHtml : Markdown.Html.Renderer (List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ()))
