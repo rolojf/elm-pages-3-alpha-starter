@@ -54,7 +54,7 @@ type alias MDFile =
 allMDFiles : DataSource (List MDFile)
 allMDFiles =
     Glob.succeed MDFile
-        |> Glob.match (Glob.literal "content/")
+        |> Glob.match (Glob.literal (HardCodedData.siteName ++ "/"))
         |> Glob.capture Glob.wildcard
         |> Glob.match (Glob.literal ".md")
         |> Glob.captureFilePath
