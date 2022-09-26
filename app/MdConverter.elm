@@ -53,6 +53,15 @@ myRenderer =
 
 
 myLink liga contenido =
+    let
+        posibleRuta =
+            Route.urlToRoute { path = liga.destination }
+
+        _ =
+            Debug.log
+                "posibleRuta: "
+                posibleRuta
+    in
     case liga.title of
         Just title ->
             Html.a
