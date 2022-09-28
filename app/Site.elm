@@ -1,13 +1,17 @@
-module Site exposing (config, canonicalUrl)
+module Site exposing (canonicalUrl, config)
 
 import DataSource exposing (DataSource)
+import HardCodedData
 import Head
-import SiteConfig exposing (SiteConfig)
 import MimeType
 import Pages.Url as Url
+import SiteConfig exposing (SiteConfig)
+
 
 canonicalUrl : String
-canonicalUrl = "https://solarpaq.com"
+canonicalUrl =
+    HardCodedData.canonicalUrl
+
 
 config : SiteConfig
 config =
