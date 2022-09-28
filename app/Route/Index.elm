@@ -184,14 +184,11 @@ view maybeUrl sharedModel model static =
     { title =
         static.data.delMD.title
     , body =
-        [ Html.h1 [] [ text "elm-pages is up and running!" ]
-        , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
+        [ viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
             [ class "tw prose prose-headings:font-serif" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
-        , Route.Sub__Slug_ { slug = "hola" }
-            |> Route.link [] [ Html.text "My blog post" ]
         ]
     , withMenu =
         static.data.delMD.menu
