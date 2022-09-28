@@ -12,6 +12,15 @@ dataModContacto =
 
 
 
+-- Para Site.elm
+
+
+canonicalUrl : String
+canonicalUrl =
+    "https://reftex.com/"
+
+
+
 -- imagen a modificar manualmente para cada sitio en módulo contacto
 
 
