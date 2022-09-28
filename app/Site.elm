@@ -23,10 +23,8 @@ config =
 head : DataSource (List Head.Tag)
 head =
     [ --Head.sitemapLink "/sitemap.xml"
-    Head.icon [(32, 32)] MimeType.Png (Url.external "/favicon.ico")
-    , Head.icon [ ] (MimeType.OtherImage "svg+xml") (Url.external "/icon.svg")
+      Head.icon [ ( 32, 32 ) ] MimeType.Png (Url.external "/favicon.ico")
+    , Head.icon [] (MimeType.OtherImage "svg+xml") (Url.external "/icon.svg")
     , Head.appleTouchIcon (Just 180) (Url.external "/apple-touch-icon.png")
-
     ]
         |> DataSource.succeed
-

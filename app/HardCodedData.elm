@@ -31,8 +31,8 @@ imagen :
     }
 imagen =
     { logoTrans = "f_auto"
-    , logoResource = "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
-    , altMenuLogo = "nada"
+    , logoResource = "v1619940728/photodune-1522931-hand-holding-tree-for-green-eco-concept-xs_wn4atu.jpg"
+    , altMenuLogo = "Trabajemos junto para contribuir para mejorar todos"
     }
 
 
