@@ -186,7 +186,7 @@ view maybeUrl sharedModel model static =
     , body =
         [ viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
-            [ class "tw prose prose-headings:font-serif" ]
+            [ class "tw mt-8 prose prose-headings:font-serif" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
         ]
