@@ -162,10 +162,10 @@ head static =
         { canonicalUrlOverride = Nothing
         , siteName = static.sharedData.siteName
         , image =
-            { url = [ "images", "icon-png.png" ] |> Path.join |> Pages.Url.fromPath
-            , alt = "elm-pages logo"
-            , dimensions = Nothing
-            , mimeType = Nothing
+            { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
+            , alt = "Sitio oficial de " ++ static.data.delMD.title
+            , dimensions = Just { width = 1094, height = 547 }
+            , mimeType = Just "image/png"
             }
         , description = static.data.delMD.description
         , locale = HardCodedData.localito
@@ -184,14 +184,11 @@ view maybeUrl sharedModel model static =
     { title =
         static.data.delMD.title
     , body =
-        [ Html.h1 [] [ text "elm-pages is up and running!" ]
-        , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
+        [ viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
             [ class "tw prose prose-headings:font-serif" ]
             (MdConverter.renderea static.data.delMD.body)
             |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
-        , Route.Sub__Slug_ { slug = "hola" }
-            |> Route.link [] [ Html.text "My blog post" ]
         ]
     , withMenu =
         static.data.delMD.menu
