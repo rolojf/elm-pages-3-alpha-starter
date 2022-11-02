@@ -228,8 +228,6 @@ view sharedData page model toMsg pageView =
                 pageView.body
             , div [ class "tw text-neutral-100" ] (viewErroresAlNotificar model.errorAlNotificar)
             ]
-            |> Html.map toMsg
-        , Html.main_ [] pageView.body
         ]
     , title = pageView.title
     }

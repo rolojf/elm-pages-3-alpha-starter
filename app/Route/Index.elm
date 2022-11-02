@@ -17,6 +17,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
 import MenuDecoder
+import MimeType exposing (MimeType)
 import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
@@ -156,27 +157,17 @@ data =
         getDataFromMD
 
 
-logotipo : Seo.Image
-
-
-
-{- { url : Pages.Url.Url
-   , alt : String
-   , dimensions : Maybe { width : Int, height : Int }
-   , mimeType : Maybe MimeType
--}
-
-
-logotipo =
-    { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
-    , alt = "Sitio oficial de " ++ static.data.delMD.title
-    , dimensions = Just { width = 1094, height = 547 }
-    , mimeType = Just "image/png"
-    }
-
-
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
+    let
+        logotipo : Seo.Image
+        logotipo =
+            { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
+            , alt = "Sitio oficial de " ++ static.data.delMD.title
+            , dimensions = Just { width = 1094, height = 547 }
+            , mimeType = Just <| MimeType.Image MimeType.Png
+            }
+    in
     Seo.summary
         { canonicalUrlOverride = Nothing
         , siteName = static.sharedData.siteName
