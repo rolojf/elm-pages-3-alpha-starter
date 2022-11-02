@@ -156,17 +156,31 @@ data =
         getDataFromMD
 
 
+logotipo : Seo.Image
+
+
+
+{- { url : Pages.Url.Url
+   , alt : String
+   , dimensions : Maybe { width : Int, height : Int }
+   , mimeType : Maybe MimeType
+-}
+
+
+logotipo =
+    { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
+    , alt = "Sitio oficial de " ++ static.data.delMD.title
+    , dimensions = Just { width = 1094, height = 547 }
+    , mimeType = Just "image/png"
+    }
+
+
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
     Seo.summary
         { canonicalUrlOverride = Nothing
         , siteName = static.sharedData.siteName
-        , image =
-            { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
-            , alt = "Sitio oficial de " ++ static.data.delMD.title
-            , dimensions = Just { width = 1094, height = 547 }
-            , mimeType = Just "image/png"
-            }
+        , image = logotipo
         , description = static.data.delMD.description
         , locale = HardCodedData.localito
         , title = static.data.delMD.title
@@ -174,12 +188,7 @@ head static =
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> Model
-    -> StaticPayload Data ActionData RouteParams
-    -> View (Pages.Msg.Msg Msg)
+view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
 view maybeUrl sharedModel model static =
     { title =
         static.data.delMD.title

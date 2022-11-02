@@ -213,10 +213,10 @@ yamlDecoder =
         (D.field "nosotros" D.string)
 
 
-view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : Html msg, title : String }
+view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : List (Html msg), title : String }
 view sharedData page model toMsg pageView =
     { body =
-        Html.div []
+        [ Html.div []
             [ case pageView.withMenu of
                 View.NoMenu ->
                     div [] []
@@ -226,8 +226,11 @@ view sharedData page model toMsg pageView =
             , Html.main_
                 [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]
                 pageView.body
-            , div [ class "tw text-neutral-100"] (viewErroresAlNotificar model.errorAlNotificar)
+            , div [ class "tw text-neutral-100" ] (viewErroresAlNotificar model.errorAlNotificar)
             ]
+            |> Html.map toMsg
+        , Html.main_ [] pageView.body
+        ]
     , title = pageView.title
     }
 
