@@ -1,6 +1,6 @@
 ---
-title: "SOLARPAQ Página Inicial"
-description: "Presentamos la Iniciativa SOLARPAQ donde apoyamos a personal profesional de servicio a casa habitación para que puedan ofrecer paquetes integrados de Panel Solar con todo el profesionalismo, calidad, confiabilidad y respaldo técnico. "
+title: "Panel Solar Monterrey - Página Inicial"
+description: "Bienvenido a Panel Solar Monterrey, integrador de tecnologías para  generación de energía eléctrica fotovoltaica - paneles solares. Proyectos llave en mano en Nuevo León, México"
 menuGoes: true
 menu:
   -
@@ -15,10 +15,12 @@ menu:
     externa: false
 ---
 
-# Bienvenido a la página de SOLARPAQ
-La iniciativa SOLARPAQ, apoyamos con paquetes de panel solar e ingeniería a personal profesional de servicio y mantenimiento a casa habitación.  Para que en base a la confianza que se han ganado con sus clientes, ahora con apoyo de SOLARPAQ pueden ofrecer ahora también **paneles solares**.
+# PANEL SOLAR MONTERREY ¡Bienvenido!
+Somos una empresa que desde 2013 hemos realizado proyectos de panel solar.
 
-En SOLARPAQ ofrecemos paquetes integrados de Panel Solar para ofrecerlos con todo el profesionalismo, calidad, confiabilidad, buen precio y respaldo técnico como cualquier otra empresa especializada.   Trabajamos principalmente con profesionales que atienen servicios de casa habitación.  Que trabajan proyectos de electricidad, mantenimiento, albercas y demás.
+La recomendación de nuestros clientes ha sido nuestra mejor carta de presentación.
+
+Trabajamos proyectos llave en mano, y diseñados a la medida. Presentamos con claridad para que el cliente tome decisiones informadas, en cuanto cantidad y capacidad de paneles según ahorro esperado y presupuesto. Además escoja entre marcas y formas de instalar. 
 
 
 ## Porqué de esta página de internet
@@ -29,7 +31,6 @@ El principal objetivo por ahora, es presentar información de forma breve:
  - facilitar la forma de contactarnos.
 
 
-## Conoce un poco más de SOLARPAQ
-Empresa fundada en 1998 y que en 2013 empezamos a realizar proyectos de panel solar (módulos fotovoltaicos).
+## Conoce un poco más sobre nosotros.
 
 Próximamente más información.  ¡Contáctenos! en la liga que está en el menú superior de ésta página.
