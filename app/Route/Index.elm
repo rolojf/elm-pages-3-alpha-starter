@@ -164,7 +164,7 @@ head static =
         logotipo =
             { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
             , alt = "Sitio oficial de " ++ static.data.delMD.title
-            , dimensions = Just { width = 1094, height = 547 }
+            , dimensions = Just { width = 599, height = 549 }
             , mimeType = Just <| MimeType.Image MimeType.Png
             }
     in
