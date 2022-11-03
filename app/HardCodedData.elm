@@ -6,7 +6,7 @@ import LanguageTag.Language
 
 dataModContacto : { description : String, title : String }
 dataModContacto =
-    { description = "Formulario para enviar dudas, comentarios o retroalimentación y hacer contacto o establecer comunicación con "
+    { description = "Formulario para enviar dudas, comentarios, retroalimentar o establecer comunicación con " ++ siteName
     , title = "Formato para comunicarse con "
     }
 
@@ -17,7 +17,7 @@ dataModContacto =
 
 canonicalUrl : String
 canonicalUrl =
-    "https://reftex.com/"
+    "https://panel-solar-monterrey.com/"
 
 
 
@@ -42,9 +42,10 @@ imagen =
    que se define con siteName el nombre del folder
 -}
 
+
 siteName : String
 siteName =
-    "content"
+    "panel-solar-monterrey"
 
 
 localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
@@ -53,4 +54,3 @@ localito =
         ( LanguageTag.Language.es
         , LanguageTag.Country.mx
         )
-
