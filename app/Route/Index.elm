@@ -17,6 +17,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
 import MenuDecoder
+import MimeType exposing (MimeType)
 import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
@@ -158,15 +159,19 @@ data =
 
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
 head static =
-    Seo.summary
-        { canonicalUrlOverride = Nothing
-        , siteName = static.sharedData.siteName
-        , image =
+    let
+        logotipo : Seo.Image
+        logotipo =
             { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
             , alt = "Sitio oficial de " ++ static.data.delMD.title
             , dimensions = Just { width = 1094, height = 547 }
-            , mimeType = Just "image/png"
+            , mimeType = Just <| MimeType.Image MimeType.Png
             }
+    in
+    Seo.summary
+        { canonicalUrlOverride = Nothing
+        , siteName = static.sharedData.siteName
+        , image = logotipo
         , description = static.data.delMD.description
         , locale = HardCodedData.localito
         , title = static.data.delMD.title
@@ -174,12 +179,7 @@ head static =
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> Model
-    -> StaticPayload Data ActionData RouteParams
-    -> View (Pages.Msg.Msg Msg)
+view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
 view maybeUrl sharedModel model static =
     { title =
         static.data.delMD.title
