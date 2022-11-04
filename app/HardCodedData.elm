@@ -6,7 +6,7 @@ import LanguageTag.Language
 
 dataModContacto : { description : String, title : String }
 dataModContacto =
-    { description = "Formulario para enviar dudas, comentarios, retroalimentar o establecer comunicación con " ++ siteName
+    { description = "Formulario para enviar comentarios, retroalimentar o establecer comunicación con " ++ siteName
     , title = "Formato para comunicarse con "
     }
 
@@ -17,7 +17,7 @@ dataModContacto =
 
 canonicalUrl : String
 canonicalUrl =
-    "https://panel-solar-monterrey.com/"
+    "https://rolojf.com/"
 
 
 
@@ -45,7 +45,7 @@ imagen =
 
 siteName : String
 siteName =
-    "panel-solar-monterrey"
+    "rolojf"
 
 
 localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
