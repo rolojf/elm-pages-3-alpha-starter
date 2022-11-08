@@ -7,7 +7,7 @@ import LanguageTag.Language
 dataModContacto : { description : String, title : String }
 dataModContacto =
     { description = "Formulario para enviar comentarios, retroalimentar o establecer comunicación con " ++ siteName
-    , title = "Formato para comunicarse con "
+    , title = "Formato para comunicarse con PSOLAR.MX"
     }
 
 
@@ -17,7 +17,7 @@ dataModContacto =
 
 canonicalUrl : String
 canonicalUrl =
-    "https://rolojf.com/"
+    "https://psolar.mx/"
 
 
 
@@ -31,7 +31,7 @@ imagen :
     }
 imagen =
     { logoTrans = "f_auto"
-    , logoResource = "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
+    , logoResource = "v1642824483/logoMod_mryxdq.png"
     , altMenuLogo = "nada"
     }
 
@@ -45,7 +45,7 @@ imagen =
 
 siteName : String
 siteName =
-    "rolojf"
+    "psolar"
 
 
 localito : Maybe ( LanguageTag.Language.Language, LanguageTag.Country.Country )
