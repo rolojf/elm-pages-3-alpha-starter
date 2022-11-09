@@ -23,6 +23,7 @@ type Effect msg
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
     | EsperaPues Float msg
+    | Success msg
     | SoloAccedeLiga String (Result Http.Error String -> msg)
     | FetchRouteData
         { data : Maybe FormData
@@ -34,7 +35,6 @@ type Effect msg
         { respuestas : Encode.Value
         , toMsg : Result Http.Error String -> msg
         }
-
 
 
 {-
@@ -89,6 +89,9 @@ map fn effect =
 
         EsperaPues cuantoEsperar msg ->
             EsperaPues cuantoEsperar <| fn msg
+
+        Success msg ->
+            Success <| fn msg
 
         FetchRouteData fetchInfo ->
             FetchRouteData
@@ -170,6 +173,11 @@ perform ({ fromPageMsg, key } as helpers) effect =
             Task.perform
                 (\() -> fromPageMsg toMsg)
                 (Process.sleep cuantosMS)
+
+        Success toMsg ->
+            Task.perform
+                 (\() -> fromPageMsg toMsg)
+                 (Task.succeed ())
 
         SoloAccedeLiga direccion toMsg ->
             Http.get
