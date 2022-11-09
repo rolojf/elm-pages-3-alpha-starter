@@ -1,5 +1,7 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
+-- * Imports
+
 import Analytics
 import DataSource exposing (DataSource)
 import DataSource.File as File
@@ -32,7 +34,7 @@ import View exposing (View)
 
 
 
--- StatefulRoute routeParams data model msg
+-- * StatefulRoute routeParams data model msg
 
 
 type alias Model =
@@ -86,6 +88,10 @@ init maybePageUrl sharedModel static =
     )
 
 
+
+-- * Update
+
+
 update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg )
 update pageUrl sharedModel static msg model =
     case msg of
@@ -116,6 +122,10 @@ update pageUrl sharedModel static msg model =
 subscriptions : Maybe PageUrl -> RouteParams -> Path -> Shared.Model -> Model -> Sub Msg
 subscriptions maybePageUrl routeParams path sharedModel model =
     Sub.none
+
+
+
+-- * Data
 
 
 type alias Data =
@@ -177,6 +187,10 @@ head static =
         , title = static.data.delMD.title
         }
         |> Seo.website
+
+
+
+-- * View
 
 
 view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
