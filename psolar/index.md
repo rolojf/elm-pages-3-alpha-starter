@@ -2,6 +2,17 @@
 title: "Servicio Profesional a Panel Solar"
 description: "Página Comecial con Información de Servicios a Panel Solar"
 menuGoes: false
+menu:
+  -
+    queDice: Comunícate
+    dir: contacto
+    especial: true
+    externa: false
+  -
+    queDice: Más Info.
+    dir: "#Features"
+    especial: false
+    externa: true
 mainHead:
   preMainHeader: Damos mantenimiento a
   mainHeaderResaltado: Panel Solar
