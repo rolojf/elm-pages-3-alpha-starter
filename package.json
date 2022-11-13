@@ -1,5 +1,5 @@
 {
-  "name": "Blog Personal de rolojf",
+  "name": "Página con información sobre PSOLAR - Servicio profesional a Panel Solar",
   "scripts": {
     "postinstall": "elm-tooling install",
     "elm": "elm-pages dev",
@@ -8,7 +8,7 @@
     "tail": "tailwindcss -i input.css -o tailwind.css",
     "dev": "concurrently \"elm-pages dev\" \"tailwindcss -i input.css -o tailwind.css --watch \"",
     "server": "python -m http.server 8421 --bind 127.0.0.12 --directory dist",
-    "asdf": "aws s3 sync ./dist s3://rolojf.com --delete"
+    "asdf": "aws s3 sync ./dist s3://psolar.mx --delete"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
