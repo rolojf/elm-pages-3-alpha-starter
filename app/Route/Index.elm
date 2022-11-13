@@ -1070,12 +1070,9 @@ viewSlider showIt listadoCompletoImgs textos slideActivo animar =
 
         seccionTexto =
             div
-                [ class "content" ]
+                [ class "tw absolute bottom-0 mb-12 left-0 z-10 flex items-center justify-center font-bold text-9xl leading-5" ]
                 [ div
-                    [ class "wrap"
-                    , class
-                        "tw text-blue-900"
-                    ]
+                    [ class "tw text-blue-900" ]
                     (textos
                         |> Array.get slideActivo
                         |> Maybe.withDefault ""
