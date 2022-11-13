@@ -262,10 +262,9 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                 View.Otra camino ->
                     div
                         [ camino
-                            |> Path.toSegments
-                            |> List.reverse
-                            |> List.head
-                            |> Maybe.withDefault "-ligaexterna-rara-"
+                            |> Path.toAbsolute
+                            |> String.replace "/" "_"
+                            |> String.replace ":" "+"
                             |> String.append (quePaginaCompuesta ++ "-menuliga-externa-")
                             |> AnalyticsUsoMenuLigaExterna
                             |> Event.onClick
