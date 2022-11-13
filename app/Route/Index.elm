@@ -948,7 +948,10 @@ viewGaleria modeloDeGal =
 viewGal : Array String -> Array String -> Model -> Html (Pages.Msg.Msg Msg)
 viewGal listadoCompletoImgs textos model =
     div
-        [ Attr.id "slider-container" ]
+        [ Attr.id "slider-container"
+        , class "slider"
+        , class "tw relative flex items-center justify-center h-screen overflow-hidden"
+        ]
         [ viewSlider
             model.showSlider
             listadoCompletoImgs
@@ -1069,7 +1072,10 @@ viewSlider showIt listadoCompletoImgs textos slideActivo animar =
             div
                 [ class "content" ]
                 [ div
-                    [ class "wrap" ]
+                    [ class "wrap"
+                    , class
+                        "tw text-blue-900"
+                    ]
                     (textos
                         |> Array.get slideActivo
                         |> Maybe.withDefault ""
@@ -1081,46 +1087,43 @@ viewSlider showIt listadoCompletoImgs textos slideActivo animar =
                                         Animated.html
                                             Html.span
                                             (letraVa indice)
-                                            [ class "letter" ]
+                                            []
                                             [ text (String.fromChar letra) ]
 
                                     Entra ->
                                         Animated.html
                                             Html.span
                                             (letraViene indice)
-                                            [ class "letter" ]
+                                            []
                                             [ text (String.fromChar letra) ]
                             )
                     )
                 ]
     in
     div
-        [ class "slider" ]
+        [ class "nav" ]
         [ div
-            [ class "nav" ]
-            [ div
-                [ class "next"
-                , Event.onClick (Pages.Msg.UserMsg PresionoBotonDer)
-                ]
-                []
-            , div
-                [ class "prev"
-                , Event.onClick (Pages.Msg.UserMsg PresionoBotonIzq)
-                ]
-                []
-            , div
-                [ class "explore-btn" ]
-                [ text "Explore" ]
-            , if showIt then
-                div
-                    [ class "item" ]
-                    [ seccionDeImagenes (4 * slideActivo)
-                    , seccionTexto
-                    ]
-
-              else
-                div [ class "item" ]
-                    [ seccionTexto
-                    ]
+            [ class "next"
+            , Event.onClick (Pages.Msg.UserMsg PresionoBotonDer)
             ]
+            []
+        , div
+            [ class "prev"
+            , Event.onClick (Pages.Msg.UserMsg PresionoBotonIzq)
+            ]
+            []
+        , div
+            [ class "explore-btn" ]
+            [ text "Explore" ]
+        , if showIt then
+            div
+                [ class "item" ]
+                [ seccionDeImagenes (4 * slideActivo)
+                , seccionTexto
+                ]
+
+          else
+            div [ class "item" ]
+                [ seccionTexto
+                ]
         ]
