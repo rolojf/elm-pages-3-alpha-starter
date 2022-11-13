@@ -43,11 +43,3 @@ beneficios:
         nota: "Revisar si caben, el inversor o cableado eléctrico soporta paneles adicionales para aprovechar lo que ya se tiene."
 ---
 
-# ¡Bienvenido!
-Este es mi blog personal.
-
-Aquí voy a mostrar algo esperemos sea de tu interés.
-
-Por lo pronto, estoy construyendo lo básico.
-
-Próximamente más.  ¡Contáctame! Con la liga que está en el menú superior de ésta página.

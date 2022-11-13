@@ -31,7 +31,7 @@ imagen :
     }
 imagen =
     { logoTrans = "f_auto"
-    , logoResource = "v1642824483/logoMod_mryxdq.png"
+    , logoResource = "v1619940728/dreamstime_m_29668275_t0oapr.jpg"
     , altMenuLogo = "nada"
     }
 
