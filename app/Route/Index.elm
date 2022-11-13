@@ -88,7 +88,6 @@ type Msg
     | Para
     | PresionoBotonIzq
     | PresionoBotonDer
-    | Notificado (Result Http.Error String)
     | AnalyticsUsoMenuLigaExterna String
 
 
@@ -327,17 +326,6 @@ update pageUrl sharedModel static msg model =
               }
             , Effect.none
             , Nothing
-            )
-
-        Notificado resulto ->
-            ( model
-            , Effect.none
-            , case resulto of
-                Err quePaso ->
-                    Just (Shared.SharedMsg <| Shared.ErrorAlNotificar quePaso)
-
-                Ok _ ->
-                    Nothing
             )
 
         AnalyticsUsoMenuLigaExterna queLiga ->
