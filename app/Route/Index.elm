@@ -1109,9 +1109,6 @@ viewSlider showIt listadoCompletoImgs textos slideActivo animar =
             , Event.onClick (Pages.Msg.UserMsg PresionoBotonIzq)
             ]
             []
-        , div
-            [ class "explore-btn" ]
-            [ text "Explore" ]
         , if showIt then
             div
                 [ class "item" ]
