@@ -158,14 +158,12 @@ update pageUrl sharedModel static msg model =
         AvisadoAnalytics resulto ->
             ( model
             , Effect.none
-              {- , case resulto of
-                 Err quePaso ->
-                     Just (Shared.SharedMsg <| Shared.ErrorAlNotificar quePaso)
+            , case resulto of
+                Err quePaso ->
+                    Just (Shared.SharedMsg <| Shared.ErrorAlNotificar quePaso)
 
-                 Ok _ ->
-                     Nothing
-              -}
-            , Nothing
+                Ok _ ->
+                    Nothing
             )
 
         ToggleMenu ->
@@ -447,7 +445,6 @@ head static =
 
 
 -- * View
--- ** Del Original
 
 
 view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
@@ -479,20 +476,20 @@ view maybeUrl sharedModel model static =
 
 
 
--- *** Notificaciones - modals
-
-
-respFromPost : Result Http.Error String -> String
-respFromPost resp =
-    case resp of
-        Ok _ ->
-            "Registrado Ok, nos comunicaremos pronto."
-
-        Err cualError ->
-            ErroresHttp.viewHttpError cualError
+-- ** Notificaciones - modals
 
 
 viewNotificacion usrStatus verNotif =
+    let
+        respFromPost : Result Http.Error String -> String
+        respFromPost resp =
+            case resp of
+                Ok _ ->
+                    "Registrado Ok, nos comunicaremos pronto."
+
+                Err cualError ->
+                    ErroresHttp.viewHttpError cualError
+    in
     case usrStatus of
         Shared.Conocido respBasin ->
             retroFinal
@@ -583,23 +580,12 @@ retroFinal titulo subtitulo debeAparecer =
 
 
 
--- ** Del Shared
+-- ** Menu
 
 
 viewMenu : Maybe Route -> Bool -> List View.Liga -> { mainHero : Html (Pages.Msg.Msg Msg), afterHero : Html (Pages.Msg.Msg Msg) } -> Html (Pages.Msg.Msg Msg)
 viewMenu ruta menuOpen ligas complementos =
     let
-        quePagina : String
-        quePagina =
-            ruta
-                |> Maybe.map Route.routeToPath
-                |> Maybe.withDefault [ "pagina-rara" ]
-                |> List.foldr String.append ""
-
-        quePaginaCompuesta : String
-        quePaginaCompuesta =
-            "pag-index"
-
         clasesMenuItems : ( Bool, Bool ) -> Html.Attribute msg
         clasesMenuItems ( esMovil, especial ) =
             case ( esMovil, especial ) of
@@ -623,11 +609,10 @@ viewMenu ruta menuOpen ligas complementos =
                         [ Attr.href <| Path.toRelative camino
                         , clasesMenuItems ( esMovil, laLiga.especial )
                         , camino
-                            |> Path.toSegments
-                            |> List.reverse
-                            |> List.head
-                            |> Maybe.withDefault "-ligaexterna-rara-"
-                            |> String.append (quePaginaCompuesta ++ "-menuliga-externa-")
+                            |> Path.toAbsolute
+                            |> String.replace "/" "_"
+                            |> String.replace ":" "+"
+                            |> String.append "en-index-menuliga-externa-"
                             |> AnalyticsUsoMenuLigaExterna
                             |> Pages.Msg.UserMsg
                             |> Event.onClick
