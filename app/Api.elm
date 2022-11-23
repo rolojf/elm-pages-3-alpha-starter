@@ -16,7 +16,10 @@ import Shared
 import Site
 
 
-routes : DataSource (List Route) -> (Html Never -> String) -> List (ApiRoute ApiRoute.Response)
+routes :
+    DataSource (List Route)
+    -> (Maybe { indent : Int, newLines : Bool } -> Html Never -> String)
+    -> List (ApiRoute ApiRoute.Response) -- antes htmlToString era (Html Never -> String)
 routes getStaticRoutes htmlToString =
     [ DataSource.succeed manifest
         |> Manifest.generator Site.canonicalUrl
