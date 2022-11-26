@@ -81,16 +81,16 @@ type Msg
     | NoOp
     | AvisadoAnalytics (Result Http.Error String)
     | ToggleMenu
+    | AnalyticsUsoMenuLigaExterna String
+      -- Mensajes Galería
+    | CheckedGalInView (Result Dom.Error Dom.Element)
     | WaitToCheckAgainGalInView
     | WaitToGalAutoRotate
+    | PresionoBotonIzq
+    | PresionoBotonDer
     | Avanza
     | Retrocede
     | Para
-      -- Mensajes Galería
-    | PresionoBotonIzq
-    | PresionoBotonDer
-    | AnalyticsUsoMenuLigaExterna String
-    | CheckedGalInView (Result Dom.Error Dom.Element)
 
 
 type alias RouteParams =
@@ -224,7 +224,7 @@ update pageUrl sharedModel static msg model =
 
                 VisibleAllRight ->
                     Effect.EsperaPues
-                        5000
+                        5500
                         WaitToGalAutoRotate
             , Nothing
             )
@@ -238,14 +238,14 @@ update pageUrl sharedModel static msg model =
         WaitToGalAutoRotate ->
             if model.avanzoManual then
                 ( { model | avanzoManual = False }
-                , Effect.EsperaPues 12500 WaitToGalAutoRotate
+                , Effect.EsperaPues 11000 WaitToGalAutoRotate
                 , Nothing
                 )
 
             else
                 ( model
                 , Effect.batch
-                    [ Effect.EsperaPues 6500 WaitToGalAutoRotate
+                    [ Effect.EsperaPues 5500 WaitToGalAutoRotate
                     , Effect.Success
                         (if model.dirAvance == Izq then
                             Retrocede
