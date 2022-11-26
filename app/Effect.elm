@@ -33,7 +33,7 @@ type Effect msg
         { respuestas : Encode.Value
         , toMsg : Result Http.Error String -> msg
         }
-      -- * De psolar1 Index.elm por Galería
+      -- ** De psolar1 Index.elm por Galería
     | EsperaPues Float msg
     | Success msg
     | CheckIfInView String (Result Dom.Error Dom.Element -> msg)
