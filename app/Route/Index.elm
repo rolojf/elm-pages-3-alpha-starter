@@ -50,7 +50,6 @@ type alias Model =
     , showSlider : Bool
 
     -- datos para la Galería
-    , inicializado : Bool
     , dirAvance : DirAvanceManual
     , avanzoManual : Bool
     , cualSlideActivo : Int
@@ -128,7 +127,6 @@ init maybePageUrl sharedModel static =
       , showSlider = False
 
       -- Valores de Galería
-      , inicializado = False
       , dirAvance = None
       , avanzoManual = False
       , cualSlideActivo = 0
