@@ -145,6 +145,12 @@ init maybePageUrl sharedModel static =
 -- * Update
 
 
+type SliderVisibility
+    = ApenasEntrando Float
+    | NoVisible
+    | VisibleAllRight
+
+
 update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
 update pageUrl sharedModel static msg model =
     case msg of
@@ -180,40 +186,47 @@ update pageUrl sharedModel static msg model =
         -- ** Galería
         CheckedGalInView resultaPos ->
             let
-                galInSight pos =
-                    (pos.element.y - 0.7 * pos.viewport.height) < pos.viewport.y
+                galInSight actual =
+                    actual.element.y < actual.viewport.y + 0.7 * actual.viewport.height
 
-                onView : Maybe Float
+                posicion actual =
+                    1.0 - (actual.viewport.y / actual.element.y)
+
+                onView : SliderVisibility
                 onView =
                     case resultaPos of
                         Ok pos ->
                             if galInSight pos then
-                                Nothing
+                                VisibleAllRight
 
                             else
-                                Just (1.0 - (pos.viewport.y / pos.element.y))
+                                ApenasEntrando <| posicion pos
 
                         _ ->
-                            Just 1.0
+                            NoVisible
             in
             ( { model
                 | showSlider =
-                    if onView == Nothing then
+                    if onView == VisibleAllRight then
                         True
 
                     else
                         False
               }
             , case onView of
-                Just waitingTime ->
+                ApenasEntrando waitingTime ->
                     Effect.EsperaPues
-                        (200000 * waitingTime)
+                        (2000 * waitingTime)
                         WaitToCheckAgainGalInView
 
-                -- debe ser 2000
-                Nothing ->
+                NoVisible ->
                     Effect.EsperaPues
-                        6500
+                        5000
+                        WaitToCheckAgainGalInView
+
+                VisibleAllRight ->
+                    Effect.EsperaPues
+                        5000
                         WaitToGalAutoRotate
             , Nothing
             )
@@ -221,7 +234,6 @@ update pageUrl sharedModel static msg model =
         WaitToCheckAgainGalInView ->
             ( model
             , Effect.CheckIfInView "slider-container" CheckedGalInView
-              -- Task.attempt CheckGalInView (Dom.getElement "slider-container") |> Effect.fromCmd
             , Nothing
             )
 
