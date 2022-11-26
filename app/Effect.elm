@@ -22,8 +22,6 @@ type Effect msg
     = None
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
-    | EsperaPues Float msg
-    | Success msg
     | SoloAccedeLiga String (Result Http.Error String -> msg)
     | FetchRouteData
         { data : Maybe FormData
@@ -35,6 +33,10 @@ type Effect msg
         { respuestas : Encode.Value
         , toMsg : Result Http.Error String -> msg
         }
+      -- * De psolar1 Index.elm por Galería
+    | EsperaPues Float msg
+    | Success msg
+    | CheckIfInView String (Result Dom.Error Dom.Element -> msg)
 
 
 
@@ -113,6 +115,11 @@ map fn effect =
         Success msg ->
             Success <| fn msg
 
+        CheckIfInView domElementId msg ->
+            CheckIfInView
+                domElementId
+                (msg >> fn)
+
 
 
 {-
@@ -134,6 +141,12 @@ map fn effect =
 
 
 {-| -}
+
+
+
+-- antes: perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
+
+
 perform :
     { fetchRouteData :
         { data : Maybe FormData
@@ -154,12 +167,6 @@ perform :
     }
     -> Effect pageMsg
     -> Cmd msg
-
-
-
--- antes: perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
-
-
 perform ({ fromPageMsg, key } as helpers) effect =
     case effect of
         None ->
@@ -170,16 +177,6 @@ perform ({ fromPageMsg, key } as helpers) effect =
 
         Batch list ->
             Cmd.batch (List.map (perform helpers) list)
-
-        EsperaPues cuantosMS toMsg ->
-            Task.perform
-                (\() -> fromPageMsg toMsg)
-                (Process.sleep cuantosMS)
-
-        Success toMsg ->
-            Task.perform
-                (\() -> fromPageMsg toMsg)
-                (Task.succeed ())
 
         SoloAccedeLiga direccion toMsg ->
             Http.get
@@ -209,6 +206,22 @@ perform ({ fromPageMsg, key } as helpers) effect =
         FetchRouteData fetchInfo ->
             helpers.fetchRouteData
                 fetchInfo
+
+        -- * De psolar1 Index.elm por Galería
+        EsperaPues cuantosMS toMsg ->
+            Task.perform
+                (\() -> fromPageMsg toMsg)
+                (Process.sleep cuantosMS)
+
+        Success toMsg ->
+            Task.perform
+                (\_ -> fromPageMsg toMsg)
+                (Task.succeed ())
+
+        CheckIfInView domElementId toMsg ->
+            Task.attempt
+                (\elementoResultante -> fromPageMsg (toMsg elementoResultante))
+                (Dom.getElement domElementId)
 
 
 

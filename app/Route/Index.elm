@@ -48,9 +48,11 @@ type alias Model =
     { verNotificaciones : StatusNotificacion
     , menuOpen : Bool
     , showSlider : Bool
-    , avanzoManual : Bool
-    , dirAvance : DirAvanceManual
+
+    -- datos para la Galería
     , inicializado : Bool
+    , dirAvance : DirAvanceManual
+    , avanzoManual : Bool
     , cualSlideActivo : Int
     , aminar : Amimacion
     , cambia : Int
@@ -80,15 +82,16 @@ type Msg
     | NoOp
     | AvisadoAnalytics (Result Http.Error String)
     | ToggleMenu
-    | CheckGalInView (Result Dom.Error Dom.Element)
     | WaitToCheckAgainGalInView
     | WaitToGalAutoRotate
     | Avanza
     | Retrocede
     | Para
+      -- Mensajes Galería
     | PresionoBotonIzq
     | PresionoBotonDer
     | AnalyticsUsoMenuLigaExterna String
+    | CheckedGalInView (Result Dom.Error Dom.Element)
 
 
 type alias RouteParams =
@@ -123,15 +126,17 @@ init maybePageUrl sharedModel static =
             else
                 ConStatusMostrar
       , showSlider = False
-      , avanzoManual = False
-      , dirAvance = None
+
+      -- Valores de Galería
       , inicializado = False
+      , dirAvance = None
+      , avanzoManual = False
       , cualSlideActivo = 0
       , aminar = Entra
       , cambia = 0
       , cuantasFotos = Array.length textosGal
       }
-    , Effect.none
+    , Effect.CheckIfInView "slider-container" CheckedGalInView
       -- Task.attempt CheckGalInView (Dom.getElement "slider-container")
     )
 
@@ -172,7 +177,8 @@ update pageUrl sharedModel static msg model =
             , Nothing
             )
 
-        CheckGalInView resultaPos ->
+        -- ** Galería
+        CheckedGalInView resultaPos ->
             let
                 galInSight pos =
                     (pos.element.y - 0.7 * pos.viewport.height) < pos.viewport.y
@@ -214,7 +220,8 @@ update pageUrl sharedModel static msg model =
 
         WaitToCheckAgainGalInView ->
             ( model
-            , Task.attempt CheckGalInView (Dom.getElement "slider-container") |> Effect.fromCmd
+            , Effect.CheckIfInView "slider-container" CheckedGalInView
+              -- Task.attempt CheckGalInView (Dom.getElement "slider-container") |> Effect.fromCmd
             , Nothing
             )
 
@@ -326,6 +333,7 @@ update pageUrl sharedModel static msg model =
             , Nothing
             )
 
+        -- ** Analytics
         AnalyticsUsoMenuLigaExterna queLiga ->
             ( model
             , Analytics.toEffect
