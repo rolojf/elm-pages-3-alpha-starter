@@ -37,6 +37,7 @@ type Effect msg
         }
 
 
+
 {-
           | GetStargazers (Result Http.Error Int -> msg)
           | SetField { formId : String, name : String, value : String }
@@ -87,12 +88,6 @@ map fn effect =
         SoloAccedeLiga dire toMsg ->
             SoloAccedeLiga dire (toMsg >> fn)
 
-        EsperaPues cuantoEsperar msg ->
-            EsperaPues cuantoEsperar <| fn msg
-
-        Success msg ->
-            Success <| fn msg
-
         FetchRouteData fetchInfo ->
             FetchRouteData
                 { data = fetchInfo.data
@@ -110,6 +105,13 @@ map fn effect =
                 { respuestas = someInfo.respuestas
                 , toMsg = someInfo.toMsg >> fn
                 }
+
+        -- * Garlería en Route/Index.elm
+        EsperaPues cuantoEsperar msg ->
+            EsperaPues cuantoEsperar <| fn msg
+
+        Success msg ->
+            Success <| fn msg
 
 
 
@@ -176,8 +178,8 @@ perform ({ fromPageMsg, key } as helpers) effect =
 
         Success toMsg ->
             Task.perform
-                 (\() -> fromPageMsg toMsg)
-                 (Task.succeed ())
+                (\() -> fromPageMsg toMsg)
+                (Task.succeed ())
 
         SoloAccedeLiga direccion toMsg ->
             Http.get
