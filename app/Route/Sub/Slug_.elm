@@ -114,6 +114,7 @@ type alias Data =
     , description : String
     }
 
+
 type alias DataPrev =
     { body : String
     , tipo : FileType
@@ -123,21 +124,34 @@ type alias DataPrev =
     }
 
 
-
 data : RouteParams -> DataSource Data
 data routeParams =
     let
         tipoDeDoc cualEsElTipo elTexto =
-             case cualEsElTipo of
-                  Md -> (DelMd (MdConverter.parsea elTexto))
+            case cualEsElTipo of
+                Md ->
+                    DelMd (MdConverter.parsea elTexto)
 
-                  Html_ -> DelHtml
-                            (Html.Parser.run elTexto
-                               |> Result.mapError Parser.deadEndsToString)
+                Html_ ->
+                    DelHtml
+                        (Html.Parser.run elTexto
+                            |> Result.mapError Parser.deadEndsToString
+                        )
+
+        decodificaTipo =
+            Decode.field "tipo" Decode.string
+                |> Decode.andThen
+                    (\tipoStr ->
+                        if tipoStr == "html" then
+                            Decode.succeed Html_
+
+                        else
+                            Decode.succeed Md
+                    )
 
         miDecoder elCuerpo =
             Decode.map4 (DataPrev elCuerpo)
-                (Decode.succeed Md)
+                decodificaTipo
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
@@ -160,18 +174,16 @@ data routeParams =
             )
          -}
         )
-        |>
-        DataSource.andThen
-        (\dPrev ->
-            DataSource.succeed
+        |> DataSource.andThen
+            (\dPrev ->
                 { body = tipoDeDoc dPrev.tipo dPrev.body
                 , tipo = dPrev.tipo
                 , title = dPrev.title
                 , menu = dPrev.menu
                 , description = dPrev.description
                 }
-        )
-
+                    |> DataSource.succeed
+            )
 
 
 head :

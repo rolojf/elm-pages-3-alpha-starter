@@ -2,8 +2,31 @@
 #+STARTUP: indent
 #+BEGIN_EXPORT html
 ---
-uno: "dos"
-dos: [1, 7, 8]
+tipo: "html"
+title: "Probando el html matonamente"
+description: "Una página de prueba de Orgmode pasada a Html"
+menuGoes: true
+menu:
+  -
+    queDice: Inicio
+    dir: ""
+    especial: false
+    externa: false
+  -
+    queDice: Sobre Nosotros
+    dir: about
+    especial: false
+    externa: false
+  -
+    queDice: Aviso de Privacidad
+    dir: "https://reftex.com/privacidad"
+    especial: false
+    externa: true
+  -
+    queDice: ¡Contáctanos!
+    dir: contacto
+    especial: true
+    externa: false
 ---
 #+END_EXPORT
 [[https://github.com/ornash/notes/blob/master/emacs/org-mode-demo.org][Github Page]]
