@@ -57,7 +57,6 @@ type FileType
 
 type alias MDFile =
     { slug : String
-    , tipo : FileType
     , filePath : String
     }
 
@@ -68,7 +67,7 @@ allMDFiles =
         |> Glob.match (Glob.literal (HardCodedData.siteName ++ "/"))
         |> Glob.capture Glob.wildcard
         |> Glob.match (Glob.literal ".")
-        |> Glob.capture
+        |> Glob.match
             (Glob.oneOf
                 ( ( "md", Md )
                 , [ ( "html", Html_ ) ]
@@ -85,16 +84,6 @@ pages =
             (List.map
                 (\cadaMDFile -> RouteParams cadaMDFile.slug)
             )
-
-
-pagesTipo : DataSource (Dict String FileType)
-pagesTipo =
-    allMDFiles
-        |> DataSource.map
-            (List.map
-                (\cadaMDFile -> ( cadaMDFile.slug, cadaMDFile.tipo ))
-            )
-        |> DataSource.map Dict.fromList
 
 
 type alias ActionData =
@@ -159,21 +148,30 @@ data routeParams =
                     }
                 )
                 (Decode.field "description" Decode.string)
+
+        sacaPathDeLaPaginaSlug : String -> List MDFile -> String
+        {- regresa el path -}
+        sacaPathDeLaPaginaSlug elSlug listadoArchivos =
+            listadoArchivos
+                |> List.filter
+                    (\unArchivo -> unArchivo.slug == elSlug)
+                |> List.head
+                |> Maybe.map .filePath
+                |> Maybe.withDefault
+                    (HardCodedData.siteName
+                        ++ "/"
+                        ++ routeParams.slug
+                        ++ ".html"
+                    )
     in
+    {- (allMDFiles
+       |> DataSource.andThen
+           (\listadoDePaginas ->
+    -}
     File.bodyWithFrontmatter
         miDecoder
-        (HardCodedData.siteName
-            ++ "/"
-            ++ routeParams.slug
-            ++ ".md"
-         {- (if tipoDeDoc == Just Md then
-                 ".md"
-
-             else
-                 ".html"
-            )
-         -}
-        )
+        (HardCodedData.siteName ++ "/" ++ routeParams.slug ++ ".html")
+        --(sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
         |> DataSource.andThen
             (\dPrev ->
                 { body = tipoDeDoc dPrev.tipo dPrev.body
