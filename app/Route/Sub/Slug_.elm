@@ -157,21 +157,15 @@ data routeParams =
                     (\unArchivo -> unArchivo.slug == elSlug)
                 |> List.head
                 |> Maybe.map .filePath
-                |> Maybe.withDefault
-                    (HardCodedData.siteName
-                        ++ "/"
-                        ++ routeParams.slug
-                        ++ ".html"
-                    )
+                |> Maybe.withDefault "xxx"
     in
-    {- (allMDFiles
-       |> DataSource.andThen
-           (\listadoDePaginas ->
-    -}
-    File.bodyWithFrontmatter
-        miDecoder
-        (HardCodedData.siteName ++ "/" ++ routeParams.slug ++ ".html")
-        --(sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
+    allMDFiles
+        |> DataSource.andThen
+            (\listadoDePaginas ->
+                File.bodyWithFrontmatter
+                    miDecoder
+                    (sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
+            )
         |> DataSource.andThen
             (\dPrev ->
                 { body = tipoDeDoc dPrev.tipo dPrev.body
