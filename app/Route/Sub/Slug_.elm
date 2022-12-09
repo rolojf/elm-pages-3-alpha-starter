@@ -3,6 +3,7 @@ module Route.Sub.Slug_ exposing (ActionData, Data, Model, Msg, route)
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import DataSource.Glob as Glob
+import Dict exposing (Dict)
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -86,6 +87,16 @@ pages =
             )
 
 
+pagesTipo : DataSource (Dict String FileType)
+pagesTipo =
+    allMDFiles
+        |> DataSource.map
+            (List.map
+                (\cadaMDFile -> ( cadaMDFile.slug, cadaMDFile.tipo ))
+            )
+        |> DataSource.map Dict.fromList
+
+
 type alias ActionData =
     {}
 
@@ -97,44 +108,36 @@ type TipoDeDoc
 
 type alias Data =
     { body : TipoDeDoc
+    , tipo : FileType
+    , title : String
+    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , description : String
+    }
+
+type alias DataPrev =
+    { body : String
+    , tipo : FileType
     , title : String
     , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     , description : String
     }
 
 
+
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        comoParsear elBody =
-            -- if (DataSource.map (== Md) ) then
-                DelMd (MdConverter.parsea elBody)
+        tipoDeDoc cualEsElTipo elTexto =
+             case cualEsElTipo of
+                  Md -> (DelMd (MdConverter.parsea elTexto))
 
-            {-else
-                DelHtml
-                    (Html.Parser.run elBody
-                        |> Result.mapError Parser.deadEndsToString
-                    )
--}
-        tipoDeDoc =
-            allMDFiles
-                |> DataSource.map
-                    (\mdFiles ->
-                        List.filter
-                            (\unMDFile -> unMDFile.slug == routeParams.slug)
-                            mdFiles
-                    )
-                |> DataSource.map
-                    (\mdFiles ->
-                        List.map
-                            (\unMDFile -> unMDFile.tipo)
-                            mdFiles
-                    )
-                |> DataSource.map List.head
-                |> DataSource.map (Maybe.withDefault Md)
+                  Html_ -> DelHtml
+                            (Html.Parser.run elTexto
+                               |> Result.mapError Parser.deadEndsToString)
 
         miDecoder elCuerpo =
-            Decode.map3 (Data (comoParsear elCuerpo))
+            Decode.map4 (DataPrev elCuerpo)
+                (Decode.succeed Md)
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
@@ -149,13 +152,26 @@ data routeParams =
             ++ "/"
             ++ routeParams.slug
             ++ ".md"
-            {-(if tipoDeDoc == Just Md then
-                    ".md"
+         {- (if tipoDeDoc == Just Md then
+                 ".md"
 
-                else
-                    ".html"
-               )-}
+             else
+                 ".html"
+            )
+         -}
         )
+        |>
+        DataSource.andThen
+        (\dPrev ->
+            DataSource.succeed
+                { body = tipoDeDoc dPrev.tipo dPrev.body
+                , tipo = dPrev.tipo
+                , title = dPrev.title
+                , menu = dPrev.menu
+                , description = dPrev.description
+                }
+        )
+
 
 
 head :
