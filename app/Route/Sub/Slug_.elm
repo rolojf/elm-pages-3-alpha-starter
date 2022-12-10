@@ -115,7 +115,7 @@ type alias DataPrev =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        tipoDeDoc cualEsElTipo elTexto =
+        parsearSegunTipo cualEsElTipo elTexto =
             case cualEsElTipo of
                 Md ->
                     DelMd (MdConverter.parsea elTexto)
@@ -136,9 +136,9 @@ data routeParams =
                 )
                 (Decode.field "description" Decode.string)
 
-        sacaPathDeLaPaginaSlug : String -> List MDFile -> String
+        sacaPath : String -> List MDFile -> String
         {- regresa el path -}
-        sacaPathDeLaPaginaSlug elSlug listadoArchivos =
+        sacaPath elSlug listadoArchivos =
             listadoArchivos
                 |> List.filter
                     (\unArchivo -> unArchivo.slug == elSlug)
@@ -146,17 +146,17 @@ data routeParams =
                 |> Maybe.map .filePath
                 |> Maybe.withDefault "xxx"
 
-        dsPaginaConFM =
+        dsPaginaConFrontmatter =
             allMDFiles
                 |> DataSource.andThen
                     (\listadoDePaginas ->
                         File.bodyWithFrontmatter
                             miDecoder
-                            (sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
+                            (sacaPath routeParams.slug listadoDePaginas)
                     )
 
-        sacaElTipoDePaginaSlug : String -> List MDFile -> FileType
-        sacaElTipoDePaginaSlug elSlug listadoArchivos =
+        sacaElTipo : String -> List MDFile -> FileType
+        sacaElTipo elSlug listadoArchivos =
             listadoArchivos
                 |> List.filter
                     (\unArchivo -> unArchivo.slug == elSlug)
@@ -167,17 +167,17 @@ data routeParams =
         dsTipoDePagina =
             allMDFiles
                 |> DataSource.map
-                    (sacaElTipoDePaginaSlug routeParams.slug)
+                    (sacaElTipo routeParams.slug)
     in
     DataSource.map2
         (\dPrev dTipo ->
-            { body = tipoDeDoc dTipo dPrev.body
+            { body = parsearSegunTipo dTipo dPrev.body
             , title = dPrev.title
             , menu = dPrev.menu
             , description = dPrev.description
             }
         )
-        dsPaginaConFM
+        dsPaginaConFrontmatter
         dsTipoDePagina
 
 
