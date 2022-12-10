@@ -3,11 +3,14 @@ module Route.Sub.Slug_ exposing (ActionData, Data, Model, Msg, route)
 import DataSource exposing (DataSource)
 import DataSource.File as File
 import DataSource.Glob as Glob
+import Dict exposing (Dict)
 import HardCodedData
 import Head
 import Head.Seo as Seo
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
+import Html.Parser
+import Html.Parser.Util
 import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
@@ -15,6 +18,7 @@ import MenuDecoder
 import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url as Url
+import Parser
 import Path exposing (Path)
 import Route exposing (Route)
 import RouteBuilder exposing (StatelessRoute, StaticPayload)
@@ -32,7 +36,8 @@ type alias Msg =
 
 
 type alias RouteParams =
-    { slug : String }
+    { slug : String
+    }
 
 
 route : StatelessRoute RouteParams Data ActionData
@@ -45,8 +50,14 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
+type FileType
+    = Md
+    | Html_
+
+
 type alias MDFile =
     { slug : String
+    , tipo : FileType
     , filePath : String
     }
 
@@ -56,7 +67,13 @@ allMDFiles =
     Glob.succeed MDFile
         |> Glob.match (Glob.literal (HardCodedData.siteName ++ "/"))
         |> Glob.capture Glob.wildcard
-        |> Glob.match (Glob.literal ".md")
+        |> Glob.match (Glob.literal ".")
+        |> Glob.capture
+            (Glob.oneOf
+                ( ( "md", Md )
+                , [ ( "html", Html_ ) ]
+                )
+            )
         |> Glob.captureFilePath
         |> Glob.toDataSource
 
@@ -66,36 +83,51 @@ pages =
     allMDFiles
         |> DataSource.map
             (List.map
-                (\cadaMD -> RouteParams cadaMD.slug)
+                (\cadaMDFile -> RouteParams cadaMDFile.slug)
             )
-
-
-type alias Data =
-    { delMD : ContenidoConDatos }
-
-
-type alias ContenidoConDatos =
-    { body : Result String (List Markdown.Block.Block)
-    , title : String
-    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
-    , description : String
-    }
 
 
 type alias ActionData =
     {}
 
 
+type TipoDeDoc
+    = DelMd (Result String (List Markdown.Block.Block))
+    | DelHtml (Result String (List Html.Parser.Node))
+
+
+type alias Data =
+    { body : TipoDeDoc
+    , title : String
+    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , description : String
+    }
+
+
+type alias DataPrev =
+    { body : String
+    , title : String
+    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , description : String
+    }
+
+
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        miDecoder : String -> Decoder ContenidoConDatos
+        parsearSegunTipo cualTipo texto =
+            case cualTipo of
+                Md ->
+                    DelMd (MdConverter.parsea texto)
+
+                Html_ ->
+                    DelHtml
+                        (Html.Parser.run texto
+                            |> Result.mapError Parser.deadEndsToString
+                        )
+
         miDecoder elCuerpo =
-            Decode.map4 ContenidoConDatos
-                (elCuerpo
-                    |> MdConverter.parsea
-                    |> Decode.succeed
-                )
+            Decode.map3 (DataPrev elCuerpo)
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
@@ -104,17 +136,49 @@ data routeParams =
                 )
                 (Decode.field "description" Decode.string)
 
-        getDataFromMD =
-            File.bodyWithFrontmatter
-                miDecoder
-            <|
-                HardCodedData.siteName
-                    ++ "/"
-                    ++ routeParams.slug
-                    ++ ".md"
+        sacaPath : String -> List MDFile -> String
+        {- regresa el path -}
+        sacaPath elSlug listadoArchivos =
+            listadoArchivos
+                |> List.filter
+                    (\unArchivo -> unArchivo.slug == elSlug)
+                |> List.head
+                |> Maybe.map .filePath
+                |> Maybe.withDefault "xxx"
+
+        dsPaginaConFrontmatter =
+            allMDFiles
+                |> DataSource.andThen
+                    (\listadoDePaginas ->
+                        File.bodyWithFrontmatter
+                            miDecoder
+                            (sacaPath routeParams.slug listadoDePaginas)
+                    )
+
+        sacaElTipo : String -> List MDFile -> FileType
+        sacaElTipo elSlug listadoArchivos =
+            listadoArchivos
+                |> List.filter
+                    (\unArchivo -> unArchivo.slug == elSlug)
+                |> List.head
+                |> Maybe.map .tipo
+                |> Maybe.withDefault Html_
+
+        dsTipoDePagina =
+            allMDFiles
+                |> DataSource.map
+                    (sacaElTipo routeParams.slug)
     in
-    DataSource.map Data
-        getDataFromMD
+    DataSource.map2
+        (\dPrev dTipo ->
+            { body = parsearSegunTipo dTipo dPrev.body
+            , title = dPrev.title
+            , menu = dPrev.menu
+            , description = dPrev.description
+            }
+        )
+        dsPaginaConFrontmatter
+        dsTipoDePagina
 
 
 head :
@@ -130,9 +194,9 @@ head static =
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = static.data.delMD.description
+        , description = static.data.description
         , locale = HardCodedData.localito
-        , title = static.data.delMD.title
+        , title = static.data.title
         }
         |> Seo.website
 
@@ -143,13 +207,24 @@ view :
     -> StaticPayload Data ActionData RouteParams
     -> View (Pages.Msg.Msg ())
 view maybeUrl sharedModel static =
-    { title = static.data.delMD.title
+    { title = static.data.title
     , body =
         [ Html.div
             [ class "tw prose prose-headings:font-serif" ]
-            (MdConverter.renderea static.data.delMD.body)
+            (case static.data.body of
+                DelMd cuerpoMd ->
+                    MdConverter.renderea cuerpoMd
+
+                DelHtml cuerpoHtml ->
+                    case cuerpoHtml of
+                        Ok nodos ->
+                            Html.Parser.Util.toVirtualDom nodos
+
+                        Err errores ->
+                            [ div [] [ text errores ] ]
+            )
         ]
     , withMenu =
         -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
-        static.data.delMD.menu
+        static.data.menu
     }
