@@ -166,7 +166,7 @@ data routeParams =
                     miDecoder
                     (sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
             )
-        |> DataSource.andThen
+        |> DataSource.map
             (\dPrev ->
                 { body = tipoDeDoc dPrev.tipo dPrev.body
                 , tipo = dPrev.tipo
@@ -174,7 +174,6 @@ data routeParams =
                 , menu = dPrev.menu
                 , description = dPrev.description
                 }
-                    |> DataSource.succeed
             )
 
 
