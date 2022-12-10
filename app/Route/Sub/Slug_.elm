@@ -183,16 +183,17 @@ data routeParams =
                 |> DataSource.map
                     (sacaElTipoDePaginaSlug routeParams.slug)
     in
-    dsPaginaConFM
-        |> DataSource.map
-            (\dPrev ->
-                { body = tipoDeDoc dPrev.tipo dPrev.body
-                , tipo = dPrev.tipo
-                , title = dPrev.title
-                , menu = dPrev.menu
-                , description = dPrev.description
-                }
-            )
+    DataSource.map2
+        (\dPrev dTipo ->
+            { body = tipoDeDoc dPrev.tipo dPrev.body
+            , tipo = dTipo
+            , title = dPrev.title
+            , menu = dPrev.menu
+            , description = dPrev.description
+            }
+        )
+        dsPaginaConFM
+        dsTipoDePagina
 
 
 head :
