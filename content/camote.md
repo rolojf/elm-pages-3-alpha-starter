@@ -1,5 +1,4 @@
 ---
-tipo:: "md"
 title: "Camote cabrón"
 description: "Descripción de la página o el artículo"
 menuGoes: true
