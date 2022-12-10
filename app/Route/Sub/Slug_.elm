@@ -122,7 +122,7 @@ data routeParams =
 
                 Html_ ->
                     DelHtml
-                        (Html.Parser.run elTexto
+                        (Html.Parser.run texto
                             |> Result.mapError Parser.deadEndsToString
                         )
 
