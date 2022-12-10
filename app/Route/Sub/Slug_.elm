@@ -57,6 +57,7 @@ type FileType
 
 type alias MDFile =
     { slug : String
+    , tipo : FileType
     , filePath : String
     }
 
@@ -67,7 +68,7 @@ allMDFiles =
         |> Glob.match (Glob.literal (HardCodedData.siteName ++ "/"))
         |> Glob.capture Glob.wildcard
         |> Glob.match (Glob.literal ".")
-        |> Glob.match
+        |> Glob.capture
             (Glob.oneOf
                 ( ( "md", Md )
                 , [ ( "html", Html_ ) ]
