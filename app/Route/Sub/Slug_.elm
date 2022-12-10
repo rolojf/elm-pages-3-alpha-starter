@@ -115,10 +115,10 @@ type alias DataPrev =
 data : RouteParams -> DataSource Data
 data routeParams =
     let
-        parsearSegunTipo cualEsElTipo elTexto =
-            case cualEsElTipo of
+        parsearSegunTipo cualTipo texto =
+            case cualTipo of
                 Md ->
-                    DelMd (MdConverter.parsea elTexto)
+                    DelMd (MdConverter.parsea texto)
 
                 Html_ ->
                     DelHtml
