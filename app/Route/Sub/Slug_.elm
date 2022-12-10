@@ -98,7 +98,6 @@ type TipoDeDoc
 
 type alias Data =
     { body : TipoDeDoc
-    , tipo : FileType
     , title : String
     , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     , description : String
@@ -107,7 +106,6 @@ type alias Data =
 
 type alias DataPrev =
     { body : String
-    , tipo : FileType
     , title : String
     , menu : View.MenuInfo (Pages.Msg.Msg Msg)
     , description : String
@@ -128,20 +126,8 @@ data routeParams =
                             |> Result.mapError Parser.deadEndsToString
                         )
 
-        decodificaTipo =
-            Decode.field "tipo" Decode.string
-                |> Decode.andThen
-                    (\tipoStr ->
-                        if tipoStr == "html" then
-                            Decode.succeed Html_
-
-                        else
-                            Decode.succeed Md
-                    )
-
         miDecoder elCuerpo =
-            Decode.map4 (DataPrev elCuerpo)
-                decodificaTipo
+            Decode.map3 (DataPrev elCuerpo)
                 (Decode.field "title" Decode.string)
                 (MenuDecoder.opMenuToDecode
                     { mainHero = div [] []
@@ -185,8 +171,7 @@ data routeParams =
     in
     DataSource.map2
         (\dPrev dTipo ->
-            { body = tipoDeDoc dPrev.tipo dPrev.body
-            , tipo = dTipo
+            { body = tipoDeDoc dTipo dPrev.body
             , title = dPrev.title
             , menu = dPrev.menu
             , description = dPrev.description
