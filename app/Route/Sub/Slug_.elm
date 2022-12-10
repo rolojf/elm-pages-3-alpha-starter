@@ -159,14 +159,31 @@ data routeParams =
                 |> List.head
                 |> Maybe.map .filePath
                 |> Maybe.withDefault "xxx"
+
+        dsPaginaConFM =
+            allMDFiles
+                |> DataSource.andThen
+                    (\listadoDePaginas ->
+                        File.bodyWithFrontmatter
+                            miDecoder
+                            (sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
+                    )
+
+        sacaElTipoDePaginaSlug : String -> List MDFile -> FileType
+        sacaElTipoDePaginaSlug elSlug listadoArchivos =
+            listadoArchivos
+                |> List.filter
+                    (\unArchivo -> unArchivo.slug == elSlug)
+                |> List.head
+                |> Maybe.map .tipo
+                |> Maybe.withDefault Html_
+
+        dsTipoDePagina =
+            allMDFiles
+                |> DataSource.map
+                    (sacaElTipoDePaginaSlug routeParams.slug)
     in
-    allMDFiles
-        |> DataSource.andThen
-            (\listadoDePaginas ->
-                File.bodyWithFrontmatter
-                    miDecoder
-                    (sacaPathDeLaPaginaSlug routeParams.slug listadoDePaginas)
-            )
+    dsPaginaConFM
         |> DataSource.map
             (\dPrev ->
                 { body = tipoDeDoc dPrev.tipo dPrev.body
