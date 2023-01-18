@@ -1,6 +1,7 @@
 module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
+import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
@@ -34,9 +35,9 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
-pages : DataSource (List RouteParams)
+pages : BackendTask FatalError (List RouteParams)
 pages =
-    DataSource.succeed
+    BackendTask.succeed
         [ { slug = "hello" }
         ]
 
@@ -50,10 +51,10 @@ type alias ActionData =
     {}
 
 
-data : RouteParams -> DataSource Data
+data : RouteParams -> BackendTask FatalError Data
 data routeParams =
-    DataSource.map Data
-        (DataSource.succeed "Hi")
+    BackendTask.map Data
+        (BackendTask.succeed "Hi")
 
 
 head :

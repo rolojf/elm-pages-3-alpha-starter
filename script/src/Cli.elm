@@ -1,5 +1,6 @@
 module Cli exposing (run)
 
+import BackendTask
 import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
@@ -7,7 +8,7 @@ import Cli.Validate
 import Elm
 import Elm.Annotation
 import Elm.Case
-import Gen.DataSource
+import Gen.BackendTask
 import Gen.Effect
 import Gen.Html
 import Gen.Platform.Sub
@@ -53,7 +54,7 @@ run =
                 { path = "app/" ++ file.path
                 , body = file.contents
                 }
-         --Script.log "Hello!"
+                |> BackendTask.allowFatal
         )
 
 
@@ -65,7 +66,7 @@ createFile moduleName =
             ( Alias (Elm.Annotation.record [])
             , \routeParams ->
                 Gen.Server.Request.succeed
-                    (Gen.DataSource.succeed
+                    (Gen.BackendTask.succeed
                         (Gen.Server.Response.render
                             (Elm.record [])
                         )
@@ -75,7 +76,7 @@ createFile moduleName =
             ( Alias (Elm.Annotation.record [])
             , \routeParams ->
                 Gen.Server.Request.succeed
-                    (Gen.DataSource.succeed
+                    (Gen.BackendTask.succeed
                         (Gen.Server.Response.render
                             (Elm.record [])
                         )
@@ -93,13 +94,13 @@ createFile moduleName =
         --    }
         |> Pages.Generate.buildWithLocalState
             { view =
-                \maybeUrl sharedModel model app ->
+                \{ maybeUrl, sharedModel, model, app } ->
                     Gen.View.make_.view
                         { title = moduleName |> String.join "." |> Elm.string
                         , body = Elm.list [ Gen.Html.text "Here is your generated page!!!" ]
                         }
             , update =
-                \pageUrl sharedModel app msg model ->
+                \{ pageUrl, sharedModel, app, msg, model } ->
                     Elm.Case.custom msg
                         (Elm.Annotation.named [] "Msg")
                         [ Elm.Case.branch0 "NoOp"
@@ -110,13 +111,13 @@ createFile moduleName =
                             )
                         ]
             , init =
-                \pageUrl sharedModel app ->
+                \{ pageUrl, sharedModel, app } ->
                     Elm.tuple (Elm.record [])
                         (Gen.Effect.none
                             |> Elm.withType effectType
                         )
             , subscriptions =
-                \maybePageUrl routeParams path sharedModel model ->
+                \{ maybePageUrl, routeParams, path, sharedModel, model } ->
                     Gen.Platform.Sub.none
             , model =
                 Alias (Elm.Annotation.record [])
