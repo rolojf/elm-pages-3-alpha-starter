@@ -3,10 +3,12 @@ module Route.Index exposing (ActionData, Data, Model, Msg, route)
 -- * Imports
 
 import Analytics
-import DataSource exposing (DataSource)
-import DataSource.File as File
+import BackendTask exposing (BackendTask)
+import BackendTask.File as File
+import BackendTask.Http
 import Effect exposing (Effect)
 import ErroresHttp
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -140,7 +142,7 @@ type alias ContenidoConDatos =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
     let
         miDecoder : String -> Decoder ContenidoConDatos
@@ -163,8 +165,9 @@ data =
                 miDecoder
                 (HardCodedData.siteName ++ "/index.md")
     in
-    DataSource.map Data
-        getDataFromMD
+    BackendTask.map Data
+        getDataFromMD |> BackendTask.allowFatal
+
 
 
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag

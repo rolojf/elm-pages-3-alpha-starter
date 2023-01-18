@@ -1,10 +1,11 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), template)
 
 import Analytics
-import DataSource
-import DataSource.File as File
+import BackendTask exposing (BackendTask)
+import BackendTask.File as File
 import Effect exposing (Effect)
 import ErroresHttp
+import FatalError exposing (FatalError)
 import HeroIcons
 import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (class)
@@ -199,11 +200,14 @@ type alias Data =
     }
 
 
-data : DataSource.DataSource Data
+
+data : BackendTask FatalError Data
 data =
     File.onlyFrontmatter
         yamlDecoder
         "content/shared.yaml"
+        |> BackendTask.allowFatal
+
 
 
 yamlDecoder : D.Decoder Data

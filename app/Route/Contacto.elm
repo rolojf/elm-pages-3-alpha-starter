@@ -1,8 +1,9 @@
 module Route.Contacto exposing (ActionData, Data, Model, Msg, route)
 
 import Analytics
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
 import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -179,7 +180,7 @@ update pageUrl sharedModel static msg model =
                         , ( "telefono", Encode.string model.telefono )
                         , ( "llego", Encode.string model.comoSupo )
                         , ( "comentario", Encode.string model.comentario )
-                        , ( "sitio" , Encode.string HardCodedData.siteName)
+                        , ( "sitio", Encode.string HardCodedData.siteName )
                         ]
             in
             ( { model
@@ -200,14 +201,14 @@ update pageUrl sharedModel static msg model =
               else
                 Effect.EsperaPues 500.0 IntentaDeNuez
             , if seLaSupo then
-                   Ok "Todos Felices y Contentos"
-                       |> Shared.Conocido
-                       |> Shared.CambiaStatus
-                       |> Shared.SharedMsg
-                       |> Just
+                Ok "Todos Felices y Contentos"
+                    |> Shared.Conocido
+                    |> Shared.CambiaStatus
+                    |> Shared.SharedMsg
+                    |> Just
 
-                 else
-                   Nothing
+              else
+                Nothing
             )
 
         IntentaDeNuez ->
@@ -273,9 +274,9 @@ type alias Data =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
-    DataSource.succeed
+    BackendTask.succeed
         HardCodedData.dataModContacto
 
 
@@ -321,11 +322,6 @@ view maybeUrl sharedModel model static =
             ]
         ]
     }
-
-
-
-
-
 
 
 viewLayout : Html (Pages.Msg.Msg Msg)

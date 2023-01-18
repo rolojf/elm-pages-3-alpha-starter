@@ -1,9 +1,10 @@
 module Route.Sub.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
-import DataSource exposing (DataSource)
-import DataSource.File as File
-import DataSource.Glob as Glob
+import BackendTask exposing (BackendTask)
+import BackendTask.File as File
+import BackendTask.Glob as Glob
 import Dict exposing (Dict)
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -62,7 +63,7 @@ type alias MDFile =
     }
 
 
-allMDFiles : DataSource (List MDFile)
+allMDFiles : BackendTask FatalError (List MDFile)
 allMDFiles =
     Glob.succeed MDFile
         |> Glob.match (Glob.literal (HardCodedData.siteName ++ "/"))
@@ -75,13 +76,13 @@ allMDFiles =
                 )
             )
         |> Glob.captureFilePath
-        |> Glob.toDataSource
+        |> Glob.toBackendTask
 
 
-pages : DataSource (List RouteParams)
+pages : BackendTask FatalError (List RouteParams)
 pages =
     allMDFiles
-        |> DataSource.map
+        |> BackendTask.map
             (List.map
                 (\cadaMDFile -> RouteParams cadaMDFile.slug)
             )
@@ -112,7 +113,7 @@ type alias DataPrev =
     }
 
 
-data : RouteParams -> DataSource Data
+data : RouteParams -> BackendTask FatalError Data
 data routeParams =
     let
         parsearSegunTipo cualTipo texto =
@@ -148,11 +149,12 @@ data routeParams =
 
         dsPaginaConFrontmatter =
             allMDFiles
-                |> DataSource.andThen
+                |> BackendTask.andThen
                     (\listadoDePaginas ->
                         File.bodyWithFrontmatter
                             miDecoder
                             (sacaPath routeParams.slug listadoDePaginas)
+                            |> BackendTask.allowFatal
                     )
 
         sacaElTipo : String -> List MDFile -> FileType
@@ -166,10 +168,10 @@ data routeParams =
 
         dsTipoDePagina =
             allMDFiles
-                |> DataSource.map
+                |> BackendTask.map
                     (sacaElTipo routeParams.slug)
     in
-    DataSource.map2
+    BackendTask.map2
         (\dPrev dTipo ->
             { body = parsearSegunTipo dTipo dPrev.body
             , title = dPrev.title
@@ -209,7 +211,7 @@ view :
 view maybeUrl sharedModel static =
     { title = static.data.title
     , body =
-        [ Html.div
+        Html.div
             [ class "tw prose prose-headings:font-serif" ]
             (case static.data.body of
                 DelMd cuerpoMd ->
@@ -223,7 +225,7 @@ view maybeUrl sharedModel static =
                         Err errores ->
                             [ div [] [ text errores ] ]
             )
-        ]
+            |> List.singleton
     , withMenu =
         -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
         static.data.menu
