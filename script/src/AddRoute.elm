@@ -196,6 +196,7 @@ createFile { moduleName, fields } =
                                         [ Html.h2 [] [ Html.text "New Page" ]
                                         ]
                                 )
+                        , withMenu = Gen.View.make_.noMenu
                         }
             , update =
                 \{ pageUrl, sharedModel, app, msg, model } ->
