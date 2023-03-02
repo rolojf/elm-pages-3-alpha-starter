@@ -1,7 +1,8 @@
 module Api exposing (routes)
 
 import ApiRoute exposing (ApiRoute)
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
+import FatalError exposing (FatalError)
 import HardCodedData
 import Html exposing (Html)
 import LanguageTag exposing (LanguageTag, emptySubtags)
@@ -17,11 +18,11 @@ import Site
 
 
 routes :
-    DataSource (List Route)
+    BackendTask FatalError (List Route)
     -> (Maybe { indent : Int, newLines : Bool } -> Html Never -> String)
     -> List (ApiRoute ApiRoute.Response) -- antes htmlToString era (Html Never -> String)
 routes getStaticRoutes htmlToString =
-    [ DataSource.succeed manifest
+    [ BackendTask.succeed manifest
         |> Manifest.generator Site.canonicalUrl
     ]
 

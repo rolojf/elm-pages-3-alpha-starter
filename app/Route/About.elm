@@ -1,11 +1,13 @@
 module Route.About exposing (ActionData, Data, Model, Msg, route)
 
+import BackendTask exposing (BackendTask)
 import Browser.Navigation
-import DataSource exposing (DataSource)
 import Effect exposing (Effect)
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import Head.Seo as Seo
+import Html exposing (Html, div, text)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Path exposing (Path)
@@ -77,9 +79,9 @@ type alias Data =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
-    DataSource.succeed
+    BackendTask.succeed
         { description = "Hoja básica con información sobre Nosotros"
         , title = "Información Sobre Nosotros "
         }
@@ -112,4 +114,7 @@ view :
     -> StaticPayload Data ActionData RouteParams
     -> View templateMsg
 view maybeUrl sharedModel model static =
-    View.placeholder "About"
+    { title = static.data.title
+    , body = div [] [ text static.data.description ] |> List.singleton
+    , withMenu = View.NoMenu
+    }

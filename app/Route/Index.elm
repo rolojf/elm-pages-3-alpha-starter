@@ -4,11 +4,13 @@ module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import Analytics
 import Array exposing (Array)
+import BackendTask exposing (BackendTask)
+import BackendTask.File as File
+import BackendTask.Http
 import Browser.Dom as Dom
-import DataSource exposing (DataSource)
-import DataSource.File as File
 import Effect exposing (Effect)
 import ErroresHttp
+import FatalError exposing (FatalError)
 import Footer
 import HardCodedData
 import Head
@@ -24,9 +26,9 @@ import MdConverter
 import MenuDecoder
 import MiCloudinary
 import MimeType exposing (MimeType)
-import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route exposing (Route)
 import RouteBuilder exposing (StatefulRoute, StaticPayload)
@@ -395,7 +397,7 @@ type alias Arts =
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
     let
         miDecoder : String -> Decoder Data
@@ -437,6 +439,12 @@ data =
     File.bodyWithFrontmatter
         miDecoder
         (HardCodedData.siteName ++ "/index.md")
+        |> BackendTask.allowFatal
+
+
+
+--    BackendTask.map Data
+--        getDataFromMD
 
 
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
@@ -465,28 +473,28 @@ head static =
 -- * View
 
 
-view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
-view maybeUrl sharedModel model static =
+view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (PagesMsg Msg)
+view maybeUrl sharedModel model app =
     { title =
-        static.data.title
+        app.data.title
     , body =
         [ div
             []
             [ viewMenu
                 (Just Route.Index)
                 sharedModel.showMenu
-                static.data.menus
-                { mainHero = viewHeroMain static.data.mainHead
+                app.data.menus
+                { mainHero = viewHeroMain app.data.mainHead
                 , afterHero = viewHeroAfter
                 }
-            , viewFeatures static.data.beneficios
+            , viewFeatures app.data.beneficios
             , viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
             , viewGaleria model
             , indexViewFooter
             , div
                 [ class "tw mt-8 prose prose-headings:font-serif" ]
-                (MdConverter.renderea static.data.body)
-                |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
+                (MdConverter.renderea app.data.body)
+                |> Html.map (\_ -> PagesMsg.noOp)
             ]
         ]
     , withMenu = View.NoMenu
@@ -497,6 +505,7 @@ view maybeUrl sharedModel model static =
 -- ** Notificaciones - modals
 
 
+viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html (PagesMsg Msg)
 viewNotificacion usrStatus verNotif =
     let
         respFromPost : Result Http.Error String -> String
@@ -551,7 +560,7 @@ notifAppear show =
                 [ P.opacity 0, P.scale 0.92, P.y 0 ]
 
 
-retroFinal : String -> String -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
+retroFinal : String -> String -> StatusNotificacion -> Html (PagesMsg Msg)
 retroFinal titulo subtitulo debeAparecer =
     Animated.div
         (notifAppear debeAparecer)
@@ -582,7 +591,7 @@ retroFinal titulo subtitulo debeAparecer =
                             [ class "tw ml-4 flex-shrink-0 flex" ]
                             [ Html.button
                                 [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                , Event.onClick (Pages.Msg.UserMsg CierraNoti)
+                                , Event.onClick (PagesMsg.fromMsg CierraNoti)
                                 ]
                                 [ Html.span
                                     [ class "tw sr-only" ]
@@ -601,7 +610,7 @@ retroFinal titulo subtitulo debeAparecer =
 -- ** Menu
 
 
-viewMenu : Maybe Route -> Bool -> List View.Liga -> { mainHero : Html (Pages.Msg.Msg Msg), afterHero : Html (Pages.Msg.Msg Msg) } -> Html (Pages.Msg.Msg Msg)
+viewMenu : Maybe Route -> Bool -> List View.Liga -> { mainHero : Html (PagesMsg Msg), afterHero : Html (PagesMsg Msg) } -> Html (PagesMsg Msg)
 viewMenu ruta menuOpen ligas complementos =
     let
         clasesMenuItems : ( Bool, Bool ) -> Html.Attribute msg
@@ -619,7 +628,7 @@ viewMenu ruta menuOpen ligas complementos =
                 ( False, False ) ->
                     class "tw font-medium text-gray-500 hover:text-gray-900"
 
-        menuItem : Bool -> View.Liga -> Html (Pages.Msg.Msg Msg)
+        menuItem : Bool -> View.Liga -> Html (PagesMsg Msg)
         menuItem esMovil laLiga =
             case laLiga.dir of
                 View.Otra camino ->
@@ -632,7 +641,7 @@ viewMenu ruta menuOpen ligas complementos =
                             |> String.replace ":" "+"
                             |> String.append "en-index-menuliga-externa-"
                             |> AnalyticsUsoMenuLigaExterna
-                            |> Pages.Msg.UserMsg
+                            |> PagesMsg.fromMsg
                             |> Event.onClick
                         ]
                         [ text laLiga.queDice ]
@@ -678,7 +687,7 @@ viewMenu ruta menuOpen ligas complementos =
                         [ Html.button
                             [ Attr.type_ "button"
                             , class "tw bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                            , Event.onClick (Pages.Msg.UserMsg ToggleMenu)
+                            , Event.onClick (PagesMsg.fromMsg ToggleMenu)
                             ]
                             [ Html.span
                                 [ class "tw sr-only" ]
@@ -747,7 +756,7 @@ viewMenu ruta menuOpen ligas complementos =
                                             [ Attr.type_ "button"
                                             , class "tw bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                                             , Attr.attribute "aria-expanded" "false"
-                                            , Event.onClick (Pages.Msg.UserMsg ToggleMenu)
+                                            , Event.onClick (PagesMsg.fromMsg ToggleMenu)
                                             ]
                                             [ Html.span
                                                 [ class "tw sr-only" ]
@@ -947,7 +956,7 @@ textosGal =
         |> Array.fromList
 
 
-viewGaleria : Model -> Html (Pages.Msg.Msg Msg)
+viewGaleria : Model -> Html (PagesMsg Msg)
 viewGaleria modeloDeGal =
     let
         listadoCompletoImgs : Array String
@@ -963,7 +972,7 @@ viewGaleria modeloDeGal =
         modeloDeGal
 
 
-viewGal : Array String -> Array String -> Model -> Html (Pages.Msg.Msg Msg)
+viewGal : Array String -> Array String -> Model -> Html (PagesMsg Msg)
 viewGal listadoCompletoImgs textos model =
     div
         [ Attr.id "slider-container"
@@ -979,7 +988,7 @@ viewGal listadoCompletoImgs textos model =
         ]
 
 
-viewSlider : Bool -> Array String -> Array String -> Int -> Amimacion -> Html (Pages.Msg.Msg Msg)
+viewSlider : Bool -> Array String -> Array String -> Int -> Amimacion -> Html (PagesMsg Msg)
 viewSlider showIt listadoCompletoImgs textos slideActivo animar =
     let
         letraVa : Int -> Animation
@@ -1119,12 +1128,12 @@ viewSlider showIt listadoCompletoImgs textos slideActivo animar =
         [ class "nav" ]
         [ div
             [ class "next"
-            , Event.onClick (Pages.Msg.UserMsg PresionoBotonDer)
+            , Event.onClick (PagesMsg.fromMsg PresionoBotonDer)
             ]
             []
         , div
             [ class "prev"
-            , Event.onClick (Pages.Msg.UserMsg PresionoBotonIzq)
+            , Event.onClick (PagesMsg.fromMsg PresionoBotonIzq)
             ]
             []
         , if showIt then

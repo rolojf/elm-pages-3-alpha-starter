@@ -6,7 +6,7 @@ import Markdown.Block exposing (Block)
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer exposing (defaultHtmlRenderer)
-import Pages.Msg
+import PagesMsg exposing (PagesMsg)
 import Route exposing (link)
 
 
@@ -23,10 +23,10 @@ parsea mdStr =
         |> Result.mapError deadEndsToString
 
 
-renderea : Result String (List Block) -> List (Html (Pages.Msg.Msg ()))
+renderea : Result String (List Block) -> List (Html (PagesMsg ()))
 renderea resultado =
     let
-        resultadoProcesado : Result String (List (Html (Pages.Msg.Msg ())))
+        resultadoProcesado : Result String (List (Html (PagesMsg ())))
         resultadoProcesado =
             resultado
                 |> Result.andThen
@@ -40,7 +40,7 @@ renderea resultado =
             [ text errors ]
 
 
-myRenderer : Markdown.Renderer.Renderer (Html (Pages.Msg.Msg ()))
+myRenderer : Markdown.Renderer.Renderer (Html (PagesMsg ()))
 myRenderer =
     let
         defaultOne =
@@ -87,10 +87,10 @@ myLink liga contenido =
                         ruta
 
 
-procesaHtml : Markdown.Html.Renderer (List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ()))
+procesaHtml : Markdown.Html.Renderer (List (Html (PagesMsg ())) -> Html (PagesMsg ()))
 procesaHtml =
     let
-        showDiv : Maybe String -> Maybe String -> List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ())
+        showDiv : Maybe String -> Maybe String -> List (Html (PagesMsg ())) -> Html (PagesMsg ())
         showDiv clase identidad hijos =
             div
                 [ case clase of
@@ -108,7 +108,7 @@ procesaHtml =
                 ]
                 hijos
 
-        showSpan : String -> List (Html (Pages.Msg.Msg ())) -> Html (Pages.Msg.Msg ())
+        showSpan : String -> List (Html (PagesMsg ())) -> Html (PagesMsg ())
         showSpan clase children =
             Html.span
                 [ class clase ]
