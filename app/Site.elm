@@ -1,6 +1,7 @@
 module Site exposing (canonicalUrl, config)
 
-import DataSource exposing (DataSource)
+import BackendTask exposing (BackendTask)
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import MimeType
@@ -20,11 +21,11 @@ config =
     }
 
 
-head : DataSource (List Head.Tag)
+head : BackendTask FatalError (List Head.Tag)
 head =
     [ --Head.sitemapLink "/sitemap.xml"
       Head.icon [ ( 32, 32 ) ] MimeType.Png (Url.external "/favicon.ico")
     , Head.icon [] (MimeType.OtherImage "svg+xml") (Url.external "/icon.svg")
     , Head.appleTouchIcon (Just 180) (Url.external "/apple-touch-icon.png")
     ]
-        |> DataSource.succeed
+        |> BackendTask.succeed

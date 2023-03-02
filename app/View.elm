@@ -1,5 +1,5 @@
 module View exposing
-    ( View, map, placeholder
+    ( View, map
     , Liga, LigaTipo(..), MenuComplemento, MenuInfo(..)
     )
 
@@ -61,13 +61,4 @@ map fn doc =
                     { mainHero = Html.map fn complementosAlMenu.mainHero
                     , afterHero = Html.map fn complementosAlMenu.afterHero
                     }
-    }
-
-
-{-| -}
-placeholder : String -> View msg
-placeholder moduleName =
-    { title = "Placeholder - " ++ moduleName
-    , body = [ Html.text moduleName ]
-    , withMenu = NoMenu
     }

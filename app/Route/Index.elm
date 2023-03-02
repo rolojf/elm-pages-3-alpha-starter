@@ -3,10 +3,12 @@ module Route.Index exposing (ActionData, Data, Model, Msg, route)
 -- * Imports
 
 import Analytics
-import DataSource exposing (DataSource)
-import DataSource.File as File
+import BackendTask exposing (BackendTask)
+import BackendTask.File as File
+import BackendTask.Http
 import Effect exposing (Effect)
 import ErroresHttp
+import FatalError exposing (FatalError)
 import HardCodedData
 import Head
 import Head.Seo as Seo
@@ -20,9 +22,9 @@ import Markdown.Block
 import MdConverter
 import MenuDecoder
 import MimeType exposing (MimeType)
-import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route exposing (Route)
 import RouteBuilder exposing (StatefulRoute, StaticPayload)
@@ -136,11 +138,11 @@ type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
     , description : String
-    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , menu : View.MenuInfo (PagesMsg Msg)
     }
 
 
-data : DataSource Data
+data : BackendTask FatalError Data
 data =
     let
         miDecoder : String -> Decoder ContenidoConDatos
@@ -163,8 +165,9 @@ data =
                 miDecoder
                 (HardCodedData.siteName ++ "/index.md")
     in
-    DataSource.map Data
+    BackendTask.map Data
         getDataFromMD
+        |> BackendTask.allowFatal
 
 
 head : StaticPayload Data ActionData RouteParams -> List Head.Tag
@@ -193,19 +196,18 @@ head static =
 -- * View
 
 
-view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (Pages.Msg.Msg Msg)
-view maybeUrl sharedModel model static =
-    { title =
-        static.data.delMD.title
+view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (PagesMsg Msg)
+view maybeUrl sharedModel model app =
+    { title = "elm-pages is running"
     , body =
         [ viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
         , div
             [ class "tw mt-8 prose prose-headings:font-serif" ]
-            (MdConverter.renderea static.data.delMD.body)
-            |> Html.map (\_ -> Pages.Msg.UserMsg NoOp)
+            (MdConverter.renderea app.data.delMD.body)
+            |> Html.map (\_ -> PagesMsg.noOp)
         ]
     , withMenu =
-        static.data.delMD.menu
+        app.data.delMD.menu
     }
 
 
@@ -223,7 +225,7 @@ respFromPost resp =
             ErroresHttp.viewHttpError cualError
 
 
-viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
+viewNotificacion : Shared.UsuarioSt -> StatusNotificacion -> Html (PagesMsg Msg)
 viewNotificacion usrStatus verNotif =
     case usrStatus of
         Shared.Conocido respBasin ->
@@ -268,7 +270,7 @@ notifAppear show =
                 [ P.opacity 0, P.scale 0.92, P.y 0 ]
 
 
-retroFinal : String -> String -> StatusNotificacion -> Html (Pages.Msg.Msg Msg)
+retroFinal : String -> String -> StatusNotificacion -> Html (PagesMsg Msg)
 retroFinal titulo subtitulo debeAparecer =
     Animated.div
         (notifAppear debeAparecer)
@@ -299,7 +301,7 @@ retroFinal titulo subtitulo debeAparecer =
                             [ class "tw ml-4 flex-shrink-0 flex" ]
                             [ Html.button
                                 [ class "tw bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                , Event.onClick (Pages.Msg.UserMsg CierraNoti)
+                                , Event.onClick (PagesMsg.fromMsg CierraNoti)
                                 ]
                                 [ Html.span
                                     [ class "tw sr-only" ]

@@ -12,3 +12,4 @@ functions/server-render
 /pnpm-lock.yaml
 .local/
 docs.json
+.netlify/
