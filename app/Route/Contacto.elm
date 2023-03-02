@@ -14,9 +14,9 @@ import Html.Events as Events
 import Http
 import Json.Encode as Encode
 import MiCloudinary
-import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route
 import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
@@ -303,7 +303,7 @@ view :
     -> Shared.Model
     -> Model
     -> StaticPayload Data ActionData RouteParams
-    -> View (Pages.Msg.Msg Msg)
+    -> View (PagesMsg Msg)
 view maybeUrl sharedModel model static =
     { title = "Formulario de Contacto"
     , withMenu = View.NoMenu
@@ -324,7 +324,7 @@ view maybeUrl sharedModel model static =
     }
 
 
-viewLayout : Html (Pages.Msg.Msg Msg)
+viewLayout : Html (PagesMsg Msg)
 viewLayout =
     div
         [ class "tw lg:absolute lg:inset-0" ]
@@ -343,7 +343,7 @@ viewLayout =
         ]
 
 
-viewFormulario : Model -> Html (Pages.Msg.Msg Msg)
+viewFormulario : Model -> Html (PagesMsg Msg)
 viewFormulario model =
     let
         viewCampoNombre =
@@ -365,7 +365,7 @@ viewFormulario model =
                         , Attr.maxlength 15
                         , Attr.autocomplete True -- "given-name"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput (\name -> Pages.Msg.UserMsg <| Nombre name)
+                        , Events.onInput (\name -> PagesMsg.fromMsg <| Nombre name)
                         ]
                         []
                     ]
@@ -386,7 +386,7 @@ viewFormulario model =
                         , Attr.id "last_name"
                         , Attr.autocomplete True -- "family-name"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput (\lastName -> Pages.Msg.UserMsg <| Apellido lastName)
+                        , Events.onInput (\lastName -> PagesMsg.fromMsg <| Apellido lastName)
                         ]
                         []
                     ]
@@ -408,7 +408,7 @@ viewFormulario model =
                         , Attr.type_ "email"
                         , Attr.autocomplete True --"email"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput (\elMail -> Pages.Msg.UserMsg <| Correo elMail)
+                        , Events.onInput (\elMail -> PagesMsg.fromMsg <| Correo elMail)
                         ]
                         []
                     ]
@@ -442,7 +442,7 @@ viewFormulario model =
                         , Attr.autocomplete True -- "tel"
                         , Aria.ariaDescribedby "phone_description"
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md"
-                        , Events.onInput (\phone -> Pages.Msg.UserMsg <| Telefono phone)
+                        , Events.onInput (\phone -> PagesMsg.fromMsg <| Telefono phone)
                         ]
                         []
                     ]
@@ -472,7 +472,7 @@ viewFormulario model =
                         , Aria.ariaDescribedby "how_can_we_help_description"
                         , Attr.rows 4
                         , class "tw block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border_gray_300 rounded-md"
-                        , Events.onInput (\comment -> Pages.Msg.UserMsg <| Comentario comment)
+                        , Events.onInput (\comment -> PagesMsg.fromMsg <| Comentario comment)
                         ]
                         []
                     ]
@@ -493,7 +493,7 @@ viewFormulario model =
                         , Attr.name "how_did_you_hear_about_us"
                         , Attr.id "how_did_you_hear_about_us"
                         , class "tw shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w_full sm:text-sm border-gray-300 rounded-md"
-                        , Events.onInput (\deDonde -> Pages.Msg.UserMsg <| ComoSupo deDonde)
+                        , Events.onInput (\deDonde -> PagesMsg.fromMsg <| ComoSupo deDonde)
                         ]
                         []
                     ]
@@ -524,7 +524,7 @@ viewFormulario model =
                 , Html.form
                     [ Attr.action "#"
                     , Attr.method "POST"
-                    , Events.onSubmit (Pages.Msg.UserMsg CompletadoFormulario)
+                    , Events.onSubmit (PagesMsg.fromMsg CompletadoFormulario)
                     , class "tw mt-9 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
                     ]
                     [ viewCampoNombre
@@ -540,7 +540,7 @@ viewFormulario model =
         ]
 
 
-viewChallenge : Int -> String -> Intentos -> Html (Pages.Msg.Msg Msg)
+viewChallenge : Int -> String -> Intentos -> Html (PagesMsg Msg)
 viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
     div
         [ class "la-base-modal" ]
@@ -593,7 +593,7 @@ viewChallenge cuantosIntentosVan respondioQue queHaRespondido =
 
                             VaDeNuevo ->
                                 Attr.value ""
-                        , Events.onInput (\respuesta -> Pages.Msg.UserMsg <| Respondio respuesta)
+                        , Events.onInput (\respuesta -> PagesMsg.fromMsg <| Respondio respuesta)
                         ]
                         []
                     , Html.p

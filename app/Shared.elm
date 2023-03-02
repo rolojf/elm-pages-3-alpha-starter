@@ -14,8 +14,8 @@ import Http
 import Json.Decode as D
 import MiCloudinary
 import Pages.Flags
-import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
+import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
@@ -200,14 +200,12 @@ type alias Data =
     }
 
 
-
 data : BackendTask FatalError Data
 data =
     File.onlyFrontmatter
         yamlDecoder
         "content/shared.yaml"
         |> BackendTask.allowFatal
-
 
 
 yamlDecoder : D.Decoder Data

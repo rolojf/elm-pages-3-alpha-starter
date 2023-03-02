@@ -267,8 +267,8 @@ errorsView =
                     (Type.namedWith [ "Html" ]
                         "Html"
                         [ Type.namedWith
-                            [ "Pages", "Msg" ]
-                            "Msg"
+                            [ "PagesMsg" ]
+                            "PagesMsg"
                             [ Type.named [] "Msg" ]
                         ]
                     )

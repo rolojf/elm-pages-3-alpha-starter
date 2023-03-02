@@ -16,9 +16,9 @@ import Json.Decode as Decode exposing (Decoder)
 import Markdown.Block
 import MdConverter
 import MenuDecoder
-import Pages.Msg
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url as Url
+import PagesMsg exposing (PagesMsg)
 import Parser
 import Path exposing (Path)
 import Route exposing (Route)
@@ -100,7 +100,7 @@ type TipoDeDoc
 type alias Data =
     { body : TipoDeDoc
     , title : String
-    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , menu : View.MenuInfo (PagesMsg Msg)
     , description : String
     }
 
@@ -108,7 +108,7 @@ type alias Data =
 type alias DataPrev =
     { body : String
     , title : String
-    , menu : View.MenuInfo (Pages.Msg.Msg Msg)
+    , menu : View.MenuInfo (PagesMsg Msg)
     , description : String
     }
 
@@ -207,7 +207,7 @@ view :
     Maybe PageUrl
     -> Shared.Model
     -> StaticPayload Data ActionData RouteParams
-    -> View (Pages.Msg.Msg ())
+    -> View (PagesMsg ())
 view maybeUrl sharedModel static =
     { title = static.data.title
     , body =
