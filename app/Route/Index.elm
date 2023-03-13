@@ -27,7 +27,7 @@ import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route exposing (Route)
-import RouteBuilder exposing (StatefulRoute, StaticPayload)
+import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import Simple.Animation as Animation exposing (Animation)
 import Simple.Animation.Animated as Animated
@@ -77,10 +77,10 @@ route =
             }
 
 
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data RouteParams ActionData -> ( Model, Effect Msg )
-init maybePageUrl sharedModel static =
+init : App Data ActionData RouteParams -> Shared.Model -> ( Model, Effect.Effect Msg )
+init app shared =
     ( { verNotificaciones =
-            if sharedModel.usuarioStatus == Shared.Desconocido then
+            if shared.usuarioStatus == Shared.Desconocido then
                 NoStatusYet
 
             else
@@ -94,8 +94,8 @@ init maybePageUrl sharedModel static =
 -- * Update
 
 
-update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg )
-update pageUrl sharedModel static msg model =
+update : App Data ActionData RouteParams -> Shared.Model -> Msg -> Model -> ( Model, Effect.Effect Msg )
+update app shared msg model =
     case msg of
         NoOp ->
             ( model, Effect.none )
@@ -103,7 +103,6 @@ update pageUrl sharedModel static msg model =
         CierraNoti ->
             ( { model | verNotificaciones = ConStatusOcultar }
             , Analytics.toEffect
-                pageUrl
                 (Analytics.eventoXReportar "cerro-notificacion")
                 AvisadoAnalytics
             )
@@ -121,8 +120,8 @@ update pageUrl sharedModel static msg model =
             )
 
 
-subscriptions : Maybe PageUrl -> RouteParams -> Path -> Shared.Model -> Model -> Sub Msg
-subscriptions maybePageUrl routeParams path sharedModel model =
+subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
+subscriptions routeParams path shared model =
     Sub.none
 
 
@@ -170,24 +169,24 @@ data =
         |> BackendTask.allowFatal
 
 
-head : StaticPayload Data ActionData RouteParams -> List Head.Tag
-head static =
+head : App Data ActionData RouteParams -> List Head.Tag
+head app =
     let
         logotipo : Seo.Image
         logotipo =
             { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
-            , alt = "Sitio oficial de " ++ static.data.delMD.title
+            , alt = "Sitio oficial de " ++ app.data.delMD.title
             , dimensions = Just { width = 1094, height = 547 }
             , mimeType = Just <| MimeType.Image MimeType.Png
             }
     in
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = static.sharedData.siteName
+        , siteName = app.sharedData.siteName
         , image = logotipo
-        , description = static.data.delMD.description
+        , description = app.data.delMD.description
         , locale = HardCodedData.localito
-        , title = static.data.delMD.title
+        , title = app.data.delMD.title
         }
         |> Seo.website
 
@@ -196,11 +195,11 @@ head static =
 -- * View
 
 
-view : Maybe PageUrl -> Shared.Model -> Model -> StaticPayload Data ActionData RouteParams -> View (PagesMsg Msg)
-view maybeUrl sharedModel model app =
+view : App Data ActionData RouteParams -> Shared.Model -> Model -> View.View (PagesMsg Msg)
+view app shared model =
     { title = "elm-pages is running"
     , body =
-        [ viewNotificacion sharedModel.usuarioStatus model.verNotificaciones
+        [ viewNotificacion shared.usuarioStatus model.verNotificaciones
         , div
             [ class "tw mt-8 prose prose-headings:font-serif" ]
             (MdConverter.renderea app.data.delMD.body)

@@ -19,7 +19,7 @@ import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
 import Route
-import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
+import RouteBuilder exposing (StatefulRoute, App)
 import Shared
 import Url
 import View exposing (View)
@@ -87,9 +87,8 @@ type Msg
     | IntentaDeNuez
     | Respondio String
 
-
-init : Maybe PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> ( Model, Effect Msg )
-init maybePageUrl sharedModel static =
+init : App Data ActionData RouteParams -> Shared.Model -> ( Model, Effect.Effect Msg )
+init app shared =
     ( { nombre = ""
       , comoSupo = ""
       , correo = ""
@@ -109,8 +108,8 @@ init maybePageUrl sharedModel static =
     )
 
 
-update : PageUrl -> Shared.Model -> StaticPayload Data ActionData RouteParams -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
-update pageUrl sharedModel static msg model =
+update : App Data ActionData RouteParams -> Shared.Model -> Msg -> Model -> ( Model, Effect Msg, Maybe Shared.Msg )
+update app shared msg model =
     case msg of
         Nombre cCampo ->
             ( { model | nombre = cCampo }, Effect.none, Nothing )
@@ -149,7 +148,6 @@ update pageUrl sharedModel static msg model =
             , Effect.batch
                 [ Effect.EsperaPues 150 EnfocaDespuesDeEsperar
                 , Analytics.toEffect
-                    pageUrl
                     (Analytics.eventoXReportar "completo-formulario")
                     AvisadoAnalytics
                 ]
@@ -263,10 +261,9 @@ update pageUrl sharedModel static msg model =
             )
 
 
-subscriptions : Maybe PageUrl -> RouteParams -> Path -> Shared.Model -> Model -> Sub Msg
-subscriptions maybePageUrl routeParams path sharedModel model =
+subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
+subscriptions routeParams path shared model =
     Sub.none
-
 
 type alias Data =
     { description : String
@@ -279,32 +276,26 @@ data =
     BackendTask.succeed
         HardCodedData.dataModContacto
 
-
-head : StaticPayload Data ActionData RouteParams -> List Head.Tag
-head static =
+head : App Data ActionData RouteParams -> List Head.Tag
+head app =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = static.sharedData.siteName
+        , siteName = app.sharedData.siteName
         , image =
             { url = Pages.Url.external "TODO"
             , alt = "elm-pages logo"
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = static.data.description ++ static.sharedData.nosotros
+        , description = app.data.description ++ app.sharedData.nosotros
         , locale = HardCodedData.localito
-        , title = static.data.title ++ static.sharedData.nosotros
+        , title = app.data.title ++ app.sharedData.nosotros
         }
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> Model
-    -> StaticPayload Data ActionData RouteParams
-    -> View (PagesMsg Msg)
-view maybeUrl sharedModel model static =
+view : App Data ActionData RouteParams -> Shared.Model -> Model -> View.View (PagesMsg Msg)
+view app shared model =
     { title = "Formulario de Contacto"
     , withMenu = View.NoMenu
     , body =

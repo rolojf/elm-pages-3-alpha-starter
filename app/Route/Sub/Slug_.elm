@@ -22,7 +22,7 @@ import PagesMsg exposing (PagesMsg)
 import Parser
 import Path exposing (Path)
 import Route exposing (Route)
-import RouteBuilder exposing (StatelessRoute, StaticPayload)
+import RouteBuilder exposing (StatelessRoute, App)
 import Shared
 import Svg exposing (path)
 import View exposing (View)
@@ -183,37 +183,30 @@ data routeParams =
         dsTipoDePagina
 
 
-head :
-    StaticPayload Data ActionData RouteParams
-    -> List Head.Tag
-head static =
+head : App Data ActionData RouteParams -> List Head.Tag
+head app =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = static.sharedData.siteName
+        , siteName = app.sharedData.siteName
         , image =
             { url = Url.external "TODO"
             , alt = "elm-pages logo"
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = static.data.description
+        , description = app.data.description
         , locale = HardCodedData.localito
-        , title = static.data.title
+        , title = app.data.title
         }
         |> Seo.website
 
-
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> StaticPayload Data ActionData RouteParams
-    -> View (PagesMsg ())
-view maybeUrl sharedModel static =
-    { title = static.data.title
+view : App Data ActionData RouteParams -> Shared.Model -> View (PagesMsg ())
+view app shared =
+    { title = app.data.title
     , body =
         Html.div
             [ class "tw prose prose-headings:font-serif" ]
-            (case static.data.body of
+            (case app.data.body of
                 DelMd cuerpoMd ->
                     MdConverter.renderea cuerpoMd
 
@@ -228,5 +221,5 @@ view maybeUrl sharedModel static =
             |> List.singleton
     , withMenu =
         -- View.SiMenu ligas { mainHero = div [] [], afterHero = div [] [] }
-        static.data.menu
+        app.data.menu
     }

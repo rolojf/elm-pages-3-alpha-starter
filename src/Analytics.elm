@@ -34,8 +34,8 @@ none =
     None
 
 
-toEffect : PageUrl -> Event -> (Result Http.Error String -> msg) -> Effect msg
-toEffect url hayEvento msg =
+toEffect : Event -> (Result Http.Error String -> msg) -> Effect msg
+toEffect hayEvento msg =
     case hayEvento of
         Event cualEvento ->
             let

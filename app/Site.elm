@@ -23,9 +23,11 @@ config =
 
 head : BackendTask FatalError (List Head.Tag)
 head =
-    [ --Head.sitemapLink "/sitemap.xml"
-      Head.icon [ ( 32, 32 ) ] MimeType.Png (Url.external "/favicon.ico")
+    [ Head.metaName "viewport" (Head.raw "width=device-width,initial-scale=1")
+    , Head.icon [ ( 32, 32 ) ] MimeType.Png (Url.external "/favicon.ico")
     , Head.icon [] (MimeType.OtherImage "svg+xml") (Url.external "/icon.svg")
     , Head.appleTouchIcon (Just 180) (Url.external "/apple-touch-icon.png")
+
+    -- , Head.sitemapLink "/sitemap.xml"
     ]
         |> BackendTask.succeed

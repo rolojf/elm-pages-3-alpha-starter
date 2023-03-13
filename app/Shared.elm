@@ -3,6 +3,7 @@ module Shared exposing (Data, Model, Msg(..), SharedMsg(..), UsuarioSt(..), temp
 import Analytics
 import BackendTask exposing (BackendTask)
 import BackendTask.File as File
+import Dict
 import Effect exposing (Effect)
 import ErroresHttp
 import FatalError exposing (FatalError)
@@ -95,7 +96,7 @@ init flags maybePagePath =
                     , host = "content"
                     , port_ = Just 1234
                     , path = Path.fromString "yo-no-se"
-                    , query = Nothing
+                    , query = Dict.empty
                     , fragment = Nothing
                     }
             in
@@ -119,7 +120,7 @@ track msg =
             let
                 queCambioReportar =
                     nuevaPagina.path
-                        |> Path.toSegments
+                        -- |> Path.toSegments
                         |> List.reverse
                         |> List.head
                         |> Maybe.withDefault "index"
@@ -150,7 +151,6 @@ update msg model =
         OnPageChange _ ->
             ( { model | showMenu = False }
             , Analytics.toEffect
-                model.elHost
                 (track msg)
                 AvisadoAnalytics
             )
@@ -173,7 +173,6 @@ update msg model =
         AnalyticsUsoMenuLigaExterna _ ->
             ( model
             , Analytics.toEffect
-                model.elHost
                 (track msg)
                 AvisadoAnalytics
             )

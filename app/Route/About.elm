@@ -10,8 +10,9 @@ import Head.Seo as Seo
 import Html exposing (Html, div, text)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
+import PagesMsg exposing (PagesMsg)
 import Path exposing (Path)
-import RouteBuilder exposing (StatefulRoute, StatelessRoute, StaticPayload)
+import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import View exposing (View)
 
@@ -46,30 +47,20 @@ route =
             }
 
 
-init :
-    Maybe PageUrl
-    -> Shared.Model
-    -> StaticPayload Data RouteParams ActionData
-    -> ( Model, Effect Msg )
-init maybePageUrl sharedModel static =
+init : App Data ActionData RouteParams -> Shared.Model -> ( Model, Effect.Effect Msg )
+init app shared =
     ( {}, Effect.none )
 
 
-update :
-    PageUrl
-    -> Shared.Model
-    -> StaticPayload Data RouteParams ActionData
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg )
-update pageUrl sharedModel static msg model =
+update : App Data ActionData RouteParams -> Shared.Model -> Msg -> Model -> ( Model, Effect.Effect msg )
+update app shared msg model =
     case msg of
         NoOp ->
             ( model, Effect.none )
 
 
-subscriptions : Maybe PageUrl -> RouteParams -> Path -> Shared.Model -> Model -> Sub Msg
-subscriptions maybePageUrl routeParams path sharedModel model =
+subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
+subscriptions routeParams path shared model =
     Sub.none
 
 
@@ -87,34 +78,27 @@ data =
         }
 
 
-head :
-    StaticPayload Data ActionData RouteParams
-    -> List Head.Tag
-head static =
+head : App Data ActionData RouteParams -> List Head.Tag
+head app =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = static.sharedData.siteName
+        , siteName = app.sharedData.siteName
         , image =
             { url = Pages.Url.external "TODO"
             , alt = "elm-pages logo"
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = static.data.description ++ static.sharedData.siteName
+        , description = app.data.description ++ app.sharedData.siteName
         , locale = HardCodedData.localito
-        , title = static.data.title ++ static.sharedData.nosotros
+        , title = app.data.title ++ app.sharedData.nosotros
         }
         |> Seo.website
 
 
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> templateModel
-    -> StaticPayload Data ActionData RouteParams
-    -> View templateMsg
-view maybeUrl sharedModel model static =
-    { title = static.data.title
-    , body = div [] [ text static.data.description ] |> List.singleton
+view : App Data ActionData RouteParams -> Shared.Model -> Model -> View.View (PagesMsg Msg)
+view app shared model =
+    { title = app.data.title
+    , body = div [] [ text app.data.description ] |> List.singleton
     , withMenu = View.NoMenu
     }
