@@ -1,21 +1,20 @@
 module Route.Hello exposing (ActionData, Data, Model, Msg(..), RouteParams, action, data, route)
 
-{-| -}
-
-import BackendTask
+import BackendTask exposing (BackendTask)
 import BackendTask.Http
-import Effect
-import ErrorPage
-import FatalError
+import Effect exposing (Effect)
+import ErrorPage exposing (ErrorPage)
+import FatalError exposing (FatalError)
 import Head
 import Html
 import Json.Decode as Decode
-import Pages.PageUrl
-import Platform.Sub
-import RouteBuilder
+import PagesMsg exposing (PagesMsg)
+import Path exposing (Path)
+import RouteBuilder exposing (App)
 import Server.Request
 import Server.Response
-import View
+import Shared
+import View exposing (View)
 
 
 type alias Model =
@@ -41,36 +40,33 @@ route =
 
 
 init :
-    Maybe Pages.PageUrl.PageUrl
-    -> sharedModel
-    -> RouteBuilder.StaticPayload Data ActionData RouteParams
-    -> ( {}, Effect.Effect msg )
-init pageUrl sharedModel app =
+    App Data ActionData RouteParams
+    -> Shared.Model
+    -> ( Model, Effect Msg )
+init app shared =
     ( {}, Effect.none )
 
 
 update :
-    Pages.PageUrl.PageUrl
-    -> sharedModel
-    -> RouteBuilder.StaticPayload Data ActionData RouteParams
+    App Data ActionData RouteParams
+    -> Shared.Model
     -> Msg
     -> Model
-    -> ( Model, Effect.Effect msg )
-update pageUrl sharedModel app msg model =
+    -> ( Model, Effect Msg )
+update app shared msg model =
     case msg of
         NoOp ->
             ( model, Effect.none )
 
 
 subscriptions :
-    Maybe Pages.PageUrl.PageUrl
-    -> routeParams
-    -> path
-    -> sharedModel
-    -> model
-    -> Sub msg
-subscriptions maybePageUrl routeParams path sharedModel model =
-    Platform.Sub.none
+    RouteParams
+    -> Path
+    -> Shared.Model
+    -> Model
+    -> Sub Msg
+subscriptions routeParams path shared model =
+    Sub.none
 
 
 type alias Data =
@@ -84,7 +80,7 @@ type alias ActionData =
 
 data :
     RouteParams
-    -> Server.Request.Parser (BackendTask.BackendTask FatalError.FatalError (Server.Response.Response Data ErrorPage.ErrorPage))
+    -> Server.Request.Parser (BackendTask FatalError (Server.Response.Response Data ErrorPage))
 data routeParams =
     Server.Request.succeed
         (BackendTask.Http.getWithOptions
@@ -102,18 +98,17 @@ data routeParams =
         )
 
 
-head : RouteBuilder.StaticPayload Data ActionData RouteParams -> List Head.Tag
+head : App Data ActionData RouteParams -> List Head.Tag
 head app =
     []
 
 
 view :
-    Maybe Pages.PageUrl.PageUrl
-    -> sharedModel
+    App Data ActionData RouteParams
+    -> Shared.Model
     -> Model
-    -> RouteBuilder.StaticPayload Data ActionData RouteParams
-    -> View.View msg
-view maybeUrl sharedModel model app =
+    -> View (PagesMsg Msg)
+view app shared model =
     { title = "Hello", body = [ Html.text (String.fromInt app.data.stars) ] }
 
 

@@ -1,19 +1,15 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
-import BackendTask.Http
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
-import Html.Attributes as Attr
-import Json.Decode as Decode
-import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Path
 import Route
-import RouteBuilder exposing (StatelessRoute, StaticPayload)
+import RouteBuilder exposing (App, StatelessRoute)
 import Shared
 import View exposing (View)
 
@@ -56,7 +52,7 @@ data =
 
 
 head :
-    StaticPayload Data ActionData RouteParams
+    App Data ActionData RouteParams
     -> List Head.Tag
 head app =
     Seo.summary
@@ -76,11 +72,10 @@ head app =
 
 
 view :
-    Maybe PageUrl
+    App Data ActionData RouteParams
     -> Shared.Model
-    -> StaticPayload Data ActionData RouteParams
     -> View (PagesMsg Msg)
-view maybeUrl sharedModel app =
+view app shared =
     { title = "elm-pages is running"
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
