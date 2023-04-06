@@ -22,7 +22,7 @@ import PagesMsg exposing (PagesMsg)
 import Parser
 import Path exposing (Path)
 import Route exposing (Route)
-import RouteBuilder exposing (StatelessRoute, App)
+import RouteBuilder exposing (App, StatelessRoute)
 import Shared
 import Svg exposing (path)
 import View exposing (View)
@@ -100,7 +100,7 @@ type TipoDeDoc
 type alias Data =
     { body : TipoDeDoc
     , title : String
-    , menu : View.MenuInfo (PagesMsg Msg)
+    , menu : View.MenuInfo
     , description : String
     }
 
@@ -108,7 +108,7 @@ type alias Data =
 type alias DataPrev =
     { body : String
     , title : String
-    , menu : View.MenuInfo (PagesMsg Msg)
+    , menu : View.MenuInfo
     , description : String
     }
 
@@ -130,11 +130,7 @@ data routeParams =
         miDecoder elCuerpo =
             Decode.map3 (DataPrev elCuerpo)
                 (Decode.field "title" Decode.string)
-                (MenuDecoder.opMenuToDecode
-                    { mainHero = div [] []
-                    , afterHero = div [] []
-                    }
-                )
+                MenuDecoder.opMenuToDecode
                 (Decode.field "description" Decode.string)
 
         sacaPath : String -> List MDFile -> String
@@ -199,6 +195,7 @@ head app =
         , title = app.data.title
         }
         |> Seo.website
+
 
 view : App Data ActionData RouteParams -> Shared.Model -> View (PagesMsg ())
 view app shared =

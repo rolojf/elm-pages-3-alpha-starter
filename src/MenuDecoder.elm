@@ -1,4 +1,4 @@
-module MenuDecoder exposing (opMenuToDecode, decodificaLigas)
+module MenuDecoder exposing (decodificaLigas, opMenuToDecode)
 
 import Html exposing (Html, div, text)
 import Json.Decode as Decode exposing (Decoder)
@@ -51,8 +51,10 @@ ligasDecoder =
             )
         )
 
+
 decodificaLigas =
     Decode.field "menu" ligasDecoder
+
 
 
 {- En el markdown usamos cuatro campos
@@ -87,27 +89,25 @@ decodificaLigas =
    Obviamente el mainHero y afterHero van definido según el menu en la parte principal. Para el menú básico va así.
 
 -}
-decodeMenu : { mainHero : Html msg, afterHero : Html msg } ->  Decoder (View.MenuInfo msg)
-decodeMenu complementos =
-            Decode.field
-                "menu"
-                (Decode.map2
-                    View.SiMenu
-                    ligasDecoder
-                    (Decode.succeed
-                        { mainHero = complementos.mainHero
-                        , afterHero = complementos.afterHero
-                        }
-                    )
-                )
 
-opMenuToDecode : { mainHero : Html msg, afterHero : Html msg } -> Decoder (View.MenuInfo msg)
-opMenuToDecode complementos =
+
+decodeMenu : Decoder View.MenuInfo
+decodeMenu =
+    Decode.field
+        "menu"
+        (Decode.map
+            View.SiMenu
+            ligasDecoder
+        )
+
+
+opMenuToDecode : Decoder View.MenuInfo
+opMenuToDecode =
     Decode.field "menuGoes" Decode.bool
         |> Decode.andThen
             (\vaPues ->
                 if vaPues then
-                    decodeMenu complementos
+                    decodeMenu
 
                 else
                     Decode.succeed View.NoMenu

@@ -222,7 +222,7 @@ view sharedData page model toMsg pageView =
                 View.NoMenu ->
                     div [] []
 
-                View.SiMenu ligasRecibidas _ ->
+                View.SiMenu ligasRecibidas ->
                     viewMenu page.route sharedData ligasRecibidas model.showMenu model.showMenuInicial toMsg
             , Html.main_
                 [ class "tw max-w-7xl mx-auto px-4 sm:px-6" ]

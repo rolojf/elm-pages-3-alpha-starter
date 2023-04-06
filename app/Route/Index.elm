@@ -137,7 +137,7 @@ type alias ContenidoConDatos =
     { body : Result String (List Markdown.Block.Block)
     , title : String
     , description : String
-    , menu : View.MenuInfo (PagesMsg Msg)
+    , menu : View.MenuInfo
     }
 
 
@@ -153,11 +153,7 @@ data =
                 )
                 (Decode.field "title" Decode.string)
                 (Decode.field "description" Decode.string)
-                (MenuDecoder.opMenuToDecode
-                    { mainHero = div [] []
-                    , afterHero = div [] []
-                    }
-                )
+                MenuDecoder.opMenuToDecode
 
         getDataFromMD =
             File.bodyWithFrontmatter

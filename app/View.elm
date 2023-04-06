@@ -1,6 +1,6 @@
 module View exposing
     ( View, map
-    , Liga, LigaTipo(..), MenuComplemento, MenuInfo(..)
+    , Liga, LigaTipo(..), MenuInfo(..)
     )
 
 {-|
@@ -18,19 +18,13 @@ import Route exposing (Route)
 type alias View msg =
     { title : String
     , body : List (Html msg)
-    , withMenu : MenuInfo msg
+    , withMenu : MenuInfo
     }
 
 
-type MenuInfo msg
+type MenuInfo
     = NoMenu
-    | SiMenu (List Liga) (MenuComplemento msg)
-
-
-type alias MenuComplemento msg =
-    { mainHero : Html msg
-    , afterHero : Html msg
-    }
+    | SiMenu (List Liga)
 
 
 type alias Liga =
@@ -50,15 +44,5 @@ map : (msg1 -> msg2) -> View msg1 -> View msg2
 map fn doc =
     { title = doc.title
     , body = List.map (Html.map fn) doc.body
-    , withMenu =
-        case doc.withMenu of
-            NoMenu ->
-                NoMenu
-
-            SiMenu ligas complementosAlMenu ->
-                SiMenu
-                    ligas
-                    { mainHero = Html.map fn complementosAlMenu.mainHero
-                    , afterHero = Html.map fn complementosAlMenu.afterHero
-                    }
+    , withMenu = doc.withMenu
     }
