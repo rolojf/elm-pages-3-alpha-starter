@@ -8,8 +8,9 @@ module Effect exposing (Effect(..), batch, fromCmd, map, none, perform)
 
 import Browser.Dom as Dom
 import Browser.Navigation
-import Form.FormData exposing (FormData)
+import Form
 import Http
+import Json.Decode as Decode
 import Json.Encode as Encode
 import Pages.Fetcher
 import Process
@@ -22,13 +23,19 @@ type Effect msg
     = None
     | Cmd (Cmd msg)
     | Batch (List (Effect msg))
-    | EsperaPues Float msg
-    | Success msg
-    | SoloAccedeLiga String (Result Http.Error String -> msg)
+    | GetStargazers (Result Http.Error Int -> msg)
+    | SetField { formId : String, name : String, value : String }
     | FetchRouteData
         { data : Maybe FormData
         , toMsg : Result Http.Error Url -> msg
         }
+    | Submit
+        { values : FormData
+        , toMsg : Result Http.Error Url -> msg
+        }
+    | SubmitFetcher (Pages.Fetcher.Fetcher msg)
+    | EsperaPues Float msg
+    | SoloAccedeLiga String (Result Http.Error String -> msg)
     | PushUrl String
     | Enfoca msg String
     | MandaABasin
@@ -37,20 +44,11 @@ type Effect msg
         }
 
 
-{-
-          | GetStargazers (Result Http.Error Int -> msg)
-          | SetField { formId : String, name : String, value : String }
-          | Submit
-              { values : FormData
-              , toMsg : Result Http.Error Url -> msg
-              }
-          | SubmitFetcher (Pages.Fetcher.Fetcher msg)
-
-   type alias RequestInfo =
-       { contentType : String
-       , body : String
-       }
--}
+{-| -}
+type alias RequestInfo =
+    { contentType : String
+    , body : String
+    }
 
 
 {-| -}
@@ -84,20 +82,34 @@ map fn effect =
         Batch list ->
             Batch (List.map (map fn) list)
 
-        SoloAccedeLiga dire toMsg ->
-            SoloAccedeLiga dire (toMsg >> fn)
-
-        EsperaPues cuantoEsperar msg ->
-            EsperaPues cuantoEsperar <| fn msg
-
-        Success msg ->
-            Success <| fn msg
+        GetStargazers toMsg ->
+            GetStargazers (toMsg >> fn)
 
         FetchRouteData fetchInfo ->
             FetchRouteData
                 { data = fetchInfo.data
                 , toMsg = fetchInfo.toMsg >> fn
                 }
+
+        Submit fetchInfo ->
+            Submit
+                { values = fetchInfo.values
+                , toMsg = fetchInfo.toMsg >> fn
+                }
+
+        SetField info ->
+            SetField info
+
+        SubmitFetcher fetcher ->
+            fetcher
+                |> Pages.Fetcher.map fn
+                |> SubmitFetcher
+
+        SoloAccedeLiga dire toMsg ->
+            SoloAccedeLiga dire (toMsg >> fn)
+
+        EsperaPues cuantoEsperar msg ->
+            EsperaPues cuantoEsperar <| fn msg
 
         PushUrl dire ->
             PushUrl dire
@@ -110,25 +122,6 @@ map fn effect =
                 { respuestas = someInfo.respuestas
                 , toMsg = someInfo.toMsg >> fn
                 }
-
-
-
-{-
-   Submit fetchInfo ->
-       Submit
-           { values = fetchInfo.values
-           , toMsg = fetchInfo.toMsg >> fn
-           }
-
-   SetField info ->
-       SetField info
-
-   SubmitFetcher fetcher ->
-       fetcher
-           |> Pages.Fetcher.map fn
-           |> SubmitFetcher
-
--}
 
 
 {-| -}
@@ -152,12 +145,6 @@ perform :
     }
     -> Effect pageMsg
     -> Cmd msg
-
-
-
--- antes: perform ({ fetchRouteData, fromPageMsg, key } as info) effect =
-
-
 perform ({ fromPageMsg, key } as helpers) effect =
     case effect of
         None ->
@@ -166,18 +153,33 @@ perform ({ fromPageMsg, key } as helpers) effect =
         Cmd cmd ->
             Cmd.map fromPageMsg cmd
 
+        SetField info ->
+            helpers.setField info
+
         Batch list ->
             Cmd.batch (List.map (perform helpers) list)
+
+        GetStargazers toMsg ->
+            Http.get
+                { url =
+                    "https://api.github.com/repos/dillonkearns/elm-pages"
+                , expect = Http.expectJson (toMsg >> fromPageMsg) (Decode.field "stargazers_count" Decode.int)
+                }
+
+        FetchRouteData fetchInfo ->
+            helpers.fetchRouteData
+                fetchInfo
+
+        Submit record ->
+            helpers.submit record
+
+        SubmitFetcher record ->
+            helpers.runFetcher record
 
         EsperaPues cuantosMS toMsg ->
             Task.perform
                 (\() -> fromPageMsg toMsg)
                 (Process.sleep cuantosMS)
-
-        Success toMsg ->
-            Task.perform
-                 (\() -> fromPageMsg toMsg)
-                 (Task.succeed ())
 
         SoloAccedeLiga direccion toMsg ->
             Http.get
@@ -204,19 +206,10 @@ perform ({ fromPageMsg, key } as helpers) effect =
                         (infoPasada.toMsg >> fromPageMsg)
                 }
 
-        FetchRouteData fetchInfo ->
-            helpers.fetchRouteData
-                fetchInfo
 
-
-
-{-
-   SetField info ->
-       helpers.setField info
-
-   Submit record ->
-       helpers.submit record
-
-   SubmitFetcher record ->
-       helpers.runFetcher record
--}
+type alias FormData =
+    { fields : List ( String, String )
+    , method : Form.Method
+    , action : String
+    , id : Maybe String
+    }
