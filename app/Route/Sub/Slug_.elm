@@ -20,7 +20,7 @@ import Pages.PageUrl exposing (PageUrl)
 import Pages.Url as Url
 import PagesMsg exposing (PagesMsg)
 import Parser
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared

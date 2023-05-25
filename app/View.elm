@@ -5,12 +5,12 @@ module View exposing
 
 {-|
 
-@docs View, map, placeholder
+@docs View, map
 
 -}
 
 import Html exposing (Html)
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 
 
@@ -35,7 +35,7 @@ type alias Liga =
 
 
 type LigaTipo
-    = Otra Path
+    = Otra UrlPath
     | Interna Route
 
 

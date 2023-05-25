@@ -25,7 +25,7 @@ import MimeType exposing (MimeType)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
@@ -120,7 +120,7 @@ update app shared msg model =
             )
 
 
-subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
+subscriptions : RouteParams -> UrlPath -> Shared.Model -> Model -> Sub Msg
 subscriptions routeParams path shared model =
     Sub.none
 
@@ -170,7 +170,7 @@ head app =
     let
         logotipo : Seo.Image
         logotipo =
-            { url = "logotipo.png" |> Path.fromString |> Pages.Url.fromPath
+            { url = "logotipo.png" |> UrlPath.fromString |> Pages.Url.fromPath
             , alt = "Sitio oficial de " ++ app.data.delMD.title
             , dimensions = Just { width = 1094, height = 547 }
             , mimeType = Just <| MimeType.Image MimeType.Png

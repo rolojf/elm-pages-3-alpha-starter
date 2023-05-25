@@ -3,8 +3,8 @@ module Analytics exposing (Event, eventoXReportar, none, toEffect)
 import Effect exposing (Effect)
 import Http
 import Pages.PageUrl exposing (PageUrl)
-import Path
-import Url
+import UrlPath
+-- import Url
 
 
 
@@ -41,8 +41,8 @@ toEffect hayEvento msg =
             let
                 direccion =
                     [ "api-v2", cualEvento ++ ".json" ]
-                        |> Path.join
-                        |> Path.toAbsolute
+                        |> UrlPath.join
+                        |> UrlPath.toAbsolute
             in
             Effect.SoloAccedeLiga
                 direccion

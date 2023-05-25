@@ -2,7 +2,7 @@ module MenuDecoder exposing (decodificaLigas, opMenuToDecode)
 
 import Html exposing (Html, div, text)
 import Json.Decode as Decode exposing (Decoder)
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import View exposing (View)
 
@@ -10,7 +10,7 @@ import View exposing (View)
 decodeSegunTipoLiga seaExterna laDireccion =
     if seaExterna then
         Decode.succeed
-            (laDireccion |> Path.fromString |> View.Otra)
+            (laDireccion |> UrlPath.fromString |> View.Otra)
 
     else
         case Route.urlToRoute { path = laDireccion } of

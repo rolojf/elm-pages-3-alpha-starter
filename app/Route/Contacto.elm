@@ -17,7 +17,7 @@ import MiCloudinary
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route
 import RouteBuilder exposing (StatefulRoute, App)
 import Shared
@@ -261,7 +261,7 @@ update app shared msg model =
             )
 
 
-subscriptions : RouteParams -> Path.Path -> Shared.Model -> Model -> Sub Msg
+subscriptions : RouteParams -> UrlPath -> Shared.Model -> Model -> Sub Msg
 subscriptions routeParams path shared model =
     Sub.none
 

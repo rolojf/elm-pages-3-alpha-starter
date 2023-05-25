@@ -17,7 +17,7 @@ import MiCloudinary
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import PagesMsg exposing (PagesMsg)
-import Path exposing (Path)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
 import Simple.Animation as Animation exposing (Animation)
@@ -42,7 +42,7 @@ type Msg
     = SharedMsg SharedMsg
     | ToggleMenu
     | OnPageChange
-        { path : Path
+        { path : UrlPath
         , query : Maybe String
         , fragment : Maybe String
         }
@@ -76,7 +76,7 @@ init :
     ->
         Maybe
             { path :
-                { path : Path
+                { path : UrlPath
                 , query : Maybe String
                 , fragment : Maybe String
                 }
@@ -95,7 +95,7 @@ init flags maybePagePath =
                     { protocol = Url.Http
                     , host = "content"
                     , port_ = Just 1234
-                    , path = Path.fromString "yo-no-se"
+                    , path = UrlPath.fromString "yo-no-se"
                     , query = Dict.empty
                     , fragment = Nothing
                     }
@@ -188,7 +188,7 @@ update msg model =
             )
 
 
-subscriptions : Path -> Model -> Sub Msg
+subscriptions : UrlPath -> Model -> Sub Msg
 subscriptions _ _ =
     Sub.none
 
@@ -214,7 +214,7 @@ yamlDecoder =
         (D.field "nosotros" D.string)
 
 
-view : Data -> { path : Path, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : List (Html msg), title : String }
+view : Data -> { path : UrlPath, route : Maybe Route } -> Model -> (Msg -> msg) -> View msg -> { body : List (Html msg), title : String }
 view sharedData page model toMsg pageView =
     { body =
         [ Html.div []
@@ -264,7 +264,7 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                 View.Otra camino ->
                     div
                         [ camino
-                            |> Path.toAbsolute
+                            |> UrlPath.toAbsolute
                             |> String.replace "/" "_"
                             |> String.replace ":" "+"
                             |> String.append (quePaginaCompuesta ++ "-menuliga-externa-")
@@ -272,7 +272,7 @@ viewMenu localRoute dataDelYaml ligas menuOpen byeMenu toMsg =
                             |> Event.onClick
                         ]
                         [ Html.a
-                            [ Attr.href <| Path.toRelative camino
+                            [ Attr.href <| UrlPath.toRelative camino
                             , class clases
                             ]
                             [ htmlHijos ]
